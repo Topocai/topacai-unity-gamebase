@@ -33,6 +33,7 @@ namespace Topacai.Player.Firstperson.Movement.Components
         [SerializeField] protected FirstpersonMovement _movement;
         [SerializeField] protected string _componentStateName;
 
+        public FirstpersonMovement Movement => _movement;
         public bool IsEnabled => this.enabled;
 
         #region Register Components

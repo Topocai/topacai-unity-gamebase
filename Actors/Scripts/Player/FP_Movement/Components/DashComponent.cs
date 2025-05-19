@@ -30,6 +30,8 @@ namespace Topacai.Player.Firstperson.Movement.Components
         [SerializeField, ReadOnly] private float _accelForce;
         [SerializeField, ReadOnly] private float _deccelForce;
 
+        public float Cooldown => cooldown;
+
         private float _initialVel;
         private Coroutine _stopCoroutine;
         private bool needToApplyForce;
@@ -59,7 +61,6 @@ namespace Topacai.Player.Firstperson.Movement.Components
                     GroundBeforeDash = _movement.LastGroundTime > 0f;
 
                 float angle = Vector3.Dot(velToComprobate.normalized, LastDashDir);
-                Debugcanvas.Instance.AddTextToDebugLog("Angle", angle.ToString("0.000"));
 
                 if (velToComprobate.sqrMagnitude >= _initialVel && !(angle < -isInvertedThreshold))
                 {
