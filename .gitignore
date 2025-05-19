@@ -78,9 +78,7 @@ crashlytics-build.properties
 
 *.meta
 
-# Topocai FP Component
-**/FP_Movement
-
 # OTHERS
 /Assets/Settings
 /Assets/Scenes/SampleScene.unity
+Actors/Scripts/Player/FP_Movement/OLD MOVEMENT.txt
