@@ -140,7 +140,7 @@ namespace Topacai.Inputs
             InstantCrouch = _Crouch.WasPerformedThisFrame();
         }
 
-        private void UpdateInputState(InputAction action, ref bool isPressed, ref bool isPressing, ref float holdTime)
+        public static void UpdateInputState(InputAction action, ref bool isPressed, ref bool isPressing, ref float holdTime, float pressingThreshold = 0.15f)
         {
             if (action.IsPressed())
             {
