@@ -1,0 +1,17 @@
+{
+    "name": "Topacai Interactuables",
+    "rootNamespace": "Topacai.Actors.Interactuables",
+    "references": [
+        "GUID:a82c9dc73a4c6b645a0d3db1fcc69390",
+        "GUID:febaf25a60dafbd44941357b21678606"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
