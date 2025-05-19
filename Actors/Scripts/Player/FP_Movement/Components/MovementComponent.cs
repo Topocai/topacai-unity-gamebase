@@ -62,7 +62,7 @@ namespace Topacai.Player.Firstperson.Movement.Components
 
             if (_movement == null)
             {
-                UnityEngine.Debug.LogError($"Component: {gameObject.name} not enabled");
+                Debug.LogError($"Component: {gameObject.name} not enabled");
                 return;
             }
 
@@ -79,7 +79,7 @@ namespace Topacai.Player.Firstperson.Movement.Components
 
             OnComponentRegistered.Invoke(this);
 
-            UnityEngine.Debug.Log($"Component: {gameObject.name} enabled");
+            Debug.Log($"Component: {gameObject.name} enabled");
         }
 
         protected virtual void OnDisable()

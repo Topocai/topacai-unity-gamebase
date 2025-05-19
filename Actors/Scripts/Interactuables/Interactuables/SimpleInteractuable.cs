@@ -39,26 +39,26 @@ namespace Topacai.Actors.Interactuables.SimpleInteractuable
 
         public virtual void Deselect()
         {
-            UnityEngine.Debug.Log("Deselect: " + gameObject.name);
+            Debug.Log("Deselect: " + gameObject.name);
             _onDeselect.Invoke();
         }
 
         public virtual void Interact()
         {
-            UnityEngine.Debug.Log("Interact: " + gameObject.name);
+            Debug.Log("Interact: " + gameObject.name);
             _lastTimeInteracted = _cooldownTime;
             _onInteract.Invoke();
         }
 
         public void HoldInteract()
         {
-            UnityEngine.Debug.Log("Interacting: " + gameObject.name);
+            Debug.Log("Interacting: " + gameObject.name);
             _onHoldInteract.Invoke();
         }
 
         public virtual void Select()
         {
-            UnityEngine.Debug.Log("Select: " + gameObject.name);
+            Debug.Log("Select: " + gameObject.name);
             _onSelect.Invoke();
         }
 

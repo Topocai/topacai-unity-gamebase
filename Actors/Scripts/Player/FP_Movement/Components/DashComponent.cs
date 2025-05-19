@@ -70,7 +70,7 @@ namespace Topacai.Player.Firstperson.Movement.Components
                 {
                     if (velToComprobate.sqrMagnitude > _initialVel)
                     {
-                        UnityEngine.Debug.Log("HHH");
+                        Debug.Log("HHH");
                         Vector3 newVel = _movement.FlatVel.normalized * _movement._maxSpeed;
                         newVel.y = _movement.Rigidbody.linearVelocity.y;
                         _movement.Rigidbody.linearVelocity = newVel;
@@ -79,7 +79,7 @@ namespace Topacai.Player.Firstperson.Movement.Components
                     SetDashing(false);
                 }
 
-                UnityEngine.Debug.DrawRay(transform.position, -LastDashDir * _deccelForce * 9.81f, Color.aquamarine);
+                Debug.DrawRay(transform.position, -LastDashDir * _deccelForce * 9.81f, Color.aquamarine);
             }
             else
             {

@@ -23,7 +23,7 @@ namespace Topacai.Player.Firstperson.Movement.Components.CameraEffects
         {
             if (cameraHolder == null || cameraTransform == null || Data == null || _movement == null)
             {
-                UnityEngine.Debug.LogError("CameraStepShake: Missing references");
+                Debug.LogError("CameraStepShake: Missing references");
                 this.enabled = false;
             }
 

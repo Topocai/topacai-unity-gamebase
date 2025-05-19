@@ -32,13 +32,13 @@ namespace Topacai.Player.Firstperson.Camera
             if (SHOW_CAMERA_DIR)
             {
                 if (Application.isPlaying)
-                    UnityEngine.Debug.DrawRay(PlayerOrientation.position, CameraDir * 2, Color.red);
+                    Debug.DrawRay(PlayerOrientation.position, CameraDir * 2, Color.red);
             }
 
             if (SHOW_CAMERA_DIR_FLAT)
             {
                 if (Application.isPlaying)
-                    UnityEngine.Debug.DrawRay(PlayerOrientation.position, CameraDirFlat * 2, Color.gray);
+                    Debug.DrawRay(PlayerOrientation.position, CameraDirFlat * 2, Color.gray);
             }
         }
 #endif
