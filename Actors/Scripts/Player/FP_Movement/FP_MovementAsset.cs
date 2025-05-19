@@ -27,9 +27,10 @@ namespace Topacai.Player.Firstperson.Movement
         public float AirDrag;
         public float FallDrag;
         [Space(15)]
-        [EnableField(nameof(ControlGravityScale))] public float FallingGravityMult;
-        [EnableField(nameof(ControlGravityScale))] public float JumpingGravityMult;
-        [EnableField(nameof(CanLargeJump))] public float JumpCutGravityMult;
+        public float GroundGravityScale;
+        public float FallingGravityMult;
+        public float JumpingGravityMult;
+        [EnableField(nameof(LargeJump))] public float JumpCutGravityMult;
         [Space(15)]
 
         [Header("Wall Collision")]
@@ -91,8 +92,6 @@ namespace Topacai.Player.Firstperson.Movement
         [Range(0.01f, 0.5f)] public float JumpBufferInput = .5f;
         [Range(0.01f, 0.5f), EnableField(nameof(CanJump))] public float JumpApexBuffer;
 
-        private bool CanLargeJump => LargeJump && ControlGravityScale;
-
         [Header("Flags")]
         [Tooltip("Movement logic stills working but input is disabled")]
         public bool CanMove;
@@ -102,7 +101,6 @@ namespace Topacai.Player.Firstperson.Movement
         [Tooltip("Can change speed based on input (run or walk)")]
         public bool CanChangeSpeed;
         [Space(15)]
-        public bool ControlGravityScale;
         public bool LimitFallSpeed;
         [Tooltip("Keep momentum when high speed and player is on air.")]
         public bool ConserveMomentumOnAir;
@@ -156,14 +154,14 @@ namespace Topacai.Player.Firstperson.Movement
             decelerationAmount = Mathf.Clamp(Deceleration, 0.01f, 999f);
         }
 
-        public void CalculateJumpForce(float height, float timeToApex)
+        public void CalculateJumpForce(float height, float timeToApex, float gravityY)
         {
             //Calculate gravity strength using the formula (gravity = 2 * jumpHeight / timeToJumpApex^2) 
             GravityStrength = -(2 * height) / (timeToApex * timeToApex);
             //Calculate jumpForce using the formula (initialJumpVelocity = gravity * timeToJumpApex)
             JumpForce = Mathf.Abs(GravityStrength) * timeToApex;
 
-            GravityScale = GravityStrength / Physics.gravity.y;
+            GravityScale = GravityStrength / gravityY;
         }
 
         private void OnValidate()

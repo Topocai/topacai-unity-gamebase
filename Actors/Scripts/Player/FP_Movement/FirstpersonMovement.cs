@@ -114,7 +114,7 @@ namespace Topacai.Player.Firstperson.Movement
                 field.SetValue(Data, baseValue);
             }
 
-            UnityEngine.Debug.Log("Data changed");
+            Debug.Log("Data changed");
         }
         private void FixedUpdate()
         {
@@ -126,7 +126,8 @@ namespace Topacai.Player.Firstperson.Movement
 
             CheckGround();
             DragControl();
-            Movement();
+            if (!Data.FreezeMove)
+                Movement();
             CrouchInputs();
             ControlGravityScale();
         }
@@ -222,24 +223,25 @@ namespace Topacai.Player.Firstperson.Movement
 
         private void ControlGravityScale()
         {
-            if (InGround)
+            if (InGround && !isJumping)
             {
-                SetGravityScale(Data.GravityScale);
+                SetGravityScale(Data.GroundGravityScale);
+            }
+            else if (isJumping)
+            {
+                SetGravityScale(Data.GravityScale * Data.JumpingGravityMult);
             }
             else if (!InGround && jumpCut && Data.LargeJump)
             {
                 SetGravityScale(Data.GravityScale * Data.JumpCutGravityMult);
-            }
-            else if (!InGround && isJumping)
-            {
-                SetGravityScale(Data.GravityScale * Data.JumpingGravityMult);
             }
             else if (!InGround && isFalling)
             {
                 SetGravityScale(Data.GravityScale * Data.FallingGravityMult);
             }
 
-            _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, Mathf.Clamp(_rb.linearVelocity.y, -Data.MaxFallSpeed, Data.MaxFallSpeed), _rb.linearVelocity.z);
+            if (Data.LimitFallSpeed)
+                _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, Mathf.Clamp(_rb.linearVelocity.y, -Data.MaxFallSpeed, Data.MaxFallSpeed), _rb.linearVelocity.z);
         }
         #endregion
 
@@ -343,7 +345,7 @@ namespace Topacai.Player.Firstperson.Movement
             LastPressedJump = 0;
             LastGroundTime = 0;
 
-            Data.CalculateJumpForce(height, timeToApex);
+            Data.CalculateJumpForce(height, timeToApex, customGravity.y);
 
             float force = Data.JumpForce;
             /*
@@ -485,8 +487,8 @@ namespace Topacai.Player.Firstperson.Movement
                 }
 
 #if UNITY_EDITOR
-                UnityEngine.Debug.DrawRay(stepRayHit.point, stepRayHit.normal, Color.gray, 2f);
-                UnityEngine.Debug.DrawRay(stepRayHit.point, toPlayer, Color.green, 2f);
+                Debug.DrawRay(stepRayHit.point, stepRayHit.normal, Color.gray, 2f);
+                Debug.DrawRay(stepRayHit.point, toPlayer, Color.green, 2f);
 #endif
             }
             else if (ClimbingStair)
@@ -497,8 +499,8 @@ namespace Topacai.Player.Firstperson.Movement
             }
 
 #if UNITY_EDITOR
-            UnityEngine.Debug.DrawRay(stepStart.position, _moveDir * stepForwadDistance, Color.gray);
-            UnityEngine.Debug.DrawRay(stepHeight.position, _moveDir * Data.StepDepth, Color.yellow);
+            Debug.DrawRay(stepStart.position, _moveDir * stepForwadDistance, Color.gray);
+            Debug.DrawRay(stepHeight.position, _moveDir * Data.StepDepth, Color.yellow);
 #endif
 
             #endregion
@@ -506,23 +508,23 @@ namespace Topacai.Player.Firstperson.Movement
             if (stepUpHit || OnSlope() || LastGroundTime < -Data.StepDownLastGroundThreshold) return;
 
 #if UNITY_EDITOR
-            UnityEngine.Debug.DrawRay(stepStart.position, Vector3.down * Data.StepDownDistance, Color.gray);
+            Debug.DrawRay(stepStart.position, Vector3.down * Data.StepDownDistance, Color.gray);
 #endif
 
             bool stepDownHit = Physics.BoxCast(stepStart.position - Vector3.up * Data.StepDownOffset, new Vector3(0.05f, 0.05f, 0.05f), -_moveDir, out stepRayHit, Quaternion.identity, Data.StepDownDistance, Data.GroundLayer);
             if (stepDownHit)
             {
-                UnityEngine.Debug.Log("Down Hit");
+                Debug.Log("Down Hit");
                 float angle = Vector3.Angle(Vector3.up, stepRayHit.normal);
                 Vector3 toPlayer = (new Vector3(transform.position.x, stepRayHit.point.y, transform.position.z) - stepRayHit.point).normalized;
                 float dot = Vector3.Dot(toPlayer, stepRayHit.normal);
 
                 if (!CanStep(angle, dot)) return;
-                UnityEngine.Debug.Log("Down Step2");
+                Debug.Log("Down Step2");
 
                 if (Mathf.Abs(angle - 90f) <= 3f)
                 {
-                    UnityEngine.Debug.Log("Down Step");
+                    Debug.Log("Down Step");
                     _rb.AddForce(Vector3.up * -Data.StepDownForce, ForceMode.Force);
                 }
             }
@@ -587,9 +589,9 @@ namespace Topacai.Player.Firstperson.Movement
                     }
 
 #if UNITY_EDITOR
-                    UnityEngine.Debug.DrawRay(transform.position + Vector3.up * 1f, wallDir.normalized, Color.red);
-                    UnityEngine.Debug.DrawRay(transform.position + Vector3.up * 1f, cross.normalized, Color.black);
-                    UnityEngine.Debug.DrawRay(transform.position + Vector3.up * 1f, moveDirRotated, Color.white);
+                    Debug.DrawRay(transform.position + Vector3.up * 1f, wallDir.normalized, Color.red);
+                    Debug.DrawRay(transform.position + Vector3.up * 1f, cross.normalized, Color.black);
+                    Debug.DrawRay(transform.position + Vector3.up * 1f, moveDirRotated, Color.white);
 #endif
                 }
             }
@@ -634,7 +636,7 @@ namespace Topacai.Player.Firstperson.Movement
 
                 Vector3 downDir = groundHit.normal.normalized * -1f;
 #if UNITY_EDITOR
-                UnityEngine.Debug.DrawRay(transform.position + Vector3.up * 1f, downDir * 2f, Color.white);
+                Debug.DrawRay(transform.position + Vector3.up * 1f, downDir * 2f, Color.white);
 #endif
                 if (flatVel.sqrMagnitude > 0.01f)
                     _rb.AddForce(Vector3.down * Data.SlopeDownForce, ForceMode.Force);
@@ -672,8 +674,8 @@ namespace Topacai.Player.Firstperson.Movement
             base.UseGravity(!onSlope);
 
 #if UNITY_EDITOR
-            UnityEngine.Debug.DrawLine(transform.position, transform.position + appliedForce.normalized * 5f, Color.yellow);
-            UnityEngine.Debug.DrawLine(transform.position, transform.position + MoveDir.normalized * 3f, Color.magenta);
+            Debug.DrawLine(transform.position, transform.position + appliedForce.normalized * 5f, Color.yellow);
+            Debug.DrawLine(transform.position, transform.position + MoveDir.normalized * 3f, Color.magenta);
 
             Debugcanvas.Instance.AddTextToDebugLog("targetSpeed: ", _targetSpeed.ToString("0.0"));
             Debugcanvas.Instance.AddTextToDebugLog("Conserve momentum: ", ConserveMomentum().ToString());
@@ -701,15 +703,14 @@ namespace Topacai.Player.Firstperson.Movement
             Vector3 cross = Vector3.Cross(Quaternion.AngleAxis(90f, Vector3.up) * _moveDir, normalSlope);
 
 #if UNITY_EDITOR
-            UnityEngine.Debug.DrawRay(transform.position + Vector3.up * 1f, cross, Color.black);
-            UnityEngine.Debug.DrawRay(transform.position + Vector3.up * 1f, Quaternion.AngleAxis(90f, Vector3.up) * _moveDir, Color.green);
-            UnityEngine.Debug.DrawRay(transform.position + Vector3.up * 1f, normalSlope, Color.red);
+            Debug.DrawRay(transform.position + Vector3.up * 1f, cross, Color.black);
+            Debug.DrawRay(transform.position + Vector3.up * 1f, Quaternion.AngleAxis(90f, Vector3.up) * _moveDir, Color.green);
+            Debug.DrawRay(transform.position + Vector3.up * 1f, normalSlope, Color.red);
 #endif
 
             return cross.normalized;
         }
         #endregion
-
 
 #if UNITY_EDITOR
         #region Gizmos
