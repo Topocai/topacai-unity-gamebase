@@ -52,12 +52,13 @@ namespace Topacai.Static.Disjkstra
             }
         }
 
-        public void MarkAsPath()
+        public void MarkAsPath(float cost)
         {
             DisableAllChilds();
             transform.GetChild(1).gameObject.SetActive(true);
 
             transform.GetChild(4).gameObject.SetActive(true);
+            transform.GetChild(4).GetComponent<TextMeshPro>().text = cost.ToString();
         }
 
         public void MarkAsVisited(float cost)
