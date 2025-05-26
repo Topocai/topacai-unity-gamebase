@@ -9,11 +9,18 @@ namespace Topacai.Static.Disjkstra
     // A graph manager for the dijkstra algorithm as an monobehavior object
     public class DijkstraManager : MonoBehaviour
     {
+        public static DijkstraManager Instance { get; private set; }
         public Graph Graph { get; private set; } = new Graph();
 
         // Graphs used to search a path between two nodes on start
         [SerializeField] private TileNodeMonoBehaviour forceStart;
         [SerializeField] private TileNodeMonoBehaviour forceEnd;
+
+        private void Awake()
+        {
+            if (Instance == null)
+                Instance = this;
+        }
 
         private void Start()
         {
@@ -46,10 +53,17 @@ namespace Topacai.Static.Disjkstra
             }
         }
 
-        public void ConnectNodes(TileNode from, TileNodeMonoBehaviour to, float cost )
+        public void ConnectNodes(TileNode from, TileNode to, float cost)
         {
-            if (to == null || from == null) return;
-            Graph.ConnectNodes(from, to.TileNode, cost);
+            Graph.ConnectNodes(from, to, cost);
+        }
+
+        public void ConnectNodes(TileNodeMonoBehaviour from, TileNodeMonoBehaviour to, float cost)
+        {
+            if (from == null) throw new ArgumentNullException(nameof(from));
+            if (to == null) throw new ArgumentNullException(nameof(to));
+
+            Graph.ConnectNodes(from.TileNode, to.TileNode, cost);
         }
     }
 }

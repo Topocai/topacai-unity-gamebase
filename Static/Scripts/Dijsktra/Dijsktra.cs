@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Topacai.Static.Disjkstra
 {
+#if UNITY_EDITOR
     // Interface used unique to represent a tile on scene, not used for dijkstra logic
     public interface ITileNode
     {
@@ -20,6 +21,7 @@ namespace Topacai.Static.Disjkstra
 
         void MarkAsEnd();
     }
+#endif
 
     [System.Serializable]
     public class TileNode
@@ -77,6 +79,9 @@ namespace Topacai.Static.Disjkstra
 
         public List<TileNode> GetPath(TileNode start, TileNode end)
         {
+            if (start == null) throw new ArgumentNullException(nameof(start));
+            if (end == null) throw new ArgumentNullException(nameof(end));
+
             Dictionary<TileNode, float> distances = new Dictionary<TileNode, float>(); // Save the distance between the start graph to the graph saved.
             Dictionary<TileNode, TileNode> previous = new Dictionary<TileNode, TileNode>();
             // A priority queue works like a queue but automatically sorts the elements by their priority
@@ -155,25 +160,6 @@ namespace Topacai.Static.Disjkstra
             OnTileVisited.Invoke(this, new TileVisitedEventArgs(start, TileState.Start, distances[start]));
 
             return path;
-        }
-    }
-
-    // This struct is used to set up the weights of the tiles on the prototype graph environment
-    // When a new graph is created, this struct is used to set up weights checking for other graphs on the scene in that directions
-    [System.Serializable]
-    public struct TileWeights
-    {
-        [field: SerializeField] public float UpCost { get; private set; }
-        [field: SerializeField] public float DownCost { get; private set; }
-        [field: SerializeField] public float LeftCost { get; private set; }
-        [field: SerializeField] public float RightCost { get; private set; }
-
-        public TileWeights(float up = 1, float down = 1, float left = 1, float right = 1)
-        {
-            UpCost = up;
-            DownCost = down;
-            LeftCost = left;
-            RightCost = right;
         }
     }
 }
