@@ -81,10 +81,6 @@ crashlytics-build.properties
 # Topocai FP Component
 **/FP_Movement
 
-# Topocai Dijkstra Component
-**/Dijsktra
-**/Dijkstra
-
 # OTHERS
 /Assets/Settings
 /Assets/Scenes/SampleScene.unity
