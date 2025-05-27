@@ -35,8 +35,8 @@ namespace Topacai.CustomPhysics
 
             finalGravity = directionToWorld * customGravity.magnitude;
 #if UNITY_EDITOR
-            UnityEngine.Debug.DrawRay(transform.position, directionToWorld * 2, Color.red);
-            UnityEngine.Debug.DrawRay(transform.position, finalGravity.normalized * 3, Color.blue);
+            Debug.DrawRay(transform.position, directionToWorld * 2, Color.red);
+            Debug.DrawRay(transform.position, finalGravity.normalized * 3, Color.blue);
 #endif
         }
     }
