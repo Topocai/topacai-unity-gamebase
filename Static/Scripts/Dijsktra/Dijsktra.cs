@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Topacai.Utils;
+using Topacai.Utils.Collections;
 using UnityEngine;
 
 namespace Topacai.Static.Disjkstra

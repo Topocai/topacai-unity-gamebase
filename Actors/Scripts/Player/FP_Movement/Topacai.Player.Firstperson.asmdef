@@ -2,9 +2,9 @@
     "name": "Topacai FirstPerson",
     "rootNamespace": "Topacai.Player.Firstperson",
     "references": [
-        "GUID:febaf25a60dafbd44941357b21678606",
-        "GUID:713339cfaa137b448a8fcad617701ce2",
-        "GUID:5f9d72b834fcaf840a5a9f78575e866b"
+        "EditorAttributes",
+        "Topacai",
+        "Topacai Interactuables"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
