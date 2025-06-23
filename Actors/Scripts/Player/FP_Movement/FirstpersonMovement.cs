@@ -602,6 +602,11 @@ namespace Topacai.Player.Firstperson.Movement
 
             #region Acceleration And Speed
 
+            // Gets the acceleration based in if the player is moving or changing direction (acceleration and desacceleration)
+            // and if the player is on the ground or not,
+            // also conserves momentum by not applying desacceleration if the player is at higher speeds and moving in the same direction or not moving (only on air)
+            //
+            // A higher force will be calculated if the desired/target speed is distant from the current speed
             float accelRate;
             bool desaccel = Vector3.Dot(flatVel.normalized, _moveDir) < -0.75f || _targetSpeed.magnitude == 0f;
 
@@ -624,8 +629,10 @@ namespace Topacai.Player.Firstperson.Movement
                 accelRate = 0f;
             }
 
+            // Event for movement components
             OnMoveAfterAccel?.Invoke(ref accelRate);
 
+            // The speed difference between the desired speed and the current speed is calculated without the Y component to avoid affect the vertical/fall speed
             Vector3 speedDif = _targetSpeed - flatVel;
             Vector3 movementForce = speedDif * accelRate;
 
