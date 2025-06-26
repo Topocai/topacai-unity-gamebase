@@ -456,7 +456,7 @@ namespace Topacai.Player.Firstperson.Movement
         private void StepClimbHandler()
         {
             LastStepTime -= Time.deltaTime;
-            if (LastStepTime > 0) return;
+            if (isJumping || LastStepTime > 0) return;
 
             #region Step Up
             
@@ -588,7 +588,15 @@ namespace Topacai.Player.Firstperson.Movement
 
             bool wallHit = false;
             if (inputIsMoving)
-                wallHit = Physics.CapsuleCast(WallStartPointUpper, WallStartPointBottom, wallSphereRadius, _moveDir, out wallHitInfo, distanceFromWall, Data.WallLayer);
+            {
+                // Limit the height where the wall is checked if is on ground at step height.
+                // On air keeps the correct height to avoid get stuck moving to wall
+                // On ground allow player to climb higher step heights.
+                Vector3 bottomCheck = WallStartPointBottom;
+                if (InGround) bottomCheck.y = Mathf.Clamp(bottomCheck.y, stepHeight.position.y + wallSphereRadius, 10);
+
+                wallHit = Physics.CapsuleCast(WallStartPointUpper, bottomCheck, wallSphereRadius, _moveDir, out wallHitInfo, distanceFromWall, Data.WallLayer);
+            }
 
             if (wallHit)
             {
@@ -759,7 +767,10 @@ namespace Topacai.Player.Firstperson.Movement
 
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(WallStartPointUpper + _moveDir * distanceFromWall, wallSphereRadius);
-            Gizmos.DrawWireSphere(WallStartPointBottom + _moveDir * distanceFromWall, wallSphereRadius);
+
+            Vector3 bottomCheck = WallStartPointBottom + _moveDir * distanceFromWall;
+            if(InGround) bottomCheck.y = Mathf.Clamp(bottomCheck.y, stepHeight.position.y + wallSphereRadius, 10);
+            Gizmos.DrawWireSphere(bottomCheck + _moveDir * distanceFromWall, wallSphereRadius);
         }
         #endregion
 #endif

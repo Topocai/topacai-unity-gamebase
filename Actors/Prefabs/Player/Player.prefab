@@ -513,7 +513,7 @@ MonoBehaviour:
   _groundT: {fileID: 911841005251527460}
   _groundSize: 0.18
   wallCheckMidPoint: {fileID: 6091655870605871551}
-  heightToCheckWall: 0.3
+  heightToCheckWall: -0.42
   distanceFromWall: 0.14
   wallSphereRadius: 0.3
   slopeDistance: 1.1
@@ -522,6 +522,7 @@ MonoBehaviour:
   slopeCrossThreshold: 0
   stepStart: {fileID: 7245125603182171273}
   stepHeight: {fileID: 6990196419943841137}
+  stepBoxSize: 0.2
   GIZMOS: 1
   ShowDebug: 0
   <isJumping>k__BackingField: 0
