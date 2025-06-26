@@ -580,12 +580,12 @@ namespace Topacai.Player.Firstperson.Movement
             //Debug.DrawRay(transform.position + Vector3.up * 1.1f, flatVel.normalized, Color.cyan, 1f);
 #endif
 
-
             bool inputIsMoving = _moveDir.magnitude > 0;
 
-            #region WallCollision
+            #region Wall detection and redirection
+        
+            // Check if the player is colliding with a wall in the direction of movement with a capsule cast
             RaycastHit wallHitInfo = new RaycastHit();
-
             bool wallHit = false;
             if (inputIsMoving)
             {
@@ -600,39 +600,47 @@ namespace Topacai.Player.Firstperson.Movement
 
             if (wallHit)
             {
-                if (_moveDir.magnitude > 0)
+                // By getting the wall normal direction, transforms it to get te opposite direction
+                // then invert the movement direction vertically in direction of the wall
+                // and finally get the cross product between the wall normal and the inverted movement direction in order to get the new movement direction
+                //
+                // Before using the new movement direction, we check if the angle between the wall normal and the inverted movement direction is greater than the minimum angle to move (that means the player is moving diagonally to the wall)
+                // and apply that direction with a multiplier between 0.2f and 1f that depends on the previous calculated angle. (the more perpendicular is player moving to wall, more slower the movement is)
+                Vector3 wallDir = wallHitInfo.normal;
+                wallDir.y = 0;
+
+                Vector3 invertedWall = Quaternion.AngleAxis(180f, Vector3.up) * wallDir.normalized; // vector from the player looking to wall
+                Vector3 moveDirRotated = Quaternion.AngleAxis(90f, invertedWall) * _moveDir; // vector of player movement direction but rotated in order to get horizontally direction as vertically (right is up and left is down)
+                Vector3 cross = Vector3.Cross(wallDir.normalized, moveDirRotated.normalized);
+
+                float dirAngle = Vector3.Angle(invertedWall, moveDirRotated);
+
+                if (Data.WallMinAngleToMove < dirAngle)
                 {
-                    Vector3 wallDir = wallHitInfo.normal;
-                    wallDir.y = 0;
-
-                    Vector3 invertedWall = Quaternion.AngleAxis(180f, Vector3.up) * wallDir.normalized;
-                    Vector3 moveDirRotated = Quaternion.AngleAxis(90f, invertedWall) * _moveDir;
-                    Vector3 cross = Vector3.Cross(wallDir.normalized, moveDirRotated.normalized);
-
-                    float dirAngle = Vector3.Angle(invertedWall, moveDirRotated);
-
-                    if (Data.WallMinAngleToMove < dirAngle)
-                    {
-                        _moveDir = cross.normalized;
-                        _targetSpeed = (_moveDir * _maxSpeed) * Mathf.Clamp(dirAngle / 89f, 0.2f, 1f);
-                    }
-                    else
-                    {
-                        _moveDir = Vector2.zero;
-                        _targetSpeed = _moveDir * _maxSpeed;
-                    }
+                    _moveDir = cross.normalized;
+                    _targetSpeed = (_moveDir * _maxSpeed) * Mathf.Clamp(dirAngle / 89f, 0.2f, 1f);
+                }
+                else
+                {
+                    _moveDir = Vector2.zero;
+                    _targetSpeed = _moveDir * _maxSpeed;
+                }
 
 #if UNITY_EDITOR
-                    Debug.DrawRay(transform.position + Vector3.up * 1f, wallDir.normalized, Color.red);
-                    Debug.DrawRay(transform.position + Vector3.up * 1f, cross.normalized, Color.black);
-                    Debug.DrawRay(transform.position + Vector3.up * 1f, moveDirRotated, Color.white);
+                Debug.DrawRay(transform.position + Vector3.up * 1f, wallDir.normalized, Color.red);
+                Debug.DrawRay(transform.position + Vector3.up * 1f, cross.normalized, Color.black);
+                Debug.DrawRay(transform.position + Vector3.up * 1f, moveDirRotated, Color.white);
 #endif
-                }
             }
             #endregion
 
             #region Acceleration And Speed
 
+            // Gets the acceleration based in if the player is moving or changing direction (acceleration and desacceleration)
+            // and if the player is on the ground or not,
+            // also conserves momentum by not applying desacceleration if the player is at higher speeds and moving in the same direction or not moving (only on air)
+            //
+            // A higher force will be calculated if the desired/target speed is distant from the current speed
             float accelRate;
             bool desaccel = Vector3.Dot(flatVel.normalized, _moveDir) < -0.75f || _targetSpeed.magnitude == 0f;
 
@@ -655,8 +663,10 @@ namespace Topacai.Player.Firstperson.Movement
                 accelRate = 0f;
             }
 
+            // Event for movement components
             OnMoveAfterAccel?.Invoke(ref accelRate);
 
+            // The speed difference between the desired speed and the current speed is calculated without the Y component to avoid affect the vertical/fall speed
             Vector3 speedDif = _targetSpeed - flatVel;
             Vector3 movementForce = speedDif * accelRate;
 
