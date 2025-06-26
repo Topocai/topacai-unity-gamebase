@@ -13,7 +13,7 @@ namespace Topacai.CustomPhysics
         [SerializeField] private float gravityScale = 1f;
         [Space(10)]
         [SerializeField] private bool gravityOn = true;
-        [SerializeField] private bool useCustomGravity = false;
+        [SerializeField] protected bool useCustomGravity = false;
         [SerializeField, ShowField(nameof(useCustomGravity))] protected Vector3 customGravity = new Vector3(0, -9.81f, 0);
 
         public static Vector3 gravity = new Vector3(0, -9.81f, 0);
