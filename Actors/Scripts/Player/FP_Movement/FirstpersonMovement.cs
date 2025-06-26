@@ -29,18 +29,18 @@ namespace Topacai.Player.Firstperson.Movement
 
         [Header("Ground Check")]
         [SerializeField] private Transform _groundT;
-        [SerializeField] private float _groundSize;
+        [SerializeField] private float _groundSize = 0.18f;
 
         [Header("Collision Checks")]
-        [SerializeField] private Transform wallCheckMidPoint;
-        [SerializeField] private float heightToCheckWall;
-        [SerializeField] private float distanceFromWall;
-        [SerializeField] private float wallSphereRadius;
+        [Clamp(-10f, 0.05f), SerializeField] private Transform wallCheckMidPoint;
+        [SerializeField] private float heightToCheckWall = -0.42f;
+        [SerializeField] private float distanceFromWall = 0.14f;
+        [SerializeField] private float wallSphereRadius = 0.3f;
 
         [Header("Slope")]
-        [SerializeField] private float slopeDistance;
+        [SerializeField] private float slopeDistance = 1.1f;
         [Range(0.1f, 0.5f), SerializeField] private float slopeBoxSize = 0.2f;
-        [Range(0.001f, 0.1f), SerializeField] private float exitingSlopeTime;
+        [Range(0.001f, 0.1f), SerializeField] private float exitingSlopeTime = 0.07f;
         [SerializeField] private float slopeCrossThreshold = 0.0001f;
 
         [Header("StepClimb")]
