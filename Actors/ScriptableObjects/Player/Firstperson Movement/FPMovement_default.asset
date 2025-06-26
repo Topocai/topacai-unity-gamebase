@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a88dc87a16b9bf4d9e99900308f8e13, type: 3}
+  m_Name: FPMovement_default
+  m_EditorClassIdentifier: 
+  OnValuesChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  RBMass: 0
+  GroundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  WallLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  GravityStrength: 0
+  GravityScale: 0
+  fallThreshold: 0
+  MaxFallSpeed: 0
+  GroundDrag: 0
+  AirDrag: 0
+  FallDrag: 0
+  GroundGravityScale: 0
+  FallingGravityMult: 0
+  JumpingGravityMult: 0
+  JumpCutGravityMult: 0
+  WallMinAngleToMove: 20
+  JumpHeight: 0
+  JumpTimeToApex: 0
+  JumpForce: 0
+  WhenCancelJumping: 0
+  JumpHangAccelMult: 0
+  JumpHandMaxSpeed: 0
+  Acceleration: 0
+  Deceleration: 0
+  accelerationAmount: 0
+  decelerationAmount: 0
+  WalkSpeed: 0
+  RunSpeed: 0
+  AirAccelMult: 0
+  AirDecelMult: 0
+  AirMaxSpeedMult: 0
+  MinSlopeAngle: 0
+  MaxSlopeAngle: 0
+  SlopeSpeedMultiplier: 0
+  SlopeDownForce: 0
+  StepClampVel: 0
+  StepUpForce: 0
+  StepDistance: 0
+  StepDepth: 0
+  OnSlopeStepDistanceMultiplier: 0
+  StepDownForce: 0
+  StepDownDistance: 0
+  StepDownOffset: 0
+  StepDownLastGroundThreshold: 0
+  StepBufferTime: 0
+  StepMinAngle: 0
+  StepDotThreshold: 0
+  CoyoteTime: 0.5
+  JumpBufferInput: 0.5
+  JumpApexBuffer: 0
+  CanMove: 0
+  FreezeMove: 0
+  CanJump: 0
+  CanChangeSpeed: 0
+  LimitFallSpeed: 0
+  ConserveMomentumOnAir: 0
+  AirMovement: 0
+  LargeJump: 0
+  JumpHang: 0
+  SlopeDetection: 0
+  StepClimb: 0
+  AntiSlideMethod1: 0
+  AntiSlideMethod2: 0
+  AntiSlideMethod1Air: 0
+  AntiSlideMethod2Air: 0
+  BrakeForceMultiplier: 0
+  SlideAlignmentThreshold1: 0.8
+  HighBrakeDrag: 0
+  SlideAlignmentThreshold2: 0.8
+  AirBrakeForceMultiplier: 0
+  AirSlideAlignmentThreshold1: 0.8
+  AirHighBrakeDrag: 0
+  AirSlideAlignmentThreshold2: 0.8
