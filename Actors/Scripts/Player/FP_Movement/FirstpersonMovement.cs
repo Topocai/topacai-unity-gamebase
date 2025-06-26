@@ -96,8 +96,9 @@ namespace Topacai.Player.Firstperson.Movement
         void Start()
         {
             _rb = PlayerBrain.Instance.PlayerReferences.Rigidbody;
-
             _maxSpeed = Data.WalkSpeed;
+
+            _defaultData.CalculateJumpForce(_defaultData.JumpHeight, _defaultData.JumpTimeToApex, customGravity.y);
 
             _defaultData.OnValuesChanged.AddListener(SyncValuesWithBaseDataMovement);
         }
@@ -458,17 +459,18 @@ namespace Topacai.Player.Firstperson.Movement
             #region Step Up
             RaycastHit stepRayHit;
 
+            // Step distance is increased if the player is on slope
             float stepForwadDistance = OnSlope() ? Data.StepDistance * Data.OnSlopeStepDistanceMultiplier : Data.StepDistance;
 
             bool stepUpHit = Physics.BoxCast(stepStart.position, new Vector3(slopeBoxSize, 0.1f, slopeBoxSize), _moveDir, out stepRayHit, Quaternion.identity, stepForwadDistance, Data.GroundLayer);
             if (stepUpHit)
             {
                 // Get angle of the normal of possible step, and check if it's a valid step relative to the player direction and angle
-                float angle = Vector3.Angle(Vector3.up, stepRayHit.normal);
+                float stepAngle = Vector3.Angle(Vector3.up, stepRayHit.normal);
                 Vector3 toPlayer = (new Vector3(transform.position.x, stepRayHit.point.y, transform.position.z) - stepRayHit.point).normalized;
                 float dot = Vector3.Dot(toPlayer, stepRayHit.normal);
 
-                if (!CanStep(angle, dot)) return;
+                if (!CanStep(stepAngle, dot)) return;
 
                 bool stepDepth = Physics.Raycast(stepHeight.position, _moveDir, Data.StepDepth, Data.GroundLayer);
 
@@ -510,7 +512,7 @@ namespace Topacai.Player.Firstperson.Movement
 #if UNITY_EDITOR
             Debug.DrawRay(stepStart.position, Vector3.down * Data.StepDownDistance, Color.gray);
 #endif
-
+            /*
             bool stepDownHit = Physics.BoxCast(stepStart.position - Vector3.up * Data.StepDownOffset, new Vector3(0.05f, 0.05f, 0.05f), -_moveDir, out stepRayHit, Quaternion.identity, Data.StepDownDistance, Data.GroundLayer);
             if (stepDownHit)
             {
@@ -527,7 +529,7 @@ namespace Topacai.Player.Firstperson.Movement
                     Debug.Log("Down Step");
                     _rb.AddForce(Vector3.up * -Data.StepDownForce, ForceMode.Force);
                 }
-            }
+            }*/
         }
 
         private void Movement()
