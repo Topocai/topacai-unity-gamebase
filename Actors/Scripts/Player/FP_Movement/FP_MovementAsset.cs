@@ -113,37 +113,6 @@ namespace Topacai.Player.Firstperson.Movement
         [Space(15)]
         public bool SlopeDetection = true;
         public bool StepClimb = true;
-        [Space(15)]
-        [Header("- EXPERIMENTAL or DEPRECATED -")]
-        public bool AntiSlideMethod1;
-        public bool AntiSlideMethod2;
-        [Space(5)]
-        public bool AntiSlideMethod1Air;
-        public bool AntiSlideMethod2Air;
-
-        [Header("AntiSlide - deprecated")]
-
-        [FoldoutGroup("Slide Method 1", nameof(BrakeForceMultiplier), nameof(SlideAlignmentThreshold1))]
-        [SerializeField] private Void slidem1Group;
-        [HideProperty, EnableField(nameof(AntiSlideMethod1))] public float BrakeForceMultiplier;
-        [HideProperty, EnableField(nameof(AntiSlideMethod1))] public float SlideAlignmentThreshold1 = 0.8f;
-
-        [FoldoutGroup("Slide Method 2", nameof(HighBrakeDrag), nameof(SlideAlignmentThreshold2))]
-        [SerializeField] private Void slidem2Group;
-        [HideProperty, EnableField(nameof(AntiSlideMethod2))] public float HighBrakeDrag;
-        [HideProperty, EnableField(nameof(AntiSlideMethod2))] public float SlideAlignmentThreshold2 = 0.8f;
-
-        [Space(20)]
-
-        [FoldoutGroup("Slide Method 1 Air", nameof(AirBrakeForceMultiplier), nameof(AirSlideAlignmentThreshold1))]
-        [SerializeField] private Void airslidem1Group;
-        [HideProperty, EnableField(nameof(AntiSlideMethod1Air))] public float AirBrakeForceMultiplier;
-        [HideProperty, EnableField(nameof(AntiSlideMethod1Air))] public float AirSlideAlignmentThreshold1 = 0.8f;
-
-        [FoldoutGroup("Slide Method 2 Air", nameof(AirHighBrakeDrag), nameof(AirSlideAlignmentThreshold2))]
-        [SerializeField] private Void airslidem2Group;
-        [HideProperty, EnableField(nameof(AntiSlideMethod2Air))] public float AirHighBrakeDrag;
-        [HideProperty, EnableField(nameof(AntiSlideMethod2Air))] public float AirSlideAlignmentThreshold2 = 0.8f;
 
         public void CalculateDynamicValues(float maxSpeed)
         {

@@ -406,52 +406,6 @@ namespace Topacai.Player.Firstperson.Movement
         #endregion
 
         #region Movement
-        private void AntiSlideHandler(Vector3 flatVel)
-        {
-            if (!Data.CanMove || !(_moveDir.sqrMagnitude > 0.001f)) return;
-
-            float alignment = Vector3.Dot(flatVel.normalized, _moveDir);
-
-            if (alignment < Data.SlideAlignmentThreshold1 && flatVel.magnitude > 0.001f)
-            {
-                bool isInverted = alignment < -0.9f;
-
-                if (!isInverted)
-                {
-                    Vector3 lateralVel = flatVel - _moveDir;
-                    _rb.AddForce(-lateralVel * Data.BrakeForceMultiplier, ForceMode.Force);
-                }
-                else
-                {
-                    _rb.linearVelocity = new Vector3(0f, _rb.linearVelocity.y, 0f);
-                }
-            }
-        }
-
-        private void AntiSlideHandler2(Vector3 flatVel)
-        {
-            if (!Data.CanMove || !(_moveDir.sqrMagnitude > 0.001f)) return;
-
-            if (!InGround || isJumping)
-            {
-                DragControl();
-                return;
-            }
-
-            flatVel = flatVel.sqrMagnitude > 0.001f ? flatVel.normalized : Vector3.zero;
-
-            float alignment = Vector3.Dot(flatVel.normalized, _moveDir);
-
-            float dynamicDrag = Data.GroundDrag;
-            if (alignment < Data.SlideAlignmentThreshold2)
-            {
-                float factor = Mathf.InverseLerp(0.0f, 0.8f, alignment);
-
-                dynamicDrag = Mathf.Lerp(Data.HighBrakeDrag, Data.GroundDrag, factor);
-            }
-
-            _rb.linearDamping = dynamicDrag;
-        }
 
         private void StepClimbHandler()
         {
@@ -722,11 +676,6 @@ namespace Topacai.Player.Firstperson.Movement
             {
                 if (!onSlope)
                     ResetFallSpeed();
-
-                if (Data.AntiSlideMethod1)
-                    AntiSlideHandler(flatVel);
-                if (Data.AntiSlideMethod2)
-                    AntiSlideHandler2(flatVel);
             }
             if (InGround || (!InGround && Data.AirMovement))
             {
