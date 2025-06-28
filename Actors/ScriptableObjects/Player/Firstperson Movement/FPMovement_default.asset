@@ -22,8 +22,8 @@ MonoBehaviour:
   WallLayer:
     serializedVersion: 2
     m_Bits: 1
-  GravityStrength: 0
-  GravityScale: 0
+  GravityStrength: -2.95858
+  GravityScale: 0.30158818
   fallThreshold: 0.2
   MaxFallSpeed: 120
   GroundDrag: 0.2
@@ -36,7 +36,7 @@ MonoBehaviour:
   WallMinAngleToMove: 25
   JumpHeight: 10
   JumpTimeToApex: 2.6
-  JumpForce: 0
+  JumpForce: 7.692308
   WhenCancelJumping: 0.45
   JumpHangAccelMult: 0
   JumpHandMaxSpeed: 0
@@ -53,18 +53,18 @@ MonoBehaviour:
   MaxSlopeAngle: 46
   SlopeSpeedMultiplier: 1.7
   SlopeDownForce: 18
-  StepClampVel: 3.77
+  StepClampVel: 4
   StepUpForce: 3
-  StepDistance: 0.33
-  StepDepth: 0.4
+  StepDistance: 0.4
+  StepDepth: 0.48
   OnSlopeStepDistanceMultiplier: 1.2
-  StepDownForce: 32
-  StepDownDistance: 0.47
+  StepDownForce: 121.5
+  StepDownMinDistance: 0.1
   StepDownOffset: 0.2
   StepDownLastGroundThreshold: 0.005
   StepBufferTime: 0
   StepMinAngle: 80
-  StepDotThreshold: 0.75
+  StepDotThreshold: 0.6
   CoyoteTime: 0.15
   JumpBufferInput: 0.12
   JumpApexBuffer: 0.13
@@ -77,7 +77,7 @@ MonoBehaviour:
   AirMovement: 1
   LargeJump: 0
   JumpHang: 0
-  SlopeDetection: 1
+  SlopeDetection: 0
   StepClimb: 1
   AntiSlideMethod1: 0
   AntiSlideMethod2: 0

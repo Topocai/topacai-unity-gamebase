@@ -470,7 +470,7 @@ namespace Topacai.Player.Firstperson.Movement
             Vector3 castStart = stepStart.position + _moveDir.normalized * halfExtents.z;
 
             RaycastHit[] hits = new RaycastHit[1];
-            hits = Physics.BoxCastAll(castStart, halfExtents, _moveDir, Quaternion.LookRotation(_moveDir.normalized), stepDistance * 0.5f - halfExtents.z, Data.GroundLayer, QueryTriggerInteraction.Collide);
+            hits = Physics.BoxCastAll(castStart, halfExtents, _moveDir, Quaternion.identity, stepDistance * 0.5f - halfExtents.z, Data.GroundLayer, QueryTriggerInteraction.Collide);
 
             bool stepUpHit = hits.Length > 0;
             
@@ -512,7 +512,6 @@ namespace Topacai.Player.Firstperson.Movement
                     Debug.DrawRay(stepRayHit.point, stepRayHit.normal, Color.gray, 0.1f);
                     Debug.DrawRay(stepRayHit.point, toPlayer, Color.green, 0.1f);
 #endif
-
                 }
 
             }
@@ -531,29 +530,49 @@ namespace Topacai.Player.Firstperson.Movement
 
             #endregion
 
-            if (stepUpHit || OnSlope() || LastGroundTime < -Data.StepDownLastGroundThreshold) return;
+            #region Step down
+
+            if (stepUpHit || OnSlope()) return;
+
+            // Step down system - Keep player on ground if is walking down in steps.
+            // Check if player has ground under it with a minimum distance to detect the step, then, apply a down force.
+            // use castall to make sure to not detect collider that is above the ground player is walking on.
+
+            RaycastHit[] stepDownHits = new RaycastHit[1];
+            Vector3 downHalfExtents = new Vector3(stepBoxSize*0.2f, 0.1f, stepBoxSize * 0.2f);
+            Vector3 stepDownStart = stepStart.position - Vector3.up * Data.StepDownOffset;
+
+            stepDownHits = Physics.BoxCastAll(stepDownStart, downHalfExtents, Vector3.down, Quaternion.LookRotation(Vector3.down), (stepHeight.position.y - stepStart.position.y) + 0.1f, Data.GroundLayer);
+
+            bool isStepDownHit = stepDownHits.Length > 0;
+            if (isStepDownHit)
+            {
+                //Check if the normal of ground is aproximate pointing to and upwards.
+
+                //Array is ordered by distance gitted, so, the first one is the only needed and others should be ignored.
+                RaycastHit stepDownHit = stepDownHits[0];
+                float distanceFromOrigin = Vector3.Distance(stepDownStart, stepDownHit.point);
+
+                if (distanceFromOrigin < Data.StepDownMinDistance) return;
+                
+                Vector3 toPlayer = (transform.position - stepDownHit.point).normalized;
+                float dot = Vector3.Dot(toPlayer, stepDownHit.normal);
 
 #if UNITY_EDITOR
-            Debug.DrawRay(stepStart.position, Vector3.down * Data.StepDownDistance, Color.gray);
+                Debug.DrawRay(stepDownHit.point, stepDownHit.normal, Color.gray, 0.1f);
+                Debug.DrawRay(stepDownHit.point, toPlayer, Color.green, 0.1f);
 #endif
-            /*
-            bool stepDownHit = Physics.BoxCast(stepStart.position - Vector3.up * Data.StepDownOffset, new Vector3(0.05f, 0.05f, 0.05f), -_moveDir, out stepRayHit, Quaternion.identity, Data.StepDownDistance, Data.GroundLayer);
-            if (stepDownHit)
-            {
-                Debug.Log("Down Hit");
-                float angle = Vector3.Angle(Vector3.up, stepRayHit.normal);
-                Vector3 toPlayer = (new Vector3(transform.position.x, stepRayHit.point.y, transform.position.z) - stepRayHit.point).normalized;
-                float dot = Vector3.Dot(toPlayer, stepRayHit.normal);
+                if (dot < 0.50f) return;
 
-                if (!CanStep(angle, dot)) return;
-                Debug.Log("Down Step2");
+                float angle = Vector3.Angle(Vector3.forward, stepDownHit.normal);
 
-                if (Mathf.Abs(angle - 90f) <= 3f)
+                if (Mathf.Abs(angle - 90f) <= 35f) // is looking upwards
                 {
-                    Debug.Log("Down Step");
                     _rb.AddForce(Vector3.up * -Data.StepDownForce, ForceMode.Force);
                 }
-            }*/
+            }
+
+            #endregion
         }
 
         private void Movement()
