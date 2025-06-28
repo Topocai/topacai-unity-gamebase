@@ -503,10 +503,11 @@ namespace Topacai.Player.Firstperson.Movement
             {
                 //Check if the normal of ground is aproximate pointing to and upwards.
 
-                //Array is ordered by distance gitted, so, the first one is the only needed and others should be ignored.
+                // If the detected step is not the same as the ground player is standing on, return because the collider detected is above the ground.
                 RaycastHit stepDownHit = stepDownHits[0];
-                float distanceFromOrigin = Vector3.Distance(stepDownStart, stepDownHit.point);
+                if (InGround && stepDownHit.collider != groundHit.collider) return;
 
+                float distanceFromOrigin = Vector3.Distance(stepDownStart, stepDownHit.point);
                 if (distanceFromOrigin < Data.StepDownMinDistance) return;
                 
                 Vector3 toPlayer = (transform.position - stepDownHit.point).normalized;
