@@ -177,7 +177,7 @@ namespace Topacai.Player.Firstperson.Movement
 
         private void AirCheckers()
         {
-            if (isJumping && (_rb.linearVelocity.y < -Data.WhenCancelJumping || _rb.linearVelocity.y <= 0 && InGround))
+            if (isJumping && (_rb.linearVelocity.y < -Data.WhenCancelJumping && !InGround))
             {
                 isJumping = false;
                 LastJumpApex = Data.JumpApexBuffer;
