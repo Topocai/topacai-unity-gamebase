@@ -75,17 +75,18 @@ namespace Topacai.Player.Firstperson.Movement
         [Tooltip("Add a higher distance to step up when the player is on a slope")]
         [EnableField(nameof(StepClimb))] public float OnSlopeStepDistanceMultiplier = 1.2f;
         [Space(5)]
+        [EnableField(nameof(StepClimb))] public float StepDownDistance = 0.1f;
+        [EnableField(nameof(StepClimb)), Range(0.01f, 0.5f)] public float StepDownGroundBuffer = 0.1f;
         [EnableField(nameof(StepClimb))] public float StepDownForce = 32;
         [EnableField(nameof(StepClimb))] public float StepDownMinDistance = 0.1f;
         [EnableField(nameof(StepClimb))] public float StepDownOffset = 0.05f;
-        [EnableField(nameof(StepClimb))] public float StepDownLastGroundThreshold = 0.005f;
         [Space(5)]
-        [Tooltip("EXPERIMENTAL - adds a buffer time between steps")]
-        [EnableField(nameof(StepClimb))] public float StepBufferTime;
         [Tooltip("Recommended: 80 or greater then Max Slope Angle if Slope Detection is enabled")]
         [EnableField(nameof(StepClimb))] public float StepMinAngle = 80; //80, greater then slopeAngle
         [Tooltip("Threshold to consider a normal face a step surface. Recommended: >= 0.4")]
         [EnableField(nameof(StepClimb))] public float StepDotThreshold = 0.65f;
+        [Tooltip("EXPERIMENTAL - adds a buffer time between steps")]
+        [EnableField(nameof(StepClimb))] public float StepBufferTime;
 
         [Header("Util")]
         [Range(0.01f, 0.5f)] public float CoyoteTime = .15f;

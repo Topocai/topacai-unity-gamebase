@@ -177,7 +177,7 @@ namespace Topacai.Player.Firstperson.Movement
 
         private void AirCheckers()
         {
-            if (isJumping && (_rb.linearVelocity.y < -Data.WhenCancelJumping && !InGround))
+            if (isJumping && (_rb.linearVelocity.y < -Data.WhenCancelJumping))
             {
                 isJumping = false;
                 LastJumpApex = Data.JumpApexBuffer;
@@ -486,7 +486,7 @@ namespace Topacai.Player.Firstperson.Movement
 
             #region Step down
 
-            if (stepUpHit || OnSlope()) return;
+            if (stepUpHit || OnSlope() || LastGroundTime < -Data.StepDownGroundBuffer || isJumping || isJumpApex) return;
 
             // Step down system - Keep player on ground if is walking down in steps.
             // Check if player has ground under it with a minimum distance to detect the step, then, apply a down force.
@@ -496,7 +496,7 @@ namespace Topacai.Player.Firstperson.Movement
             Vector3 downHalfExtents = new Vector3(stepBoxSize*0.2f, 0.1f, stepBoxSize * 0.2f);
             Vector3 stepDownStart = stepStart.position - Vector3.up * Data.StepDownOffset;
 
-            stepDownHits = Physics.BoxCastAll(stepDownStart, downHalfExtents, Vector3.down, Quaternion.LookRotation(Vector3.down), (stepHeight.position.y - stepStart.position.y) + 0.1f, Data.GroundLayer);
+            stepDownHits = Physics.BoxCastAll(stepDownStart, downHalfExtents, Vector3.down, Quaternion.LookRotation(Vector3.down), (stepHeight.position.y - stepStart.position.y) + Data.StepDownDistance, Data.GroundLayer);
 
             bool isStepDownHit = stepDownHits.Length > 0;
             if (isStepDownHit)

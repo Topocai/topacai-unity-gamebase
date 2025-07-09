@@ -37,7 +37,7 @@ MonoBehaviour:
   JumpHeight: 10
   JumpTimeToApex: 2.6
   JumpForce: 7.692308
-  WhenCancelJumping: 0.45
+  WhenCancelJumping: 0.611
   JumpHangAccelMult: 0
   JumpHandMaxSpeed: 0
   Acceleration: 6.6
@@ -47,7 +47,7 @@ MonoBehaviour:
   WalkSpeed: 4
   RunSpeed: 8
   AirAccelMult: 1
-  AirDecelMult: 0.33
+  AirDecelMult: 1
   AirMaxSpeedMult: 1
   MinSlopeAngle: 12
   MaxSlopeAngle: 46
@@ -58,13 +58,14 @@ MonoBehaviour:
   StepDistance: 0.4
   StepDepth: 0.48
   OnSlopeStepDistanceMultiplier: 1.2
-  StepDownForce: 121.5
+  StepDownDistance: 0.33
+  StepDownForce: 120
   StepDownMinDistance: 0.1
   StepDownOffset: 0.2
   StepDownLastGroundThreshold: 0.005
   StepBufferTime: 0
   StepMinAngle: 80
-  StepDotThreshold: 0.6
+  StepDotThreshold: 0.7
   CoyoteTime: 0.15
   JumpBufferInput: 0.12
   JumpApexBuffer: 0.13
@@ -73,21 +74,10 @@ MonoBehaviour:
   CanJump: 1
   CanChangeSpeed: 1
   LimitFallSpeed: 1
-  ConserveMomentumOnAir: 0
+  ConserveMomentumOnAir: 1
   AirMovement: 1
   LargeJump: 0
   JumpHang: 0
-  SlopeDetection: 0
+  SlopeDetection: 1
   StepClimb: 1
-  AntiSlideMethod1: 0
-  AntiSlideMethod2: 0
-  AntiSlideMethod1Air: 0
-  AntiSlideMethod2Air: 0
-  BrakeForceMultiplier: 0
-  SlideAlignmentThreshold1: 0.8
-  HighBrakeDrag: 0
-  SlideAlignmentThreshold2: 0.8
-  AirBrakeForceMultiplier: 0
-  AirSlideAlignmentThreshold1: 0.8
-  AirHighBrakeDrag: 0
-  AirSlideAlignmentThreshold2: 0.8
+  StepDown_DetectOnAir: 0
