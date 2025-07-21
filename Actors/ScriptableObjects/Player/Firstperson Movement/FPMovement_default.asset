@@ -18,10 +18,10 @@ MonoBehaviour:
   RBMass: 1
   GroundLayer:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 128
   WallLayer:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 129
   GravityStrength: -2.95858
   GravityScale: 0.30158818
   fallThreshold: 0.2
@@ -37,7 +37,7 @@ MonoBehaviour:
   JumpHeight: 10
   JumpTimeToApex: 2.6
   JumpForce: 7.692308
-  WhenCancelJumping: 0.611
+  WhenCancelJumping: 0.1
   JumpHangAccelMult: 0
   JumpHandMaxSpeed: 0
   Acceleration: 6.6
@@ -55,17 +55,17 @@ MonoBehaviour:
   SlopeDownForce: 18
   StepClampVel: 4
   StepUpForce: 3
-  StepDistance: 0.4
+  StepDistance: 0.42
   StepDepth: 0.48
   OnSlopeStepDistanceMultiplier: 1.2
-  StepDownDistance: 0.33
+  StepDownDistance: 0.13
+  StepDownGroundBuffer: 0.1
   StepDownForce: 120
   StepDownMinDistance: 0.1
   StepDownOffset: 0.2
-  StepDownLastGroundThreshold: 0.005
-  StepBufferTime: 0
   StepMinAngle: 80
-  StepDotThreshold: 0.7
+  StepDotThreshold: 0.75
+  StepBufferTime: 0
   CoyoteTime: 0.15
   JumpBufferInput: 0.12
   JumpApexBuffer: 0.13
@@ -80,4 +80,3 @@ MonoBehaviour:
   JumpHang: 0
   SlopeDetection: 1
   StepClimb: 1
-  StepDown_DetectOnAir: 0

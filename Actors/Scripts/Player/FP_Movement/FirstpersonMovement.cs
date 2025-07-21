@@ -82,7 +82,7 @@ namespace Topacai.Player.Firstperson.Movement
         private Vector3 crouchPivotPos;
         private RaycastHit groundHit;
         private Vector3 _moveDir;
-        private Collider _lastStep;
+        private Collider _lastStep = default;
 
         private float GroundSize => _groundSize * transform.localScale.magnitude;
         private float PlayerHeight => _initialPlayerHeight * transform.localScale.y;
@@ -413,68 +413,69 @@ namespace Topacai.Player.Firstperson.Movement
             if (isJumping || LastStepTime > 0) return;
 
             #region Step Up
-            
+
 
             // Step distance is increased if the player is on slope
             float stepDistance = OnSlope() ? Data.StepDistance * Data.OnSlopeStepDistanceMultiplier : Data.StepDistance;
 
             // Calculate boxCast as a rectangle that points to movement using step distance as width.
             // Use castAll to avoid not detecting steps that are too close to player, MAKE SURE to put the player in an different layer that ground.
-            Vector3 halfExtents = new Vector3(stepBoxSize, 0.1f, stepBoxSize);
-            Vector3 castStart = stepStart.position + _moveDir.normalized * halfExtents.z;
+            //Vector3 halfExtents = new Vector3(stepBoxSize, 0.1f, stepBoxSize);
+            //Vector3 castStart = stepStart.position + _moveDir.normalized * halfExtents.z;
 
-            RaycastHit[] hits = new RaycastHit[1];
-            hits = Physics.BoxCastAll(castStart, halfExtents, _moveDir, Quaternion.identity, stepDistance * 0.5f - halfExtents.z, Data.GroundLayer, QueryTriggerInteraction.Collide);
+            RaycastHit[] hits = new RaycastHit[0];
+            RaycastHit stepRayHit;
+            Vector3 stepDir = _moveDir;
+            stepDir.y = 0.1f;
+            //hits = Physics.BoxCastAll(castStart, halfExtents, _moveDir, Quaternion.LookRotation(_moveDir), stepDistance * 0.5f - halfExtents.z, Data.GroundLayer, QueryTriggerInteraction.Collide);
 
-            bool stepUpHit = hits.Length > 0;
-            
-            if (stepUpHit)
+            bool stepUpHit = Physics.Raycast(stepStart.position, stepDir, out stepRayHit, stepDistance, Data.GroundLayer);
+
+            if (_moveDir.magnitude > 0 && stepUpHit)
             {
-                for (int i = 0; i < hits.Length; i++) 
-                {
-                    RaycastHit stepRayHit = hits[i];
+                //RaycastHit stepRayHit = hits[i];
 
-                    // Get angle of the normal of possible step, and check if it's a valid step relative to the player direction and angle
-                    float stepAngle = Vector3.Angle(Vector3.up, stepRayHit.normal);
-                    Vector3 toPlayer = (new Vector3(transform.position.x, stepRayHit.point.y, transform.position.z) - stepRayHit.point).normalized;
-                    float dot = Vector3.Dot(toPlayer, stepRayHit.normal);
-
-                    if (!CanStep(stepAngle, dot) && _lastStep != null && !_lastStep == stepRayHit.collider)
-                    {
-                        continue;
-                    }
-
-                    bool stepDepth = Physics.Raycast(stepHeight.position, _moveDir, Data.StepDepth, Data.GroundLayer);
-
-                    if (!stepDepth)
-                    {
-                        _rb.AddForce(Vector3.up * Data.StepUpForce, ForceMode.VelocityChange);
-                        _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, Mathf.Clamp(_rb.linearVelocity.y, 0f, Data.StepClampVel), _rb.linearVelocity.z);
-                        LastStepTime = Data.StepBufferTime;
-                        ClimbingStair = true;
-                        _lastStep = stepRayHit.collider;
-                    }
-                    else if (ClimbingStair)
-                    {
-                        ClimbingStair = false;
-                        _lastStep = null;
-                        if (!isJumping)
-                            ResetFallSpeed();
-                    }
+                // Get angle of the normal of possible step, and check if it's a valid step relative to the player direction and angle
+                float stepAngle = Vector3.Angle(Vector3.up, stepRayHit.normal);
+                Vector3 toPlayer = (new Vector3(transform.position.x, stepRayHit.point.y, transform.position.z) - stepRayHit.point).normalized;
+                float dot = Vector3.Dot(toPlayer, stepRayHit.normal);
 
 #if UNITY_EDITOR
-                    Debug.DrawRay(stepRayHit.point, stepRayHit.normal, Color.gray, 0.1f);
-                    Debug.DrawRay(stepRayHit.point, toPlayer, Color.green, 0.1f);
+                Debug.DrawRay(stepRayHit.point, stepRayHit.normal, Color.gray, 0.1f);
+                Debug.DrawRay(stepRayHit.point, toPlayer, Color.green, 0.1f);
 #endif
+
+                Debug.Log($"point {stepRayHit.point} dot {dot} angle {stepAngle} can {CanStep(stepAngle, dot)}");
+
+                if (!CanStep(stepAngle, dot) && _lastStep != stepRayHit.collider)
+                {
+                    return;
                 }
 
+                bool stepDepth = Physics.Raycast(stepHeight.position, _moveDir, Data.StepDepth, Data.GroundLayer);
+
+                if (!stepDepth)
+                {
+                    _rb.AddForce(Vector3.up * Data.StepUpForce, ForceMode.VelocityChange);
+                    _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, Mathf.Clamp(_rb.linearVelocity.y, 0f, Data.StepClampVel), _rb.linearVelocity.z);
+                    LastStepTime = Data.StepBufferTime;
+                    ClimbingStair = true;
+                    _lastStep = stepRayHit.collider;
+                }
+                else if (ClimbingStair)
+                {
+                    ClimbingStair = false;
+                    _lastStep = null;
+                    if (!isJumping)
+                        ResetFallSpeed();
+                }
             }
             else if (ClimbingStair)
             {
                 ClimbingStair = false;
                 _lastStep = null;
                 if (!isJumping)
-                  ResetFallSpeed();
+                    ResetFallSpeed();
             }
 
 #if UNITY_EDITOR
