@@ -55,12 +55,12 @@ MonoBehaviour:
   SlopeDownForce: 18
   StepClampVel: 4
   StepUpForce: 3
-  StepDistance: 0.4
+  StepDistance: 0.45
   StepDepth: 0.48
   OnSlopeStepDistanceMultiplier: 1.2
-  StepDownDistance: -0.03
+  StepDownDistance: -0.04
   StepDownGroundBuffer: 0.1
-  StepDownForce: 25
+  StepDownForce: 75.6
   StepDownMinDistance: 0.1
   StepDownOffset: 0.22
   StepMinAngle: 80
