@@ -59,6 +59,7 @@ namespace Topacai.Player.Firstperson.Movement
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool exitingSlope { get; private set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool WasJumpPressed { get; private set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool IsJumpPressed { get; private set; }
+        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool GroundIsTerrain { get; private set; }
         /*[field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))]*/
         public float LastGroundTime { get; private set; }
         /*[field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))]*/
@@ -80,6 +81,7 @@ namespace Topacai.Player.Firstperson.Movement
         public FP_MovementAsset DefaultData { get { return _defaultData; } }
 
         private Vector3 crouchPivotPos;
+        private Collider _lastGroundHit;
         private RaycastHit groundHit;
         private Vector3 _moveDir;
         private Collider _lastStep = default;
@@ -205,6 +207,13 @@ namespace Topacai.Player.Firstperson.Movement
             if (Physics.SphereCast(_groundT.position, GroundSize, Vector3.down, out groundHit, GroundSize, Data.GroundLayer))
             {
                 LastGroundTime = isJumping ? 0.01f : Data.CoyoteTime;
+                if(_lastGroundHit != groundHit.collider)
+                {
+                    _lastGroundHit = groundHit.collider;
+
+                    var terrain = groundHit.collider.GetComponent<TerrainCollider>();
+                    GroundIsTerrain = terrain != null;
+                }
             }
         }
 
@@ -410,31 +419,24 @@ namespace Topacai.Player.Firstperson.Movement
         private void StepClimbHandler()
         {
             LastStepTime -= Time.deltaTime;
-            if (isJumping || LastStepTime > 0) return;
+            if (isJumping || LastStepTime > 0 || GroundIsTerrain) return;
 
             #region Step Up
-
-
             // Step distance is increased if the player is on slope
             float stepDistance = OnSlope() ? Data.StepDistance * Data.OnSlopeStepDistanceMultiplier : Data.StepDistance;
 
-            // Calculate boxCast as a rectangle that points to movement using step distance as width.
-            // Use castAll to avoid not detecting steps that are too close to player, MAKE SURE to put the player in an different layer that ground.
-            //Vector3 halfExtents = new Vector3(stepBoxSize, 0.1f, stepBoxSize);
-            //Vector3 castStart = stepStart.position + _moveDir.normalized * halfExtents.z;
-
-            RaycastHit[] hits = new RaycastHit[0];
+            // Detect if player has a step in direction of movement and then calculate if is a valid step.
+            // Because is only a simple raycast keep in mind that all steps colliders has to be at the same height of the check pos
+            // a small offset is added backwards to detect steps that are too close to player and got stucked in border steps.
+            // also, step detection is affected by slope so, is perfecly possible to step up being in a slope
+            // MAKE SURE to put a different layer player and ground.
             RaycastHit stepRayHit;
             Vector3 stepDir = _moveDir;
-            stepDir.y = 0.1f;
-            //hits = Physics.BoxCastAll(castStart, halfExtents, _moveDir, Quaternion.LookRotation(_moveDir), stepDistance * 0.5f - halfExtents.z, Data.GroundLayer, QueryTriggerInteraction.Collide);
 
-            bool stepUpHit = Physics.Raycast(stepStart.position, stepDir, out stepRayHit, stepDistance, Data.GroundLayer);
+            bool stepUpHit = Physics.Raycast(stepStart.position + _moveDir.normalized * -0.075f, stepDir, out stepRayHit, stepDistance, Data.GroundLayer);
 
             if (_moveDir.magnitude > 0 && stepUpHit)
             {
-                //RaycastHit stepRayHit = hits[i];
-
                 // Get angle of the normal of possible step, and check if it's a valid step relative to the player direction and angle
                 float stepAngle = Vector3.Angle(Vector3.up, stepRayHit.normal);
                 Vector3 toPlayer = (new Vector3(transform.position.x, stepRayHit.point.y, transform.position.z) - stepRayHit.point).normalized;
@@ -444,8 +446,6 @@ namespace Topacai.Player.Firstperson.Movement
                 Debug.DrawRay(stepRayHit.point, stepRayHit.normal, Color.gray, 0.1f);
                 Debug.DrawRay(stepRayHit.point, toPlayer, Color.green, 0.1f);
 #endif
-
-                Debug.Log($"point {stepRayHit.point} dot {dot} angle {stepAngle} can {CanStep(stepAngle, dot)}");
 
                 if (!CanStep(stepAngle, dot) && _lastStep != stepRayHit.collider)
                 {
@@ -492,6 +492,8 @@ namespace Topacai.Player.Firstperson.Movement
             // Step down system - Keep player on ground if is walking down in steps.
             // Check if player has ground under it with a minimum distance to detect the step, then, apply a down force.
             // use castall to make sure to not detect collider that is above the ground player is walking on.
+
+            // This works a little weird, maybe better to implement it in a different way.
 
             RaycastHit[] stepDownHits = new RaycastHit[1];
             Vector3 downHalfExtents = new Vector3(stepBoxSize*0.2f, 0.1f, stepBoxSize * 0.2f);
