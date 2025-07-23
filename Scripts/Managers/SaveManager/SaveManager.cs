@@ -71,7 +71,7 @@ namespace Topacai.Utils.SaveSystem
         /// <summary>
         /// Search, read and get profiles saved in data (or update profiles info)
         /// </summary>
-        public static void GetProfiles()
+        public static void RecoverProfiles()
         {
             if (!File.Exists(Application.dataPath + _savePath + _profilesFileName))
             {
@@ -81,12 +81,14 @@ namespace Topacai.Utils.SaveSystem
             _profiles = JsonConvert.DeserializeObject<List<UserProfile>>(File.ReadAllText(Application.dataPath + _savePath + _profilesFileName));
         }
 
+        public static List<UserProfile> GetProfiles() => _profiles;
+
         /// <summary>
         /// Serialize and save a user game profile and add to the current profiles data.
         /// </summary>
         public static void SaveProfile(UserProfile profile)
         {
-            if (_profiles == null) GetProfiles();
+            if (_profiles == null) RecoverProfiles();
 
             int profileIndex = _profiles.BinarySearch(profile);
 
@@ -192,9 +194,19 @@ namespace Topacai.Utils.SaveSystem
                 Data = (object)data
             };
 
-            var json = JsonConvert.SerializeObject(data, Formatting.Indented);
+            var json = JsonConvert.SerializeObject(saveData, Formatting.Indented);
             File.WriteAllText(info.filePath, json);
         }
+    }
+
+    public struct SerializeableVector3
+    {
+        public float x;
+        public float y;
+        public float z;
+
+        public static explicit operator Vector3(SerializeableVector3 vector) => new Vector3(vector.x, vector.y, vector.z);
+        public static explicit operator SerializeableVector3(Vector3 vector) => new SerializeableVector3() { x = vector.x, y = vector.y, z = vector.z };
     }
 
     public struct SavedData
