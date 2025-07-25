@@ -1,9 +1,9 @@
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-
 using System.IO;
-using Newtonsoft.Json;
+using UnityEngine;
 
 namespace Topacai.Utils.SaveSystem
 {
@@ -48,7 +48,7 @@ namespace Topacai.Utils.SaveSystem
 
         private static bool IsSameDataType<T>(T expextedData, SavedData deserializedData)
         {
-            return typeof(T).FullName == deserializedData.ObjectType;
+            return deserializedData.ObjectType == typeof(T).FullName;
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Topacai.Utils.SaveSystem
         /// <param name="deserializedData">Deserealized SavedData struct</param>
         private static bool IsSameDataType<T>(SavedData deserializedData)
         {
-            return typeof(T).FullName == deserializedData.ObjectType;
+            return deserializedData.ObjectType == typeof(T).FullName;
         }
 
         /// <summary>
@@ -139,14 +139,14 @@ namespace Topacai.Utils.SaveSystem
         /// <param name="fileName">Unique name of saved data</param>
         /// <param name="data">Variable to store the data</param>
         /// <param name="subFolder">(optional) subfolder path to search data</param>
-        public static void GetProfileData<T>(UserProfile profile, string fileName, out T data, string subFolder = "")
+        public static bool GetProfileData<T>(UserProfile profile, string fileName, out T data, string subFolder = "")
         {
             var info = CheckDirectoryAndFile(profile, fileName, subFolder);
 
             if (!info.directory || !info.file)
             {
                 data = default(T);
-                throw new Exception($"Reading data ERROR! File {fileName} not found for profile {profile.Name}");
+                return false;
             }
 
             var json = File.ReadAllText(info.filePath);
@@ -158,7 +158,18 @@ namespace Topacai.Utils.SaveSystem
                 throw new Exception($"Reading data ERROR! File {fileName} is not of type {typeof(T).FullName}");
             }
 
-            data = (T)savedData.Data;
+            var rawData = savedData.Data as JObject;
+
+            if (rawData != null)
+            {
+                data = rawData.ToObject<T>();
+            }
+            else
+            {
+                data = default(T);
+            }
+
+            return true;
         }
 
         /// <summary>
