@@ -12,7 +12,7 @@ namespace Topacai.Utils.SaveSystem
         public static UnityEvent OnSaveGameEvent = new UnityEvent();
         public static SaveController Instance { get; private set; }
 
-        [SerializeField] private string _savePath = "SaveData";
+        [SerializeField] private string _savePath = "/SaveData";
         [SerializeField] private string _profilesFileName = "profiles.json";
         [Space(5)]
         [SerializeField] private string _levelsPath = "/Levels";
@@ -40,11 +40,7 @@ namespace Topacai.Utils.SaveSystem
 
             var profiles = SaveManager.GetProfiles();
 
-            if (profiles.Count == 0)
-            {
-                currentProfile = SaveManager.CreateProfile("Debug Profile");
-            }
-            else currentProfile = profiles[0];
+            currentProfile = profiles.Count > 0 ? profiles[0] : SaveManager.CreateProfile("Debug Profile");
         }
 
         public void SaveGame()
@@ -53,21 +49,29 @@ namespace Topacai.Utils.SaveSystem
             SaveManager.SaveProfile(currentProfile);
         }
 
-        public void SaveDataToProfile(object data, string fileName, string subFolder = "")
+        public void SaveDataToProfile<T>(T data, string fileName, string subFolder = "")
         {
             SaveManager.SaveProfileData(currentProfile, fileName, data, subFolder);
         }
 
-        public void SaveLevelDataToProfile(object data, string fileName, string subFolder = "") 
+        public void SaveLevelDataToProfile<T>(T data, string fileName, string subFolder = "") 
         {
             string levelName = SceneManager.GetActiveScene().name;
-            SaveManager.SaveProfileData(currentProfile, fileName, data, _levelsPath + "/" + levelName + subFolder);
+            SaveManager.SaveProfileData(currentProfile, fileName + ".json", data, $"{_levelsPath}/{levelName}/{subFolder}");
         }
 
-        public void GetLevelData<T>(string fileName, out T data, string subFolder = "")
+        public bool GetLevelData<T>(string fileName, out T data, string subFolder = "")
         {
             string levelName = SceneManager.GetActiveScene().name;
-            SaveManager.GetProfileData<T>(currentProfile, fileName, out data, _levelsPath + "/" + levelName + subFolder);
+            return SaveManager.GetProfileData<T>(currentProfile, fileName + ".json", out data, $"{_levelsPath}/{levelName}/{subFolder}");
+        }
+
+        private void Update()
+        {
+            if (InputHandler.CrouchPressed)
+            {
+                SaveGame();
+            }
         }
     }
 }
