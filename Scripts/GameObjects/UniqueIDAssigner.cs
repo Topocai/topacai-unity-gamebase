@@ -38,7 +38,7 @@ namespace Topacai.Utils.GameObjects.Unique
         private void OnValidate()
         {
 #if UNITY_EDITOR
-            if (string.IsNullOrEmpty(uniqueID) || usedIDs.Contains(uniqueID))
+            if (string.IsNullOrEmpty(uniqueID))
             {
                 GenerateUniqueID();
             }
@@ -66,10 +66,6 @@ namespace Topacai.Utils.GameObjects.Unique
             if (!usedIDs.Contains(uniqueID))
             {
                 usedIDs.Add(uniqueID);
-            }
-            else
-            {
-                Debug.LogWarning("Duplicated ID: " + uniqueID + ". This should not have happened.");
             }
         }
 #endif
