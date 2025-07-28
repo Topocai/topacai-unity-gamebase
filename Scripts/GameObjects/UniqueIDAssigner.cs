@@ -29,21 +29,40 @@ namespace Topacai.Utils.GameObjects.Unique
         /// Temporary storage of all assigned IDs during edit-time to prevent duplication.
         /// Only active in the Unity Editor.
         /// </summary>
-        private static HashSet<string> usedIDs = new HashSet<string>();
+        private static Dictionary<string, UniqueIDAssigner> usedIDs = new();
 #endif
         /// <summary>
         /// Automatically called by Unity when the component's values are changed in the Inspector.
         /// Used here to ensure a valid and unique ID is always assigned during editing.
         /// </summary>
-        private void OnValidate()
+        protected virtual void OnValidate()
         {
 #if UNITY_EDITOR
-            if (string.IsNullOrEmpty(uniqueID))
-            {
-                GenerateUniqueID();
-            }
+            CheckAndCreateID();
 #endif
         }
+
+        protected virtual void OnEnable()
+        {
+#if UNITY_EDITOR
+            CheckAndCreateID();
+#endif
+        }
+
+#if UNITY_EDITOR
+        private void CheckAndCreateID()
+        {
+            if (usedIDs.TryGetValue(uniqueID, out var register))
+            {
+                if (register != this)
+                {
+                    GenerateUniqueID();
+                }
+            }
+            else if (string.IsNullOrEmpty(uniqueID)) GenerateUniqueID();
+        }
+
+#endif
 
         private void GenerateUniqueID()
         {
@@ -51,7 +70,7 @@ namespace Topacai.Utils.GameObjects.Unique
 
             if (!Application.isPlaying)
             {
-                usedIDs.Add(uniqueID);
+                usedIDs[uniqueID] = this;
             }
         }
 
@@ -60,12 +79,12 @@ namespace Topacai.Utils.GameObjects.Unique
         /// Ensures the ID is registered at runtime.
         /// Logs a warning if a duplicate is detected, which should not happen.
         /// </summary>
-        void Awake()
+        protected virtual void Awake()
         {
             // Register ID in runtime
-            if (!usedIDs.Contains(uniqueID))
+            if (!usedIDs.ContainsKey(uniqueID))
             {
-                usedIDs.Add(uniqueID);
+                usedIDs[uniqueID] = this;
             }
         }
 #endif
