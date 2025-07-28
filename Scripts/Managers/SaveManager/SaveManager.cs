@@ -149,8 +149,13 @@ namespace Topacai.Utils.SaveSystem
                 return false;
             }
 
+            var settings = new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects
+            };
+
             var json = File.ReadAllText(info.filePath);
-            var savedData = JsonConvert.DeserializeObject<SavedData>(json);
+            var savedData = JsonConvert.DeserializeObject<SavedData>(json, settings);
 
             if (!IsSameDataType<T>(savedData))
             {
@@ -166,7 +171,7 @@ namespace Topacai.Utils.SaveSystem
             }
             else
             {
-                data = default(T);
+                data = (T)savedData.Data;
             }
 
             return true;
@@ -205,7 +210,12 @@ namespace Topacai.Utils.SaveSystem
                 Data = (object)data
             };
 
-            var json = JsonConvert.SerializeObject(saveData, Formatting.Indented);
+            var settings = new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects
+            };
+
+            var json = JsonConvert.SerializeObject(saveData, Formatting.Indented, settings);
             File.WriteAllText(info.filePath, json);
         }
     }
