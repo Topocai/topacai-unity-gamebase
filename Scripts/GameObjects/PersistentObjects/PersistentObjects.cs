@@ -8,6 +8,12 @@ namespace Topacai.Utils.GameObjects.Persistent
     {
         public string Category { get; set; }
         public Dictionary<string, IPersistentDataObject> ObjectList { get; set; }
+
+        public PersistentObjectsCategoryData(string category, Dictionary<string, IPersistentDataObject> objectList)
+        {
+            Category = category;
+            ObjectList = objectList;
+        }
     }
     public interface IPersistentDataObject
     {
