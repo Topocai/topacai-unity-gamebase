@@ -38,7 +38,9 @@ namespace Topacai.Static.Disjkstra
         }
     }
 
-    // A graph node represented as a monobehaviour object on unity scene
+    /// <summary>
+    /// A graph node represented as a monobehaviour object on unity scene
+    /// </summary>
     public class TileNodeMonoBehaviour : MonoBehaviour, ITileNode
     {
         [field: SerializeField] public TileNode TileNode { get; private set; } = new TileNode();

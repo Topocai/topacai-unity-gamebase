@@ -7,8 +7,9 @@ using UnityEngine;
 
 namespace Topacai.Static.Disjkstra
 {
-#if UNITY_EDITOR
-    // Interface used unique to represent a tile on scene, not used for dijkstra logic
+    /// <summary>
+    /// Interface used unique to represent a tile on scene, not used for dijkstra logic
+    /// </summary>
     public interface ITileNode
     {
         string Name { get; }
@@ -21,14 +22,12 @@ namespace Topacai.Static.Disjkstra
 
         void MarkAsEnd();
     }
-#endif
 
     [System.Serializable]
     public class TileNode
     {
         public Dictionary<TileNode, float> Neighbors = new Dictionary<TileNode, float>();
 
-#if UNITY_EDITOR
         public ITileNode TileInterface { get; private set; }
 
         public TileNode(ITileNode tile = null)
@@ -37,7 +36,6 @@ namespace Topacai.Static.Disjkstra
         }
 
         public void SetInterface(ITileNode tile) => TileInterface = tile;
-#endif
     }
 
     public enum TileState { Unvisited, Visited, Path, Start, End };
