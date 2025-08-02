@@ -83,3 +83,4 @@ crashlytics-build.properties
 /Assets/Scenes/SampleScene.unity
 Actors/Scripts/Player/FP_Movement/OLD MOVEMENT.txt
 /Just-Experimenting
+*.ehy~

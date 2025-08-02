@@ -1,0 +1,16 @@
+{
+    "name": "Topacai.Utils.SaveSystem",
+    "rootNamespace": "Topacai.Utils.SaveSystem",
+    "references": [
+        "GUID:713339cfaa137b448a8fcad617701ce2"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

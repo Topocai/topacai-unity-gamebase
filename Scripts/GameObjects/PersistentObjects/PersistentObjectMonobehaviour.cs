@@ -4,15 +4,15 @@ using Topacai.Utils.SaveSystem;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Topacai.GameObjects.Persistent
+namespace Topacai.Utils.GameObjects.Persistent
 {
-    public class PersistentObjectBase : UniqueIDAssigner
+    public class PersistentObjectMonobehaviour : UniqueIDAssigner
     {
         public static UnityEvent<string> OnDataRecoveredEvent = new UnityEvent<string>();
         private const string DATA_KEY = "PersistentObjectsData";
 
         // category -> object list
-        private static Dictionary<string, HashSet<PersistentObjectBase>> PersistentInstancesByCategory = new();
+        private static Dictionary<string, HashSet<PersistentObjectMonobehaviour>> PersistentInstancesByCategory = new();
         // category -> uniqueID -> data
         private static Dictionary<string, Dictionary<string, IPersistentDataObject>> PersistentDataByCategory = new();
 
@@ -167,39 +167,5 @@ namespace Topacai.GameObjects.Persistent
         }
     }
 
-    public struct PersistentObjectsCategoryData
-    {
-        public string Category { get; set; }
-        public Dictionary<string, IPersistentDataObject> ObjectList { get; set; }
-    }
-    public interface IPersistentDataObject
-    {
-        public string UniqueID { get; set; }
-        public SerializeableVector3 Position { get; set; }
-        public SerializeableVector3 Rotation { get; set; }
-        public SerializeableVector3 Scale { get; set; }
-    }
-
-    public struct PersistentObjectData : IPersistentDataObject
-    {
-        public string UniqueID { get; set; }
-        public SerializeableVector3 Position { get; set; }
-        public SerializeableVector3 Rotation { get; set; }
-        public SerializeableVector3 Scale { get; set; }
-
-        public override int GetHashCode() => UniqueID?.GetHashCode() ?? 0;
-
-        public override bool Equals(object obj)
-        {
-            if (!(obj is PersistentObjectData other))
-            {
-                if (obj is string)
-                {
-                    return UniqueID == (string)obj;
-                }
-                return false;
-            }
-            return UniqueID == other.UniqueID;
-        }
-    }
+    
 }
