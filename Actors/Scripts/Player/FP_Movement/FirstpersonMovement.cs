@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 using EditorAttributes;
 using System.Reflection;
@@ -86,6 +85,10 @@ namespace Topacai.Player.Firstperson.Movement
         private Vector3 _moveDir;
         private Collider _lastStep = default;
 
+        private SimpleActionHandler _jumpInput;
+        private SimpleActionHandler _crouchInput;
+        private SimpleActionHandler _sprintInput;
+
         private float GroundSize => _groundSize * transform.localScale.magnitude;
         private float PlayerHeight => _initialPlayerHeight * transform.localScale.y;
         private bool InGround => LastGroundTime >= 0;
@@ -105,6 +108,10 @@ namespace Topacai.Player.Firstperson.Movement
 
             _defaultData.CalculateJumpForce(_defaultData.JumpHeight, _defaultData.JumpTimeToApex, customGravity.y);
             _defaultData.OnValuesChanged.AddListener(SyncValuesWithBaseDataMovement);
+
+            _jumpInput = InputHandler.GetActionHandler(ActionName.Jump);
+            _crouchInput = InputHandler.GetActionHandler(ActionName.Crouch);
+            _sprintInput = InputHandler.GetActionHandler(ActionName.Run);
         }
 
         private void SyncValuesWithBaseDataMovement()
@@ -274,7 +281,7 @@ namespace Topacai.Player.Firstperson.Movement
         {
             if (!WasJumpPressed)
             {
-                if (InputHandler.IsJumping || InputHandler.JumpPressed || InputHandler.InstantJump)
+                if (_jumpInput.All)
                 {
                     WasJumpPressed = true;
                     LastPressedJump = Data.JumpBufferInput;
@@ -282,27 +289,27 @@ namespace Topacai.Player.Firstperson.Movement
             }
             else
             {
-                if (InputHandler.JumpPressed || InputHandler.IsJumping || InputHandler.InstantJump) return;
+                if (!_jumpInput.All) return;
 
                 WasJumpPressed = false;
             }
 
-            IsJumpPressed = (InputHandler.JumpPressed || InputHandler.IsJumping || InputHandler.InstantJump);
+            IsJumpPressed = (_jumpInput.All);
         }
 
         private void RunInput()
         {
             if (Data.CanChangeSpeed)
-                SwitchRun(InputHandler.IsRunning);
+                SwitchRun(_sprintInput.IsPressing);
         }
 
         private void CrouchInputs()
         {
-            if (InputHandler.IsCrouching && !isCrouched)
+            if (_crouchInput.IsPressing && !isCrouched)
             {
                 Crouch();
             }
-            else if (!InputHandler.IsCrouching && isCrouched)
+            else if (!_crouchInput.IsPressing && isCrouched)
             {
                 Crouch();
             }

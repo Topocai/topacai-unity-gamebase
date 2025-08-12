@@ -38,6 +38,8 @@ namespace Topacai.Inputs
         public bool IsPressed { get; private set; }
         public bool InstantPress { get; private set; }
 
+        public bool All => IsPressing || IsPressed || InstantPress;
+
         public float PressThreshold { get; private set; }
 
         private float _holdTime = 0f;

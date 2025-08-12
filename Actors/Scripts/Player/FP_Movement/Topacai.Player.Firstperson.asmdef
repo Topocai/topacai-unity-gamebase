@@ -4,7 +4,8 @@
     "references": [
         "EditorAttributes",
         "Topacai",
-        "Topacai Interactuables"
+        "Topacai Interactuables",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
