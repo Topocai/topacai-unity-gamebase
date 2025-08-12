@@ -160,17 +160,8 @@ namespace Topacai.Inputs
 
         private static HashSet<SimpleActionHandler> _actionHandlers = new();
 
-        private float interactHoldTime;
-        private float jumpHoldTime;
-        private float runHoldTime;
-        private float crouchHoldTime;
-
         private InputAction _Move;
         private InputAction _Camera;
-        private InputAction _Run;
-        private InputAction _Interact;
-        private InputAction _Jump;
-        private InputAction _Crouch;
         private InputAction _Pause;
 
         [SerializeField] private float pressingThreshold = 0.099f;
@@ -181,11 +172,7 @@ namespace Topacai.Inputs
 
            _Move = PlayerInput.actions["Move"];
            _Camera = PlayerInput.actions["Camera"];
-           _Run = PlayerInput.actions["Run"];
-           _Interact = PlayerInput.actions["Interact"];
-           _Jump = PlayerInput.actions["Jump"];
            _Pause = PlayerInput.actions["Pause"];
-           _Crouch = PlayerInput.actions["Crouch"];
 
             var move = new SimpleActionHandler(PlayerInput.actions["Move"], pressingThreshold);
             var run = new SimpleActionHandler(PlayerInput.actions["Run"], pressingThreshold);
@@ -221,13 +208,21 @@ namespace Topacai.Inputs
 
         private void OnDisable()
         {
-            IsRunning = false;
-            IsInteracting = false;
-            IsJumping = false;
-            RunPressed = false;
-            InteractPressed = false;
-            JumpPressed = false;
-            PausePressed = false;
+            foreach (var handler in _actionHandlers)
+            {
+                handler.Disable();
+            }
+        }
+
+        private void OnEnable()
+        {
+            if (Application.isPlaying) 
+            {
+                foreach (var handler in _actionHandlers)
+                {
+                    handler.Enable();
+                }
+            }
         }
 
         private void Update()
@@ -242,16 +237,6 @@ namespace Topacai.Inputs
             CameraDir = _Camera.ReadValue<Vector2>();
 
             PausePressed = _Pause.WasPressedThisFrame();
-
-            UpdateInputState(_Run, ref RunPressed, ref IsRunning, ref runHoldTime);
-            UpdateInputState(_Interact, ref InteractPressed, ref IsInteracting, ref interactHoldTime);
-            UpdateInputState(_Jump, ref JumpPressed, ref IsJumping, ref jumpHoldTime);
-            UpdateInputState(_Crouch, ref CrouchPressed, ref IsCrouching, ref crouchHoldTime);
-
-            InstantJump = _Jump.WasPerformedThisFrame();
-            InstantInteract = _Interact.WasPerformedThisFrame();
-            InstantRun = _Run.WasPerformedThisFrame();
-            InstantCrouch = _Crouch.WasPerformedThisFrame();
 
             foreach (var actionHandler in _actionHandlers)
             {
@@ -280,33 +265,5 @@ namespace Topacai.Inputs
         public static void UnregisterActionHandler(SimpleActionHandler actionHandler) => _actionHandlers.Remove(actionHandler);
 
         public static void UnregisterActionHandler(string name) => _actionHandlers.Remove(GetActionHandler(name));
-
-        public static void UpdateInputState(InputAction action, ref bool isPressed, ref bool isPressing, ref float holdTime, float pressingThreshold = 0.15f)
-        {
-            if (action.IsPressed())
-            {
-                holdTime += Time.deltaTime;
-
-                if (holdTime >= pressingThreshold)
-                {
-                    isPressing = true;
-                }
-
-                isPressed = false;
-            }
-            else
-            {
-                if (holdTime > 0 && holdTime <= pressingThreshold)
-                {
-                    isPressed = true;
-                }
-                else
-                {
-                    isPressed = false;
-                }
-                holdTime = 0;
-                isPressing = false;
-            }
-        }
     }
 }
