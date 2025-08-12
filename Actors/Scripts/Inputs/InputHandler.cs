@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,6 +27,103 @@ namespace Topacai.Inputs
 
     public class OnSchemeChangedEvent : UnityEvent<OnSchemeChangedArgs> { }
 
+    [System.Serializable]
+    public class SimpleActionHandler : IComparable
+    {
+        private InputAction _action;
+
+        public string Name => _action.name;
+
+        public bool IsPressing { get; private set; }
+        public bool IsPressed { get; private set; }
+        public bool InstantPress { get; private set; }
+
+        public float PressThreshold { get; private set; }
+
+        private float _holdTime = 0f;
+        private bool _isActive = true;
+
+        public SimpleActionHandler(InputAction action, float pressThreshold = 0.075f)
+        {
+            _action = action;
+            PressThreshold = pressThreshold;
+        }
+
+        public void SetThreshold(float threshold) => PressThreshold = threshold;
+
+        public void Update(float deltaTime)
+        {
+            if(!_isActive) return;
+
+            InstantPress = _action.WasPressedThisFrame();
+
+            if (_action.IsPressed())
+            {
+                _holdTime += deltaTime;
+
+                if (_holdTime >= PressThreshold)
+                {
+                    IsPressing = true;
+                }
+
+                IsPressed = false;
+            }
+            else
+            {
+                if (_holdTime > 0 && _holdTime <= PressThreshold)
+                {
+                    IsPressed = true;
+                }
+                else
+                {
+                    IsPressed = false;
+                }
+                _holdTime = 0;
+                IsPressing = false;
+            }
+        }
+
+        public void Disable() 
+        {
+            _action.Disable();
+            IsPressing = false;
+            IsPressed = false;
+            InstantPress = false;
+            _isActive = false;
+        }
+
+        public void Enable()
+        {
+            _action.Enable();
+            IsPressing = true;
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (obj == null) return 1;
+            SimpleActionHandler other = obj as SimpleActionHandler;
+            if (other == null)
+            {
+                string x = obj as string;
+                if (x != null)
+                {
+                    return _action.name.CompareTo(x);
+                }
+                return 1;
+            }
+            return _action.name.CompareTo(other._action.name);
+        }
+    }
+
+    public enum ActionName
+    {
+        Interact,
+        Jump,
+        Run,
+        Crouch
+
+    }
+
     public class InputHandler : MonoBehaviour
     {
         public static InputHandler Instance { get; private set; }
@@ -40,23 +138,25 @@ namespace Topacai.Inputs
         public static Vector2 MoveDir;
         public static Vector2 CameraDir;
 
-        public static bool IsRunning;
-        public static bool RunPressed;
-        public static bool InstantRun;
+        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool IsRunning;
+        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool RunPressed;
+        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool InstantRun;
 
-        public static bool IsInteracting;
-        public static bool InteractPressed;
-        public static bool InstantInteract;
+        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool IsInteracting;
+        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool InteractPressed;
+        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool InstantInteract;
 
-        public static bool IsJumping;
-        public static bool JumpPressed;
-        public static bool InstantJump;
+        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool IsJumping;
+        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool JumpPressed;
+        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool InstantJump;
 
-        public static bool IsCrouching;
-        public static bool CrouchPressed;
-        public static bool InstantCrouch;
+        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool IsCrouching;
+        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool CrouchPressed;
+        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool InstantCrouch;
 
         public static bool PausePressed;
+
+        private static HashSet<SimpleActionHandler> _actionHandlers = new();
 
         private float interactHoldTime;
         private float jumpHoldTime;
@@ -84,6 +184,18 @@ namespace Topacai.Inputs
            _Jump = PlayerInput.actions["Jump"];
            _Pause = PlayerInput.actions["Pause"];
            _Crouch = PlayerInput.actions["Crouch"];
+
+            var move = new SimpleActionHandler(PlayerInput.actions["Move"], pressingThreshold);
+            var run = new SimpleActionHandler(PlayerInput.actions["Run"], pressingThreshold);
+            var interact = new SimpleActionHandler(PlayerInput.actions["Interact"], pressingThreshold);
+            var jump = new SimpleActionHandler(PlayerInput.actions["Jump"], pressingThreshold);
+            var crouch = new SimpleActionHandler(PlayerInput.actions["Crouch"], pressingThreshold);
+
+            _actionHandlers.Add(move);
+            _actionHandlers.Add(run);
+            _actionHandlers.Add(interact);
+            _actionHandlers.Add(jump);
+            _actionHandlers.Add(crouch);
 
             OnSchemeChangedHandler(PlayerInput.currentControlScheme);
         }
@@ -138,7 +250,34 @@ namespace Topacai.Inputs
             InstantInteract = _Interact.WasPerformedThisFrame();
             InstantRun = _Run.WasPerformedThisFrame();
             InstantCrouch = _Crouch.WasPerformedThisFrame();
+
+            foreach (var actionHandler in _actionHandlers)
+            {
+                actionHandler.Update(Time.deltaTime);
+            }
         }
+
+        public static void RegisterActionHandler(SimpleActionHandler actionHandler) => _actionHandlers.Add(actionHandler);
+        public static SimpleActionHandler GetActionHandler(string name)
+        {
+            foreach (var handler in _actionHandlers)
+            {
+                if (handler.Name == name)
+                {
+                    return handler;
+                }
+            }
+
+            return null;
+        }
+
+        public static SimpleActionHandler GetActionHandler(InputAction action) => GetActionHandler(action.name);
+
+        public static SimpleActionHandler GetActionHandler(ActionName action) => GetActionHandler(action.ToString());
+
+        public static void UnregisterActionHandler(SimpleActionHandler actionHandler) => _actionHandlers.Remove(actionHandler);
+
+        public static void UnregisterActionHandler(string name) => _actionHandlers.Remove(GetActionHandler(name));
 
         public static void UpdateInputState(InputAction action, ref bool isPressed, ref bool isPressing, ref float holdTime, float pressingThreshold = 0.15f)
         {
