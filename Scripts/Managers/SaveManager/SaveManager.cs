@@ -139,6 +139,7 @@ namespace Topacai.Utils.SaveSystem
         /// <param name="fileName">Unique name of saved data</param>
         /// <param name="data">Variable to store the data</param>
         /// <param name="subFolder">(optional) subfolder path to search data</param>
+        /// <returns>True flag if data was found</returns>
         public static bool GetProfileData<T>(UserProfile profile, string fileName, out T data, string subFolder = "")
         {
             var info = CheckDirectoryAndFile(profile, fileName, subFolder);
