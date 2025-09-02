@@ -7,6 +7,7 @@
 ## Implementation
 
 Using a `Dictionary` that containes a Node as a key and another Dictionary that contains every other Node in the Dictionary followed by their Edge (or value)
+> [Implementation file](https://github.com/Topocai/topacai-unity-gamebase/blob/330c61f96d01d8e9615bd615e190c10003fb8233/Scripts/Utils/Collections/AdjacencyList.cs#L35)
 
 ### Insert a Vertex
 
