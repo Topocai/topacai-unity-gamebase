@@ -162,7 +162,7 @@ namespace Topacai.Player.Firstperson.Movement
 
         private bool CanJumpCut()
         {
-            return isJumping && _rb.linearVelocity.y > 0;
+            return isJumping && Math.Abs(_rb.linearVelocity.y) > 0;
         }
 
         private bool CanJumpHang()
@@ -246,13 +246,13 @@ namespace Topacai.Player.Firstperson.Movement
             {
                 SetGravityScale(Data.GroundGravityScale);
             }
-            else if (isJumping)
-            {
-                SetGravityScale(Data.GravityScale * Data.JumpingGravityMult);
-            }
             else if (!InGround && jumpCut && Data.LargeJump)
             {
                 SetGravityScale(Data.GravityScale * Data.JumpCutGravityMult);
+            }
+            else if (isJumping)
+            {
+                SetGravityScale(Data.GravityScale * Data.JumpingGravityMult);
             }
             else if (!InGround && isFalling)
             {
@@ -279,22 +279,18 @@ namespace Topacai.Player.Firstperson.Movement
 
         private void JumpInput()
         {
-            if (!WasJumpPressed)
+            _jumpInput.Update(Time.deltaTime);  
+            if (!WasJumpPressed && _jumpInput.InstantPress)
             {
-                if (_jumpInput.All)
-                {
-                    WasJumpPressed = true;
-                    LastPressedJump = Data.JumpBufferInput;
-                }
+                WasJumpPressed = true;
+                LastPressedJump = Data.JumpBufferInput;
             }
             else
             {
-                if (!_jumpInput.All) return;
-
                 WasJumpPressed = false;
             }
 
-            IsJumpPressed = (_jumpInput.All);
+            IsJumpPressed = _jumpInput.All;
         }
 
         private void RunInput()
