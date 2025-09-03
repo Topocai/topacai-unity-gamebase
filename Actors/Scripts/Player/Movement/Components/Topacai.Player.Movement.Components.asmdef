@@ -2,8 +2,8 @@
     "name": "Topacai.Player.Movement.Components",
     "rootNamespace": "Topacai.Player.Movement.Components",
     "references": [
-        "GUID:713339cfaa137b448a8fcad617701ce2",
-        "GUID:878afc8e7a01fa54c92e67b01a4964f6"
+        "Topacai",
+        "Topacai.Player.Movement"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

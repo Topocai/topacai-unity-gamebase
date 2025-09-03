@@ -2,10 +2,10 @@
     "name": "Topacai.Player.Movement.Firstperson.Components.CameraEffects",
     "rootNamespace": "Topacai.Player.Movement.Firstperson.Components.CameraEffects",
     "references": [
-        "GUID:21c2fedc15258c44e997df5deb083cc7",
-        "GUID:878afc8e7a01fa54c92e67b01a4964f6",
-        "GUID:febaf25a60dafbd44941357b21678606",
-        "GUID:713339cfaa137b448a8fcad617701ce2"
+        "Topacai.Player.Movement.Components",
+        "Topacai.Player.Movement",
+        "EditorAttributes",
+        "Topacai"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

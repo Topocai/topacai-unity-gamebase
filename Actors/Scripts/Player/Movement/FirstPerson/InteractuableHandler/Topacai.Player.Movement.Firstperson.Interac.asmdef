@@ -2,10 +2,10 @@
     "name": "Topacai.Player.Movement.Firstperson.Interac",
     "rootNamespace": "Topacai.Player.Movement.Firstperson.Interac",
     "references": [
-        "GUID:c9bc2f3ce8bfab84ea18ddc171456e56",
-        "GUID:5f9d72b834fcaf840a5a9f78575e866b",
-        "GUID:713339cfaa137b448a8fcad617701ce2",
-        "GUID:75469ad4d38634e559750d17036d5f7c"
+        "Topacai.Player.Movement.Firstperson",
+        "Topacai Interactuables",
+        "Topacai",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

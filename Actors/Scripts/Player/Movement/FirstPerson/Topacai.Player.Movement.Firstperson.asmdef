@@ -2,9 +2,9 @@
     "name": "Topacai.Player.Movement.Firstperson",
     "rootNamespace": "",
     "references": [
-        "GUID:713339cfaa137b448a8fcad617701ce2",
-        "GUID:febaf25a60dafbd44941357b21678606",
-        "GUID:878afc8e7a01fa54c92e67b01a4964f6"
+        "Topacai",
+        "EditorAttributes",
+        "Topacai.Player.Movement"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
