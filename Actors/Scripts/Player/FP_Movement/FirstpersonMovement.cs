@@ -11,6 +11,7 @@ using System;
 
 namespace Topacai.Player.Firstperson.Movement
 {
+    [Obsolete("This system is obselete, use Topacai.Player.Movement.Firstperson system instead")]
     public class FirstpersonMovement : CustomRigidbody
     {
         public delegate void BeforeWallDetect(ref Vector3 moveDir, ref Vector3 flatVel, ref RaycastHit wallHitInfo);

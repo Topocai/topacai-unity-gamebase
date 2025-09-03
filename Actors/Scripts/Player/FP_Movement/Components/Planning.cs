@@ -1,9 +1,11 @@
 using EditorAttributes;
-using UnityEngine;
+using System;
 using Topacai.Inputs;
+using UnityEngine;
 
 namespace Topacai.Player.Firstperson.Movement.Components
 {
+    [Obsolete("This system is obselete, use Topacai.Player.Movement.Components system instead")]
     public class Planning : MovementComponent
     {
         [SerializeField] private float _planningVerticalSpeed = 1f;

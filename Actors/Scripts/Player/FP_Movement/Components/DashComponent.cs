@@ -1,12 +1,14 @@
 using EditorAttributes;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using Topacai.Player.Firstperson.Camera;
 using Topacai.TDebug;
+using UnityEngine;
 
 namespace Topacai.Player.Firstperson.Movement.Components
 {
+    [Obsolete("This system is obselete, use Topacai.Player.Movement.Components system instead")]
     public class DashComponent : MovementComponent
     {
         [Header("Dash Settings")]

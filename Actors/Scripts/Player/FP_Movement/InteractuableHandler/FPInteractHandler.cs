@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Topacai.Actors.Interactuables;
@@ -6,6 +7,7 @@ using UnityEngine;
 
 namespace Topacai.Player.Firstperson.Interact
 {
+    [Obsolete("This system is obselete, use Topacai.Player.Movement.Firstperson.Interact system instead")]
     public class FPInteractHandler : MonoBehaviour
     {
         [SerializeField] private float _distance = 3f;

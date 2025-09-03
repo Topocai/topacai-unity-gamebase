@@ -4,7 +4,7 @@ using Topacai.Actors.Interactuables;
 using Topacai.Inputs;
 using UnityEngine;
 
-namespace Topacai.Player.Firstperson.Interact
+namespace Topacai.Player.Movement.Firstperson.Interact
 {
     public class FPInteractHandler : MonoBehaviour
     {
@@ -30,12 +30,12 @@ namespace Topacai.Player.Firstperson.Interact
 
         private void Update()
         {
-            if (InputHandler.InteractPressed)
+            if (InputHandler.GetActionHandler(ActionName.Interact).IsPressed)
             {
                 Interactuable.Interact();
             }
 
-            if (InputHandler.IsInteracting)
+            if (InputHandler.GetActionHandler(ActionName.Interact).IsPressing)
             {
                 Interactuable.HoldInteract();
             }

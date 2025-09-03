@@ -1,11 +1,9 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Topacai.Player.Firstperson.Movement.Components.CameraEffects
+namespace Topacai.Player.Movement.Firstperson.Components.CameraEffects
 {
-    [Obsolete("This system is obselete, use Topacai.Player.Movement.Firstperson.Components.CameraEffects system instead")]
     [CreateAssetMenu(fileName = "ViewVobbing Asset", menuName = "ScriptableObjects/FPMovement/CameraEffects/ViewVobbingAsset")]
     public class ViewVobbingAsset : ScriptableObject
     {

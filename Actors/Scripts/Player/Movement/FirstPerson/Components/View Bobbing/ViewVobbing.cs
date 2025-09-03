@@ -1,10 +1,8 @@
-using System;
-using Topacai.Player.Firstperson.Movement.Components;
+using Topacai.Player.Movement.Components;
 using UnityEngine;
 
-namespace Topacai.Player.Firstperson.Movement.Components.CameraEffects
+namespace Topacai.Player.Movement.Firstperson.Components.CameraEffects
 {
-    [Obsolete("This system is obselete, use Topacai.Player.Movement.Firstperson.Components.CameraEffects system instead")]
     public class ViewVobbing : MovementComponent
     {
         [Space(15)]

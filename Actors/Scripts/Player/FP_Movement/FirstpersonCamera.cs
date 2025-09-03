@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Topacai.Inputs;
@@ -5,6 +6,7 @@ using UnityEngine;
 
 namespace Topacai.Player.Firstperson.Camera
 {
+    [Obsolete("This system is obselete, use Topacai.Player.Movement.Firstperson.Camera system instead")]
     public class FirstpersonCamera : MonoBehaviour
     {
         public static Vector3 CameraDir;

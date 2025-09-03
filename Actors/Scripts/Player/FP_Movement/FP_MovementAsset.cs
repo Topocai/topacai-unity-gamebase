@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using EditorAttributes;
 using UnityEngine.Events;
+using System;
 
 
 namespace Topacai.Player.Firstperson.Movement
 {
     [CreateAssetMenu(fileName = "MovementAsset", menuName = "ScriptableObjects/FPMovement/MovementAsset")]
+    [Obsolete("This system is obselete, use Topacai.Player.Movement system instead")]
     public class FP_MovementAsset : ScriptableObject
     {
         [HideInInspector] public UnityEvent OnValuesChanged = new UnityEvent();

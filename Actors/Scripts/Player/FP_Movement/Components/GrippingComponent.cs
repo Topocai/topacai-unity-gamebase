@@ -1,4 +1,5 @@
 using EditorAttributes;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Topacai.Inputs;
@@ -7,6 +8,7 @@ using UnityEngine;
 
 namespace Topacai.Player.Firstperson.Movement.Components
 {
+    [Obsolete("This system is obselete, use Topacai.Player.Movement.Components system instead")]
     public class GrippingComponent : MovementComponent
     {
         [Header("Movement Settings")]

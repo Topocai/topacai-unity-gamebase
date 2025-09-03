@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59b477ba7a74c564b90bba7459cffa41, type: 3}
+  m_Name: ViewVobbing Asset
+  m_EditorClassIdentifier: 
+  startShakeThreshold: 0.34
+  resetPosSpeed: 1
+  smooth: 1.87
+  speed: 0.57
+  stableStrenght: 15
+  factor: 0.18
+  horizontalAmplitude: 0.18
+  verticalAmplitude: 0.09
+  frequency: 1
+  verticalOffset: 0
+  verticalShift: 0
+  horizontalShift: 0
+  movementFactorMin: 0.2
+  movementFactorMax: 1.2
+  movementSpeedSmooth: 1.2

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,7 @@ using UnityEngine.Events;
 
 namespace Topacai.Player.Firstperson.Movement.Components
 {
+    [Obsolete("This system is obselete, use Topacai.Player.Movement.Components system instead")]
     public class MovementStateManager
     {
         private Dictionary<string, MovementComponent> _registeredStates = new Dictionary<string, MovementComponent>();
@@ -22,6 +24,7 @@ namespace Topacai.Player.Firstperson.Movement.Components
             _registeredStates.TryAdd(stateName.ToLower(), state);
         }
     }
+    [Obsolete("This system is obselete, use Topacai.Player.Movement.Components system instead")]
     public class MovementComponent : MonoBehaviour
     {
         protected static UnityEvent<MovementComponent> OnComponentRegistered = new UnityEvent<MovementComponent>();
