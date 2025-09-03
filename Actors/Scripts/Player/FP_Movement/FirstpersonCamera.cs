@@ -12,7 +12,7 @@ namespace Topacai.Player.Firstperson.Camera
         public static Transform CameraTransform => PlayerBrain.Instance.PlayerReferences.FP_Camera;
 
         private Transform PlayerOrientation => PlayerBrain.Instance.PlayerReferences.PlayerOrientation;
-        private Transform CameraHolder => PlayerBrain.Instance.PlayerReferences.CameraHolder;
+        private Transform CameraHolder => PlayerBrain.Instance.PlayerReferences.FP_CameraHolder;
         private (float, float) Sensivity => PlayerBrain.Instance.PlayerConfig.GetSensivity(InputHandler.CurrentDevice);
         private Vector2 _input => InputHandler.CameraDir;
 

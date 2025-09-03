@@ -103,7 +103,7 @@ namespace Topacai.Player.Firstperson.Movement
 
         void Start()
         {
-            _rb = PlayerBrain.Instance.PlayerReferences.Rigidbody;
+            PlayerBrain.Instance.PlayerReferences.Rigidbody = _rb;
             _maxSpeed = Data.WalkSpeed;
 
             _defaultData.CalculateJumpForce(_defaultData.JumpHeight, _defaultData.JumpTimeToApex, customGravity.y);

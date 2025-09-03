@@ -14,7 +14,7 @@ namespace Topacai.Player
 
         public Rigidbody Rigidbody { get => rb; set => rb = value; }
         public Transform PlayerOrientation { get => playerOrientation; set => playerOrientation = value; }
-        public Transform CameraHolder { get => cameraHolder; set => cameraHolder = value; }
+        public Transform FP_CameraHolder { get => cameraHolder; set => cameraHolder = value; }
         public Transform FP_Camera { get => FP_camera; set => FP_camera = value; }
     }
 
@@ -77,11 +77,6 @@ namespace Topacai.Player
             {
                 Destroy(gameObject);
             }
-        }
-
-        void Start()
-        {
-            PlayerReferences.Rigidbody = GetComponent<Rigidbody>();
         }
 
         #region Public Utility Methods
