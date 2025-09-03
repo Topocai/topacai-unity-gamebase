@@ -1,0 +1,20 @@
+{
+    "name": "Topacai.Player.Movement.Components.Grip",
+    "rootNamespace": "Topacai.Player.Movement.Components.Grip",
+    "references": [
+        "GUID:713339cfaa137b448a8fcad617701ce2",
+        "GUID:febaf25a60dafbd44941357b21678606",
+        "GUID:878afc8e7a01fa54c92e67b01a4964f6",
+        "GUID:21c2fedc15258c44e997df5deb083cc7",
+        "GUID:75469ad4d38634e559750d17036d5f7c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
