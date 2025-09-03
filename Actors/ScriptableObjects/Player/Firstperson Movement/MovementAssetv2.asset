@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52778db2bf476164bb8c75809fd82079, type: 3}
+  m_Name: MovementAssetv2
+  m_EditorClassIdentifier: 
+  OnValuesChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  RBMass: 1
+  GroundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  WallLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  GravityStrength: 0
+  GravityScale: 0
+  fallThreshold: 0.2
+  MaxFallSpeed: 120
+  GroundDrag: 0.2
+  AirDrag: 0
+  FallDrag: 0
+  GroundGravityScale: 0.3
+  FallingGravityMult: 7
+  JumpingGravityMult: 8
+  JumpCutGravityMult: 10
+  WallMinAngleToMove: 25
+  JumpHeight: 10
+  JumpTimeToApex: 2.6
+  JumpForce: 0
+  WhenCancelJumping: 0.45
+  JumpHangAccelMult: 0
+  JumpHandMaxSpeed: 0
+  Acceleration: 6.6
+  Deceleration: 8.9
+  accelerationAmount: 0
+  decelerationAmount: 0
+  WalkSpeed: 4
+  RunSpeed: 8
+  AirAccelMult: 1
+  AirDecelMult: 0.33
+  AirMaxSpeedMult: 1
+  MinSlopeAngle: 12
+  MaxSlopeAngle: 46
+  SlopeSpeedMultiplier: 1.7
+  SlopeDownForce: 18
+  StepClampVel: 3.77
+  StepUpForce: 3
+  StepDistance: 0.4
+  StepDepth: 0.5
+  OnSlopeStepDistanceMultiplier: 1.2
+  StepDownDistance: 0.1
+  StepDownGroundBuffer: 0.1
+  StepDownForce: 32
+  StepDownMinDistance: 0.1
+  StepDownOffset: 0.05
+  StepMinAngle: 80
+  StepDotThreshold: 0.65
+  StepBufferTime: 0
+  CoyoteTime: 0.15
+  JumpBufferInput: 0.12
+  JumpApexBuffer: 0.13
+  CanMove: 1
+  FreezeMove: 0
+  CanJump: 1
+  CanChangeSpeed: 1
+  LimitFallSpeed: 1
+  ConserveMomentumOnAir: 0
+  AirMovement: 1
+  LargeJump: 0
+  JumpHang: 0
+  SlopeDetection: 1
+  StepClimb: 1

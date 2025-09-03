@@ -88,12 +88,12 @@ namespace Topacai.Player.Movement
         protected SimpleActionHandler _crouchInput;
         protected SimpleActionHandler _sprintInput;
 
-        private float GroundSize => _groundSize * transform.localScale.magnitude;
-        private float PlayerHeight => _initialPlayerHeight * transform.localScale.y;
-        private bool InGround => LastGroundTime >= 0;
-        private Vector3 InputDir => InputHandler.MoveDir;
-        private Vector3 WallStartPointUpper => wallCheckMidPoint.position + Vector3.down * (PlayerHeight * 0.5f + heightToCheckWall * transform.localScale.y);
-        private Vector3 WallStartPointBottom => wallCheckMidPoint.position + Vector3.down * (PlayerHeight * 0.5f + -heightToCheckWall * transform.localScale.y);
+        protected float GroundSize => _groundSize * transform.localScale.magnitude;
+        protected float PlayerHeight => _initialPlayerHeight * transform.localScale.y;
+        protected bool InGround => LastGroundTime >= 0;
+        protected Vector3 InputDir => InputHandler.MoveDir;
+        protected Vector3 WallStartPointUpper => wallCheckMidPoint.position + Vector3.down * (PlayerHeight * 0.5f + heightToCheckWall * transform.localScale.y);
+        protected Vector3 WallStartPointBottom => wallCheckMidPoint.position + Vector3.down * (PlayerHeight * 0.5f + -heightToCheckWall * transform.localScale.y);
 
         protected virtual void Awake()
         {
@@ -142,7 +142,7 @@ namespace Topacai.Player.Movement
             CrouchInputs();
             ControlGravityScale();
         }
-        void Update()
+        protected virtual void Update()
         {
             _rb.mass = Data.RBMass;
             AirCheckers();
@@ -704,6 +704,7 @@ namespace Topacai.Player.Movement
             Debug.DrawLine(transform.position, transform.position + MoveDir.normalized * 3f, Color.magenta);
 
             Debugcanvas.Instance.AddTextToDebugLog("targetSpeed: ", _targetSpeed.ToString("0.0"));
+            Debugcanvas.Instance.AddTextToDebugLog("movedir2: ", _moveDir.ToString("0.0"));
             Debugcanvas.Instance.AddTextToDebugLog("Conserve momentum: ", ConserveMomentum().ToString());
             Debugcanvas.Instance.AddTextToDebugLog("Movement: ", movementForce.ToString("0.0"));
             Debugcanvas.Instance.AddTextToDebugLog("speedDif: ", speedDif.ToString("0.0"));
