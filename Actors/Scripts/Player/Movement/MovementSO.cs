@@ -25,29 +25,39 @@ namespace Topacai.Player.Movement
         public float GroundDrag = 0.2f;
         [Tooltip("Drag applied when player is in air but not falling")]
         public float AirDrag;
+        [Tooltip("Drag applied when player is in air and falling")]
         public float FallDrag;
         [Space(15)]
         public float GroundGravityScale = 0.3f;
         public float FallingGravityMult = 7f;
         public float JumpingGravityMult = 8f;
+        [Tooltip("Gravity applied when large jump is enabled and player cancel jump or stops holding")]
         [EnableField(nameof(LargeJump))] public float JumpCutGravityMult = 10f;
         [Space(15)]
 
         [Header("Wall Collision")]
+        [Tooltip("When a wall is detected, the player will move in the direction of the wall if the angle is higher than this value")]
         public float WallMinAngleToMove = 25f;
 
         [Header("Jump")]
+        [Tooltip("How high the player jumps")]
         [EnableField(nameof(CanJump))] public float JumpHeight = 10;
+        [Tooltip("How long it takes to reach the apex of the jump")]
         [EnableField(nameof(CanJump))] public float JumpTimeToApex = 2.6f;
         [ReadOnly] public float JumpForce;
+        [Tooltip("sightly time to consider that player is not more jumping")]
         [Range(0.001f, 1f), EnableField(nameof(CanJump))] public float WhenCancelJumping = 0.45f;
 
         [Space(5)]
+        [Tooltip("Acceleration multiplicator when is hanging jump (player will gain an extra speed when is the end of the jump)")]
         [EnableField(nameof(JumpHang))] public float JumpHangAccelMult;
+        [Tooltip("Max speed that player can reach with hang boost")]
         [EnableField(nameof(JumpHang))] public float JumpHandMaxSpeed;
 
         [Header("Movement")]
+        [Tooltip("How fast player will reach the max speed")]
         public float Acceleration = 6.6f;
+        [Tooltip("How fast player will stops and change direction")]
         public float Deceleration = 8.9f;
         [HideInInspector] public float accelerationAmount;
         [HideInInspector] public float decelerationAmount;

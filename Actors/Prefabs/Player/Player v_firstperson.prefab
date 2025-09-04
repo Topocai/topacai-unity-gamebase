@@ -308,11 +308,11 @@ GameObject:
   - component: {fileID: 5984148882133814291}
   - component: {fileID: 8292286287853943238}
   - component: {fileID: 8036125784681422184}
-  - component: {fileID: 3134990551107179753}
-  - component: {fileID: 7783718316065624390}
-  - component: {fileID: 7544515365317894710}
+  - component: {fileID: 5064102991364604699}
+  - component: {fileID: 1813047750628748523}
+  - component: {fileID: 6252253547830473148}
   m_Layer: 0
-  m_Name: Player
+  m_Name: Player v_firstperson
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -464,7 +464,7 @@ MonoBehaviour:
     sensivity_vertical: 1
     j_sensivity_horizontal: 50
     j_sensivity_vertical: 50
---- !u!114 &3134990551107179753
+--- !u!114 &5064102991364604699
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -473,12 +473,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 8804685584716161075}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58232faaf1efd6d4e9f430d1b07de0d0, type: 3}
+  m_Script: {fileID: 11500000, guid: 1c7d32cd812cc524588b1114be006dcb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   SHOW_CAMERA_DIR: 0
   SHOW_CAMERA_DIR_FLAT: 0
---- !u!114 &7783718316065624390
+--- !u!114 &1813047750628748523
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -487,14 +487,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 8804685584716161075}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b600096727284a4aa249c2690c101a4, type: 3}
+  m_Script: {fileID: 11500000, guid: 006290259e3075444ae654c8bef0cefa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   gravityScale: 1
   gravityOn: 1
   useCustomGravity: 0
   customGravity: {x: 0, y: -9.81, z: 0}
-  _defaultData: {fileID: 11400000, guid: 75c9ca6bd5d85e544b00a998cb0412d7, type: 2}
+  _defaultData: {fileID: 11400000, guid: cd9d5626a36f01e46957fad92854af5a, type: 2}
   <Data>k__BackingField: {fileID: 0}
   _groundT: {fileID: 911841005251527460}
   _groundSize: 0.18
@@ -505,7 +505,7 @@ MonoBehaviour:
   slopeDistance: 1.1
   slopeBoxSize: 0.2
   exitingSlopeTime: 0.07
-  slopeCrossThreshold: 0
+  slopeCrossThreshold: 0.0001
   stepStart: {fileID: 7245125603182171273}
   stepHeight: {fileID: 6990196419943841137}
   stepBoxSize: 0.2
@@ -519,11 +519,12 @@ MonoBehaviour:
   <exitingSlope>k__BackingField: 0
   <WasJumpPressed>k__BackingField: 0
   <IsJumpPressed>k__BackingField: 0
+  <GroundIsTerrain>k__BackingField: 0
   <_initialPlayerHeight>k__BackingField: 0
   <_maxSpeed>k__BackingField: 0
   <_targetSpeed>k__BackingField: {x: 0, y: 0, z: 0}
   <ClimbingStair>k__BackingField: 0
---- !u!114 &7544515365317894710
+--- !u!114 &6252253547830473148
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -532,7 +533,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8804685584716161075}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 40904333a0aa9c74599a7c1435e3b77a, type: 3}
+  m_Script: {fileID: 11500000, guid: d63ff7474c70b864b9f49c7ecbd5d289, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _distance: 3

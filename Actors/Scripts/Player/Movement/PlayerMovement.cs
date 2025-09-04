@@ -21,29 +21,38 @@ namespace Topacai.Player.Movement
         public event BeforeMove OnBeforeMove;
 
         [Header("Data")]
+        [Tooltip("Sets here the data asset that the movement will use, this will be copied during runtime in order to keep runtime changes during gameplay, also used this to revert any runtime change in data")]
         [SerializeField] protected MovementSO _defaultData;
 
+        [Tooltip("The data asset that will be used in runtime, when the monobehaviour starts the default data will be copied here")]
         [field: SerializeField] public MovementSO Data { protected set; get; }
 
         [Header("Ground Check")]
+        [Tooltip("The transform that will be used to check if the player is on ground")]
         [SerializeField] protected Transform _groundT;
+        [Tooltip("Size of the sphere ground check")]
         [SerializeField] protected float _groundSize = 0.18f;
 
         [Header("Collision Checks")]
+        [Tooltip("Wall detection is performed using a capsule cast, this transform is used as a center in Y axys to start the cast")]
         [Clamp(-10f, 0.05f), SerializeField] private Transform wallCheckMidPoint;
+        [Tooltip("How tall the capsule will be. Put negative values")]
         [SerializeField] protected float heightToCheckWall = -0.42f;
+        [Tooltip("How far away from player the collision will be detected")]
         [SerializeField] protected float distanceFromWall = 0.14f;
+        [Tooltip("Radious size of capsule")]
         [SerializeField] protected float wallSphereRadius = 0.3f;
 
         [Header("Slope")]
-        [SerializeField] protected float slopeDistance = 1.1f;
-        [Range(0.1f, 0.5f), SerializeField] private float slopeBoxSize = 0.2f;
+        [Tooltip("Short amount of time that is used as threshold to determine if player is trying to exit from slope (i.e jump)")]
         [Range(0.001f, 0.1f), SerializeField] private float exitingSlopeTime = 0.07f;
-        [SerializeField] protected float slopeCrossThreshold = 0.0001f;
 
         [Header("StepClimb")]
+        [Tooltip("The transform used to check Y height of the bottom step")]
         [SerializeField] protected Transform stepStart;
+        [Tooltip("The transform used to check Y height of the top step (how high the player can step)")]
         [SerializeField] protected Transform stepHeight;
+        [Tooltip("The check for step is used as a rectangle-form, this is the size of the rectangle")]
         [Range(0.1f, 0.5f), SerializeField] private float stepBoxSize = 0.2f;
 
         [Header("Debug")]
@@ -113,6 +122,9 @@ namespace Topacai.Player.Movement
             _sprintInput = InputHandler.GetActionHandler(ActionName.Run);
         }
 
+        /// <summary>
+        /// If the default data asset is changed during runtime this keeps the in-runtime data copy syncronized with it
+        /// </summary>
         protected void SyncValuesWithBaseDataMovement()
         {
             if (Data == null) return;

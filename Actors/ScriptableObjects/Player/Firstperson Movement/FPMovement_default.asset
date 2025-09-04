@@ -32,7 +32,7 @@ MonoBehaviour:
   GroundGravityScale: 0.3
   FallingGravityMult: 7
   JumpingGravityMult: 8
-  JumpCutGravityMult: 10
+  JumpCutGravityMult: 41.3
   WallMinAngleToMove: 25
   JumpHeight: 10
   JumpTimeToApex: 2.6
@@ -76,7 +76,7 @@ MonoBehaviour:
   LimitFallSpeed: 1
   ConserveMomentumOnAir: 1
   AirMovement: 1
-  LargeJump: 0
+  LargeJump: 1
   JumpHang: 0
   SlopeDetection: 1
   StepClimb: 1
