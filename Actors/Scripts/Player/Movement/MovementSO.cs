@@ -17,8 +17,6 @@ namespace Topacai.Player.Movement
         [Space(10)]
         public LayerMask GroundLayer;
         public LayerMask WallLayer;
-        [ReadOnly] public float GravityStrength;
-        [ReadOnly] public float GravityScale;
         [Range(0.001f, 0.4f)] public float fallThreshold = 0.2f;
         [EnableField(nameof(LimitFallSpeed))] public float MaxFallSpeed = 120f;
         [Space(15)]
@@ -44,7 +42,6 @@ namespace Topacai.Player.Movement
         [EnableField(nameof(CanJump))] public float JumpHeight = 10;
         [Tooltip("How long it takes to reach the apex of the jump")]
         [EnableField(nameof(CanJump))] public float JumpTimeToApex = 2.6f;
-        [ReadOnly] public float JumpForce;
         [Tooltip("sightly time to consider that player is not more jumping")]
         [Range(0.001f, 1f), EnableField(nameof(CanJump))] public float WhenCancelJumping = 0.45f;
 
@@ -59,8 +56,6 @@ namespace Topacai.Player.Movement
         public float Acceleration = 6.6f;
         [Tooltip("How fast player will stops and change direction")]
         public float Deceleration = 8.9f;
-        [HideInInspector] public float accelerationAmount;
-        [HideInInspector] public float decelerationAmount;
 
         public float WalkSpeed = 4;
         public float RunSpeed = 8;
@@ -125,23 +120,19 @@ namespace Topacai.Player.Movement
         public bool SlopeDetection = true;
         public bool StepClimb = true;
 
-        public void CalculateDynamicValues(float maxSpeed)
+        public float[] CalculateDynamicValues(float maxSpeed)
         {
-            accelerationAmount = (50 * Acceleration) / maxSpeed;
-            decelerationAmount = (50 * Deceleration) / maxSpeed;
-
-            accelerationAmount = Mathf.Clamp(Acceleration, 0.01f, 999f);
-            decelerationAmount = Mathf.Clamp(Deceleration, 0.01f, 999f);
+            return new float[] { Mathf.Clamp((50 * Acceleration) / maxSpeed, 0.01f, Acceleration), Mathf.Clamp((50 * Deceleration) / maxSpeed, 0.01f, Deceleration) };
         }
 
-        public void CalculateJumpForce(float height, float timeToApex, float gravityY)
+        public float[] CalculateJumpForce(float height, float timeToApex, float gravityY)
         {
             //Calculate gravity strength using the formula (gravity = 2 * jumpHeight / timeToJumpApex^2) 
-            GravityStrength = -(2 * height) / (timeToApex * timeToApex);
             //Calculate jumpForce using the formula (initialJumpVelocity = gravity * timeToJumpApex)
-            JumpForce = Mathf.Abs(GravityStrength) * timeToApex;
-
-            GravityScale = GravityStrength / gravityY;
+            float GravityStrength = -(2 * height) / (timeToApex * timeToApex);
+            
+            // JumpForce and GravityScale
+            return new float[] { Mathf.Abs(GravityStrength) * timeToApex, GravityStrength / gravityY };
         }
 
         private void OnValidate()

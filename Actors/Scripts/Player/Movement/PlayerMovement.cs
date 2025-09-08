@@ -93,6 +93,11 @@ namespace Topacai.Player.Movement
         protected Vector3 _moveDir;
         protected Collider _lastStep = default;
 
+        protected float _accelerationAmount;
+        protected float _decelerationAmount;
+        protected float _gravityScale = 1f;
+        protected float _jumpForce;
+
         protected SimpleActionHandler _jumpInput;
         protected SimpleActionHandler _crouchInput;
         protected SimpleActionHandler _sprintInput;
@@ -114,7 +119,10 @@ namespace Topacai.Player.Movement
             PlayerBrain.Instance.PlayerReferences.Rigidbody = _rb;
             _maxSpeed = Data.WalkSpeed;
 
-            _defaultData.CalculateJumpForce(_defaultData.JumpHeight, _defaultData.JumpTimeToApex, customGravity.y);
+            float[] jumpData = _defaultData.CalculateJumpForce(_defaultData.JumpHeight, _defaultData.JumpTimeToApex, customGravity.y);
+            _jumpForce = jumpData[0];
+            _gravityScale = jumpData[1];
+
             _defaultData.OnValuesChanged.AddListener(SyncValuesWithBaseDataMovement);
 
             _jumpInput = InputHandler.GetActionHandler(ActionName.Jump);
@@ -197,7 +205,7 @@ namespace Topacai.Player.Movement
 
         protected void AirCheckers()
         {
-            if (isJumping && (_rb.linearVelocity.y < -Data.WhenCancelJumping))
+            if (isJumping && Mathf.Abs(_rb.linearVelocity.y) < Data.WhenCancelJumping)
             {
                 isJumping = false;
                 LastJumpApex = Data.JumpApexBuffer;
@@ -259,15 +267,15 @@ namespace Topacai.Player.Movement
             }
             else if (!InGround && jumpCut && Data.LargeJump)
             {
-                SetGravityScale(Data.GravityScale * Data.JumpCutGravityMult);
+                SetGravityScale(_gravityScale * Data.JumpCutGravityMult);
             }
             else if (isJumping)
             {
-                SetGravityScale(Data.GravityScale * Data.JumpingGravityMult);
+                SetGravityScale(_gravityScale * Data.JumpingGravityMult);
             }
             else if (!InGround && isFalling)
             {
-                SetGravityScale(Data.GravityScale * Data.FallingGravityMult);
+                SetGravityScale(_gravityScale * Data.FallingGravityMult);
             }
 
             if (Data.LimitFallSpeed)
@@ -298,7 +306,7 @@ namespace Topacai.Player.Movement
         protected virtual void JumpInput()
         {
             _jumpInput.Update(Time.deltaTime);
-            if (!WasJumpPressed && _jumpInput.InstantPress)
+            if (!WasJumpPressed && (_jumpInput.InstantPress || _jumpInput.IsPressed))
             {
                 WasJumpPressed = true;
                 LastPressedJump = Data.JumpBufferInput;
@@ -333,7 +341,6 @@ namespace Topacai.Player.Movement
         {
             JumpInput();
             RunInput();
-
             if (CanJump() && LastPressedJump > 0 && Data.CanJump)
             {
                 isJumping = true;
@@ -354,7 +361,7 @@ namespace Topacai.Player.Movement
         }
 
         protected void ResetExitingSlope() => exitingSlope = false;
-        #endregion
+#endregion
 
         #region Actions
         public virtual void Jump(bool forceJump, float height = -999f, float timeToApex = -999f)
@@ -379,9 +386,10 @@ namespace Topacai.Player.Movement
             LastPressedJump = 0;
             LastGroundTime = 0;
 
-            Data.CalculateJumpForce(height, timeToApex, customGravity.y);
+            float[] jumpData = Data.CalculateJumpForce(height, timeToApex, customGravity.y);
 
-            float force = Data.JumpForce;
+            _jumpForce = jumpData[0];
+            _gravityScale = jumpData[1];
             /*
             if (_rb.velocity.y > 0)
             {
@@ -393,7 +401,7 @@ namespace Topacai.Player.Movement
             }*/
             ResetFallSpeed();
 
-            _rb.AddForce(Vector3.up * force, ForceMode.Impulse);
+            _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
         }
 
         protected virtual void SwitchRun(bool run)
@@ -557,7 +565,9 @@ namespace Topacai.Player.Movement
 
         protected void Movement()
         {
-            Data.CalculateDynamicValues(_maxSpeed);
+            var dynamicValues = Data.CalculateDynamicValues(_maxSpeed);
+            _accelerationAmount = dynamicValues[0];
+            _decelerationAmount = dynamicValues[1];
 
             #region Vectores
 
@@ -643,16 +653,17 @@ namespace Topacai.Player.Movement
             float accelRate;
             bool desaccel = Vector3.Dot(flatVel.normalized, _moveDir) < -0.75f || _targetSpeed.magnitude == 0f;
 
-            accelRate = desaccel ? Data.decelerationAmount : Data.accelerationAmount;
+            accelRate = desaccel ? _decelerationAmount : _accelerationAmount;
 
             if (!InGround && Data.AirMovement)
             {
-                accelRate = desaccel ? Data.decelerationAmount * Data.AirDecelMult : Data.accelerationAmount * Data.AirAccelMult;
+                accelRate = desaccel ? _decelerationAmount * Data.AirDecelMult : _accelerationAmount * Data.AirAccelMult;
                 _targetSpeed = _targetSpeed * Data.AirMaxSpeedMult;
             }
 
             if (CanJumpHang() && Data.JumpHang)
             {
+                Debugcanvas.Instance.AddTextToDebugLog("jumping apex", " ", 0.1f);
                 _targetSpeed *= Data.JumpHandMaxSpeed;
                 accelRate *= Data.JumpHangAccelMult;
             }
