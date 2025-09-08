@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Topacai.Utils.GameObjects;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -126,10 +127,8 @@ namespace Topacai.Inputs
 
     }
 
-    public class InputHandler : MonoBehaviour
+    public class InputHandler : Singleton<InputHandler>
     {
-        public static InputHandler Instance { get; private set; }
-
         public static OnSchemeChangedEvent OnSchemeChanged = new OnSchemeChangedEvent();
 
         public static PlayerInput PlayerInput;

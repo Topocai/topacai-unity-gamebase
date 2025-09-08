@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Topacai.Utils.GameObjects;
 using UnityEngine;
 
 namespace Topacai.Player
@@ -60,24 +61,10 @@ namespace Topacai.Player
         #endregion
     }
 
-    public class PlayerBrain : MonoBehaviour
+    public class PlayerBrain : Singleton<PlayerBrain>
     {
-        public static PlayerBrain Instance { get; private set; }
-
         [field: SerializeField] public PlayerReferences PlayerReferences { get; private set; }
         [field: SerializeField] public PlayerConfig PlayerConfig { get; private set; }
-
-        private void Awake()
-        {
-            if (Instance == null)
-            {
-                Instance = this;
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
-        }
 
         #region Public Utility Methods
 

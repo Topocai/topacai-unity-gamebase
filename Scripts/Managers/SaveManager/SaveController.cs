@@ -1,15 +1,15 @@
 using System.Collections.Generic;
 using Topacai.Inputs;
+using Topacai.Utils.GameObjects;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 namespace Topacai.Utils.SaveSystem
 {
-    public class SaveController : MonoBehaviour
+    public class SaveController : Singleton<SaveController>
     {
         public static UnityEvent OnSaveGameEvent = new UnityEvent();
-        public static SaveController Instance { get; private set; }
 
         [SerializeField] private string _savePath = "/SaveData";
         [SerializeField] private string _profilesFileName = "profiles.json";
@@ -19,18 +19,9 @@ namespace Topacai.Utils.SaveSystem
         List<UserProfile> _profiles = new List<UserProfile>();
         UserProfile _currentProfile;
 
-        private void Awake()
+        protected override void Awake()
         {
-            if(Instance == null)
-            {
-                Instance = this;
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
-
-            DontDestroyOnLoad(gameObject);
+            base.Awake();
 
             RecoverProfiles();
             SetDebugProfile();

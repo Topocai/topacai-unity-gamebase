@@ -1,12 +1,11 @@
-using Codice.CM.Common;
-using System;
 using System.Collections.Generic;
+using Topacai.Utils.GameObjects;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Topacai.TDebug
 {
-    public class Debugcanvas : MonoBehaviour
+    public class Debugcanvas : Singleton<Debugcanvas>
     {
         /// Make sure to include this assets in your resources project folder.
         
@@ -26,13 +25,6 @@ namespace Topacai.TDebug
         /// The class name to style logs labels
         /// </summary>
         private const string LOG_LABEL_CLASS = "debugLogsContainer__logLabel";
-
-        public static Debugcanvas Instance { get; private set; }
-
-        private void Awake()
-        {
-            Instance = this;
-        }
 
 #if UNITY_EDITOR
         private VisualTreeAsset _debugDocumentAsset;
