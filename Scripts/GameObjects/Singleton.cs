@@ -37,17 +37,20 @@ namespace Topacai.Utils.GameObjects
         {
             // Searchs for an existing instance
             instance = (T)GameObject.FindFirstObjectByType(typeof(T));
+            var instanceGo = instance?.gameObject;
+
             if (instance == null)
             {
                 /// Create a gameobject with the component singleton
                 /// and sets as instance
-                var go = new GameObject(typeof(T).Name);
-                instance = go.AddComponent<T>();
-                DontDestroyOnLoad(go);
+                instanceGo = new GameObject(typeof(T).Name);
+                instance = instanceGo.AddComponent<T>(); 
             }
+
+            DontDestroyOnLoad(instanceGo);
         }
 
-        private void Awake()
+        protected virtual void Awake()
         {
             /// If the instance is not setted when the object is created
             /// it sets as instance
