@@ -3,7 +3,8 @@
     "rootNamespace": "Topacai.Player.Movement.Components",
     "references": [
         "Topacai",
-        "Topacai.Player.Movement"
+        "Topacai.Player.Movement",
+        "Topacai.TDebug"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

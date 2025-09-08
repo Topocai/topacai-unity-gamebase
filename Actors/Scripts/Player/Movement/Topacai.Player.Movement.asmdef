@@ -3,6 +3,7 @@
     "rootNamespace": "Topacai.Player.Movement",
     "references": [
         "Topacai",
+        "Topacai.TDebug",
         "EditorAttributes",
         "Unity.InputSystem",
         "Topacai Interactuables"

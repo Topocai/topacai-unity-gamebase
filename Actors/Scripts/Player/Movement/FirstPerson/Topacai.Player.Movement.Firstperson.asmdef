@@ -4,7 +4,8 @@
     "references": [
         "Topacai",
         "EditorAttributes",
-        "Topacai.Player.Movement"
+        "Topacai.Player.Movement",
+        "Topacai.TDebug"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
