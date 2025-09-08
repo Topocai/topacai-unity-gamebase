@@ -1,3 +1,6 @@
+using Codice.CM.Common;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -39,6 +42,35 @@ namespace Topacai.TDebug
 
         private VisualElement _logsContainer;
 
+        struct LogLine
+        {
+            public string Name { get; set; }
+            public float WhenRemove { get; set; }
+        }
+
+        private List<LogLine> _registerLogs = new();
+
+        private void Update()
+        {
+            /// Loop over all registered logs and check if is time to remove it
+            /// using Time.time value that shows the time passed in application in seconds
+            /// if the time is already to remove, the struct and the visual element are deleted.
+            int registeredLogs = _registerLogs.Count;
+
+            if (registeredLogs <= 0) return;
+
+            float currentTime = Time.time;
+            for (var i = 0; i < registeredLogs; i++) 
+            {
+                if (currentTime >= _registerLogs[i].WhenRemove) 
+                {
+                    var existingLabel = _document.rootVisualElement.Q<Label>(_registerLogs[i].Name);
+                    _logsContainer.Remove(existingLabel);
+                    _registerLogs.RemoveAt(i);
+                }
+            }
+        }
+
         private void Start()
         {
             /// Searches for the uxml and panel assets to create a new 'UIDocument' component
@@ -59,15 +91,29 @@ namespace Topacai.TDebug
             _logsContainer = _document.rootVisualElement.Q<VisualElement>(LOGS_CONTAINER_NAME);
         }
 
+        private int FindLog(string name)
+        {
+            return _registerLogs.FindIndex(x => x.Name == name);
+        }
+
         /// <summary>
         /// Add or updates a text line in the debug ui
         /// make sure to pass the suffix as an unique identifier because is used to find the actual label
         /// </summary>
         /// <param name="suffix">Identifier of the log and also displayed first on line as '$suffix$: '</param>
         /// <param name="text">The text to show next to suffix</param>
-        public void AddTextToDebugLog(string suffix, string text)
+        /// <param name="duration" optional>Duration to show the log, if is updated again the time is resetted, if the value is not passed the log will be persistent</param>
+        public void AddTextToDebugLog(string suffix, string text, float duration = 0)
         {
             if (_document == null || _logsContainer == null) return;
+
+            if (duration > 0)
+            {
+                int index = FindLog(suffix);
+                if (index < 0)
+                    _registerLogs.Add(new LogLine { Name = suffix, WhenRemove = Time.time + duration });
+                else _registerLogs[index] = new LogLine { Name = suffix, WhenRemove = Time.time + duration };
+            }
             
             // Searches for an existing label with the passed suffix, if it exists updates the text
             var existingLabel = _document.rootVisualElement.Q<Label>(suffix);
