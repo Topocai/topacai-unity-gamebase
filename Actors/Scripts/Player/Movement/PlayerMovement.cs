@@ -663,7 +663,10 @@ namespace Topacai.Player.Movement
 
             if (CanJumpHang() && Data.JumpHang)
             {
+
+#if UNITY_EDITOR
                 Debugcanvas.Instance.AddTextToDebugLog("jumping apex", " ", 0.1f);
+#endif
                 _targetSpeed *= Data.JumpHandMaxSpeed;
                 accelRate *= Data.JumpHangAccelMult;
             }
