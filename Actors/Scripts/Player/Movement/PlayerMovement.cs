@@ -205,11 +205,16 @@ namespace Topacai.Player.Movement
 
         protected void AirCheckers()
         {
-            if (isJumping && Mathf.Abs(_rb.linearVelocity.y) < Data.WhenCancelJumping)
+            /// Checks if the player has reached the apex of the jump
+            /// Or if the player is already in ground before a jump
+            if (isJumping && (Mathf.Abs(_rb.linearVelocity.y) < Data.WhenCancelJumping && !InGround))
             {
                 isJumping = false;
                 LastJumpApex = Data.JumpApexBuffer;
                 isJumpApex = true;
+            } else if (InGround && !exitingSlope)
+            {
+                isJumping = false;
             }
 
             if (isJumpApex && !CanJumpHang())
@@ -341,13 +346,10 @@ namespace Topacai.Player.Movement
         {
             JumpInput();
             RunInput();
-            if (CanJump() && LastPressedJump > 0 && Data.CanJump)
+
+            if (LastPressedJump > 0 && Data.CanJump)
             {
-                isJumping = true;
-                jumpCut = false;
-                exitingSlope = true;
-                Invoke(nameof(ResetExitingSlope), exitingSlopeTime);
-                Jump();
+                Jump(false);
             }
 
             if (!IsJumpPressed && CanJumpCut())
@@ -378,28 +380,21 @@ namespace Topacai.Player.Movement
 
         protected virtual void Jump(float height = -999f, float timeToApex = -999f)
         {
+            ResetFallSpeed();
+
+            LastPressedJump = 0;
+            LastGroundTime = 0;
+
             if (height < 0)
             {
                 height = Data.JumpHeight;
                 timeToApex = Data.JumpTimeToApex;
             }
-            LastPressedJump = 0;
-            LastGroundTime = 0;
-
-            float[] jumpData = Data.CalculateJumpForce(height, timeToApex, customGravity.y);
+            
+            float[] jumpData = Data.CalculateJumpForce(height, timeToApex, inUseGravity.y);
 
             _jumpForce = jumpData[0];
             _gravityScale = jumpData[1];
-            /*
-            if (_rb.velocity.y > 0)
-            {
-                force -= _rb.velocity.y;
-            }
-            else if (_rb.velocity.y < 0)
-            {
-                force += _rb.velocity.y;
-            }*/
-            ResetFallSpeed();
 
             _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
         }
