@@ -107,7 +107,7 @@ namespace Topacai.Player.Firstperson.Movement
             PlayerBrain.Instance.PlayerReferences.Rigidbody = _rb;
             _maxSpeed = Data.WalkSpeed;
 
-            _defaultData.CalculateJumpForce(_defaultData.JumpHeight, _defaultData.JumpTimeToApex, customGravity.y);
+            _defaultData.CalculateJumpForce(_defaultData.JumpHeight, _defaultData.JumpTimeToApex, _customGravity.y);
             _defaultData.OnValuesChanged.AddListener(SyncValuesWithBaseDataMovement);
 
             _jumpInput = InputHandler.GetActionHandler(ActionName.Jump);
@@ -135,7 +135,7 @@ namespace Topacai.Player.Firstperson.Movement
             LastPressedJump -= Time.deltaTime;
             LastJumpApex -= Time.deltaTime;
 
-            base.Gravity();
+            base.UpdateGravity();
 
             CheckGround();
             DragControl();
@@ -361,7 +361,7 @@ namespace Topacai.Player.Firstperson.Movement
             LastPressedJump = 0;
             LastGroundTime = 0;
 
-            Data.CalculateJumpForce(height, timeToApex, customGravity.y);
+            Data.CalculateJumpForce(height, timeToApex, _customGravity.y);
 
             float force = Data.JumpForce;
             /*

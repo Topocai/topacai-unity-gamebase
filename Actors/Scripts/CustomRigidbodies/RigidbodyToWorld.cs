@@ -14,12 +14,12 @@ namespace Topacai.CustomPhysics
 
         private void Start()
         {
-            OnBeforeApplyGravity += CalculateNewGravity;
+            _OnBeforeApplyGravity += CalculateNewGravity;
         }
 
         private void FixedUpdate()
         {
-            base.Gravity();
+            base.UpdateGravity();
             RotateRelative();
         }
 
@@ -33,7 +33,7 @@ namespace Topacai.CustomPhysics
             customWorldPosition = world.transform.position;
             directionToWorld = (customWorldPosition - transform.position).normalized;
 
-            gravity = directionToWorld * customGravity.magnitude;
+            gravity = directionToWorld * _customGravity.magnitude;
 #if UNITY_EDITOR
             Debug.DrawRay(transform.position, directionToWorld * 2, Color.red);
             Debug.DrawRay(transform.position, gravity.normalized * 3, Color.blue);

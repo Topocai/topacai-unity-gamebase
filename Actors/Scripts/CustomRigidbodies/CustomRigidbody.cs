@@ -12,16 +12,16 @@ namespace Topacai.CustomPhysics
         public delegate void OnApplyGravity(ref Vector3 gravity);
 
         [Header("Gravity Settings")]
-        [SerializeField] protected float gravityScale = 1f;
+        [SerializeField] protected float _gravityScale = 1f;
         [Space(10)]
-        [SerializeField] private bool gravityOn = true;
-        [SerializeField] protected bool useCustomGravity = false;
-        [SerializeField, ShowField(nameof(useCustomGravity))] protected Vector3 customGravity = new Vector3(0, -9.81f, 0);
+        [SerializeField] private bool _gravityOn = true;
+        [SerializeField] protected bool _useCustomGravity = false;
+        [SerializeField, ShowField(nameof(_useCustomGravity))] protected Vector3 _customGravity = new Vector3(0, -9.81f, 0);
 
-        public static Vector3 gravity = new Vector3(0, -9.81f, 0);
+        public static Vector3 Gravity = new Vector3(0, -9.81f, 0);
 
-        protected Vector3 inUseGravity = Vector3.zero;
-        protected event OnApplyGravity OnBeforeApplyGravity;
+        protected Vector3 _inUseGravity = Vector3.zero;
+        protected event OnApplyGravity _OnBeforeApplyGravity;
 
         protected Rigidbody _rb;
 
@@ -33,34 +33,34 @@ namespace Topacai.CustomPhysics
 
         protected virtual void SetGravityScale(float v)
         {
-            gravityScale = v;
+            _gravityScale = v;
         }
 
-        protected virtual void UseGravity(bool v) => gravityOn = v;
+        protected virtual void UseGravity(bool v) => _gravityOn = v;
 
-        protected virtual void UseCustomGravity(bool v) => useCustomGravity = v;
+        protected virtual void UseCustomGravity(bool v) => _useCustomGravity = v;
 
-        protected virtual void SetCustomGravity(Vector3 v) => customGravity = v;
+        protected virtual void SetCustomGravity(Vector3 v) => _customGravity = v;
 
-        protected virtual void Gravity()
+        protected virtual void UpdateGravity()
         {
             if (_rb == null)
             {
                 _rb = GetComponent<Rigidbody>();
             } 
-            inUseGravity = useCustomGravity ? customGravity : gravity;
+            _inUseGravity = _useCustomGravity ? _customGravity : Gravity;
 
-            Vector3 finalGravity = inUseGravity * gravityScale;
+            Vector3 finalGravity = _inUseGravity * _gravityScale;
 
-            OnBeforeApplyGravity?.Invoke(ref inUseGravity);
+            _OnBeforeApplyGravity?.Invoke(ref _inUseGravity);
 
-            if (gravityOn)
+            if (_gravityOn)
                 _rb.AddForce(finalGravity, ForceMode.Acceleration);
         }
 
         private void FixedUpdate()
         {
-            Gravity();
+            UpdateGravity();
         }
 
         public virtual void ResetFallSpeed() => _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
