@@ -69,7 +69,7 @@ namespace Topacai.Player.Movement.Components
                     if (velToComprobate.sqrMagnitude > _initialVel)
                     {
                         Debug.Log("HHH");
-                        Vector3 newVel = _movement.FlatVel.normalized * _movement._maxSpeed;
+                        Vector3 newVel = _movement.FlatVel.normalized * _movement.MaxSpeed;
                         newVel.y = _movement.Rigidbody.linearVelocity.y;
                         _movement.Rigidbody.linearVelocity = newVel;
                     }

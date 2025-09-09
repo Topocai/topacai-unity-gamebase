@@ -490,39 +490,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 006290259e3075444ae654c8bef0cefa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gravityScale: 1
-  gravityOn: 1
-  useCustomGravity: 0
-  customGravity: {x: 0, y: -9.81, z: 0}
+  _gravityScale: 1
+  _gravityOn: 1
+  _useCustomGravity: 0
+  _customGravity: {x: 0, y: -9.81, z: 0}
   _defaultData: {fileID: 11400000, guid: cd9d5626a36f01e46957fad92854af5a, type: 2}
   <Data>k__BackingField: {fileID: 0}
   _groundT: {fileID: 911841005251527460}
   _groundSize: 0.18
-  wallCheckMidPoint: {fileID: 6091655870605871551}
-  heightToCheckWall: -0.42
-  distanceFromWall: 0.14
-  wallSphereRadius: 0.3
-  slopeDistance: 1.1
-  slopeBoxSize: 0.2
-  exitingSlopeTime: 0.07
-  slopeCrossThreshold: 0.0001
-  stepStart: {fileID: 7245125603182171273}
-  stepHeight: {fileID: 6990196419943841137}
-  stepBoxSize: 0.2
+  _wallCheckMidPoint: {fileID: 6091655870605871551}
+  _heightToCheckWall: -0.42
+  _distanceFromWall: 0.14
+  _wallSphereRadius: 0.3
+  _tryingToJumpTime: 0.07
+  _stepStart: {fileID: 7245125603182171273}
+  _stepHeight: {fileID: 6990196419943841137}
+  _stepBoxSize: 0.2
   GIZMOS: 1
   ShowDebug: 0
-  <isJumping>k__BackingField: 0
-  <isJumpApex>k__BackingField: 0
-  <isFalling>k__BackingField: 0
-  <isCrouched>k__BackingField: 0
-  <jumpCut>k__BackingField: 0
-  <exitingSlope>k__BackingField: 0
+  <IsJumping>k__BackingField: 0
+  <IsJumpApex>k__BackingField: 0
+  <IsFalling>k__BackingField: 0
+  <IsCrouched>k__BackingField: 0
+  <JumpCutting>k__BackingField: 0
+  <IsTryingToJump>k__BackingField: 0
   <WasJumpPressed>k__BackingField: 0
   <IsJumpPressed>k__BackingField: 0
   <GroundIsTerrain>k__BackingField: 0
-  <_initialPlayerHeight>k__BackingField: 0
-  <_maxSpeed>k__BackingField: 0
-  <_targetSpeed>k__BackingField: {x: 0, y: 0, z: 0}
+  <InitialPlayerHeight>k__BackingField: 0
+  <MaxSpeed>k__BackingField: 0
+  <TargetSpeed>k__BackingField: {x: 0, y: 0, z: 0}
   <ClimbingStair>k__BackingField: 0
 --- !u!114 &6252253547830473148
 MonoBehaviour:

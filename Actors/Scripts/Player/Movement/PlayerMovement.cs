@@ -35,35 +35,35 @@ namespace Topacai.Player.Movement
 
         [Header("Collision Checks")]
         [Tooltip("Wall detection is performed using a capsule cast, this transform is used as a center in Y axys to start the cast")]
-        [Clamp(-10f, 0.05f), SerializeField] private Transform wallCheckMidPoint;
+        [SerializeField] private Transform _wallCheckMidPoint;
         [Tooltip("How tall the capsule will be. Put negative values")]
-        [SerializeField] protected float heightToCheckWall = -0.42f;
+        [SerializeField] protected float _heightToCheckWall = -0.42f;
         [Tooltip("How far away from player the collision will be detected")]
-        [SerializeField] protected float distanceFromWall = 0.14f;
+        [SerializeField] protected float _distanceFromWall = 0.14f;
         [Tooltip("Radious size of capsule")]
-        [SerializeField] protected float wallSphereRadius = 0.3f;
+        [SerializeField] protected float _wallSphereRadius = 0.3f;
 
         [Header("Slope")]
         [Tooltip("Short amount of time that is used as threshold to determine if player is trying to exit from slope (i.e jump)")]
-        [Range(0.001f, 0.1f), SerializeField] private float exitingSlopeTime = 0.07f;
+        [Range(0.001f, 0.1f), SerializeField] private float _tryingToJumpTime = 0.07f;
 
         [Header("StepClimb")]
         [Tooltip("The transform used to check Y height of the bottom step")]
-        [SerializeField] protected Transform stepStart;
+        [SerializeField] protected Transform _stepStart;
         [Tooltip("The transform used to check Y height of the top step (how high the player can step)")]
-        [SerializeField] protected Transform stepHeight;
+        [SerializeField] protected Transform _stepHeight;
         [Tooltip("The check for step is used as a rectangle-form, this is the size of the rectangle")]
-        [Range(0.1f, 0.5f), SerializeField] private float stepBoxSize = 0.2f;
+        [Range(0.1f, 0.5f), SerializeField] private float _stepBoxSize = 0.2f;
 
         [Header("Debug")]
         [SerializeField] protected bool GIZMOS = false;
         [SerializeField] protected bool ShowDebug = false;
-        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool isJumping { get; protected set; }
-        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool isJumpApex { get; protected set; }
-        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool isFalling { get; protected set; }
-        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool isCrouched { get; protected set; }
-        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool jumpCut { get; protected set; }
-        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool exitingSlope { get; protected set; }
+        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool IsJumping { get; protected set; }
+        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool IsJumpApex { get; protected set; }
+        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool IsFalling { get; protected set; }
+        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool IsCrouched { get; protected set; }
+        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool JumpCutting { get; protected set; }
+        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool IsTryingToJump { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool WasJumpPressed { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool IsJumpPressed { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool GroundIsTerrain { get; protected set; }
@@ -75,9 +75,9 @@ namespace Topacai.Player.Movement
         public float LastStepTime { get; protected set; }
         /*[field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))]*/
         public float LastJumpApex { get; protected set; }
-        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public float _initialPlayerHeight { get; protected set; }
-        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public float _maxSpeed { get; protected set; }
-        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public Vector3 _targetSpeed { get; protected set; }
+        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public float InitialPlayerHeight { get; protected set; }
+        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public float MaxSpeed { get; protected set; }
+        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public Vector3 TargetSpeed { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool ClimbingStair { get; protected set; }
 
         public Rigidbody Rigidbody => _rb;
@@ -87,27 +87,27 @@ namespace Topacai.Player.Movement
         public MovementSO DataAsset { get { return Data; } protected set { Data = value; } }
         public MovementSO DefaultData { get { return _defaultData; } }
 
-        protected Vector3 crouchPivotPos;
+        protected Vector3 _crouchPivotPos;
         protected Collider _lastGroundHit;
-        protected RaycastHit groundHit;
+        protected RaycastHit _groundHit;
         protected Vector3 _moveDir;
         protected Collider _lastStep = default;
 
         protected float _accelerationAmount;
         protected float _decelerationAmount;
-        protected float _gravityScale = 1f;
+        protected float _dynamicGravityScale = 1f;
         protected float _jumpForce;
 
         protected SimpleActionHandler _jumpInput;
         protected SimpleActionHandler _crouchInput;
         protected SimpleActionHandler _sprintInput;
 
-        protected float GroundSize => _groundSize * transform.localScale.magnitude;
-        protected float PlayerHeight => _initialPlayerHeight * transform.localScale.y;
-        protected bool InGround => LastGroundTime >= 0;
-        protected Vector3 InputDir => InputHandler.MoveDir;
-        protected Vector3 WallStartPointUpper => wallCheckMidPoint.position + Vector3.down * (PlayerHeight * 0.5f + heightToCheckWall * transform.localScale.y);
-        protected Vector3 WallStartPointBottom => wallCheckMidPoint.position + Vector3.down * (PlayerHeight * 0.5f + -heightToCheckWall * transform.localScale.y);
+        protected float _GroundSize => _groundSize * transform.localScale.magnitude;
+        protected float _PlayerHeight => InitialPlayerHeight * transform.localScale.y;
+        protected bool _InGround => LastGroundTime >= 0;
+        protected Vector3 _InputDir => InputHandler.MoveDir;
+        protected Vector3 _WallStartPointUpper => _wallCheckMidPoint.position + Vector3.down * (_PlayerHeight * 0.5f + _heightToCheckWall * transform.localScale.y);
+        protected Vector3 _WallStartPointBottom => _wallCheckMidPoint.position + Vector3.down * (_PlayerHeight * 0.5f + -_heightToCheckWall * transform.localScale.y);
 
         protected virtual void Awake()
         {
@@ -117,11 +117,11 @@ namespace Topacai.Player.Movement
         protected virtual void Start()
         {
             PlayerBrain.Instance.PlayerReferences.Rigidbody = _rb;
-            _maxSpeed = Data.WalkSpeed;
+            MaxSpeed = Data.WalkSpeed;
 
-            float[] jumpData = _defaultData.CalculateJumpForce(_defaultData.JumpHeight, _defaultData.JumpTimeToApex, customGravity.y);
+            float[] jumpData = _defaultData.CalculateJumpForce(_defaultData.JumpHeight, _defaultData.JumpTimeToApex, _customGravity.y);
             _jumpForce = jumpData[0];
-            _gravityScale = jumpData[1];
+            _dynamicGravityScale = jumpData[1];
 
             _defaultData.OnValuesChanged.AddListener(SyncValuesWithBaseDataMovement);
 
@@ -153,7 +153,7 @@ namespace Topacai.Player.Movement
             LastPressedJump -= Time.deltaTime;
             LastJumpApex -= Time.deltaTime;
 
-            base.Gravity();
+            base.UpdateGravity();
 
             CheckGround();
             DragControl();
@@ -176,12 +176,12 @@ namespace Topacai.Player.Movement
 
         protected virtual bool CanJump()
         {
-            return LastGroundTime > 0 && !isJumping;
+            return LastGroundTime > 0 && !IsJumping;
         }
 
         protected virtual bool CanJumpCut()
         {
-            return isJumping && Math.Abs(_rb.linearVelocity.y) > 0;
+            return IsJumping && Math.Abs(_rb.linearVelocity.y) > 0;
         }
 
         protected virtual bool CanJumpHang()
@@ -196,7 +196,7 @@ namespace Topacai.Player.Movement
 
         protected virtual bool ConserveMomentum()
         {
-            return Mathf.Abs(_rb.linearVelocity.magnitude) > _targetSpeed.magnitude && (Vector3.Dot(_rb.linearVelocity.normalized, _moveDir) > 0.7f || Vector3.Equals(_moveDir, Vector3.zero)) && !InGround;
+            return Mathf.Abs(_rb.linearVelocity.magnitude) > TargetSpeed.magnitude && (Vector3.Dot(_rb.linearVelocity.normalized, _moveDir) > 0.7f || Vector3.Equals(_moveDir, Vector3.zero)) && !_InGround;
         }
 
         #endregion
@@ -207,42 +207,42 @@ namespace Topacai.Player.Movement
         {
             /// Checks if the player has reached the apex of the jump
             /// Or if the player is already in ground before a jump
-            if (isJumping && (Mathf.Abs(_rb.linearVelocity.y) < Data.WhenCancelJumping && !InGround))
+            if (IsJumping && (Mathf.Abs(_rb.linearVelocity.y) < Data.WhenCancelJumping && !_InGround))
             {
-                isJumping = false;
+                IsJumping = false;
                 LastJumpApex = Data.JumpApexBuffer;
-                isJumpApex = true;
-            } else if (InGround && !exitingSlope)
+                IsJumpApex = true;
+            } else if (_InGround && !IsTryingToJump)
             {
-                isJumping = false;
+                IsJumping = false;
             }
 
-            if (isJumpApex && !CanJumpHang())
+            if (IsJumpApex && !CanJumpHang())
             {
-                isJumpApex = false;
+                IsJumpApex = false;
             }
 
-            if (!isJumping && !InGround)
+            if (!IsJumping && !_InGround)
             {
-                isFalling = true;
-                jumpCut = false;
+                IsFalling = true;
+                JumpCutting = false;
             }
             else
             {
-                isFalling = false;
+                IsFalling = false;
             }
         }
 
         protected void CheckGround()
         {
-            if (Physics.SphereCast(_groundT.position, GroundSize, Vector3.down, out groundHit, GroundSize, Data.GroundLayer))
+            if (Physics.SphereCast(_groundT.position, _GroundSize, Vector3.down, out _groundHit, _GroundSize, Data.GroundLayer))
             {
-                LastGroundTime = isJumping ? 0.01f : Data.CoyoteTime;
-                if (_lastGroundHit != groundHit.collider)
+                LastGroundTime = IsJumping ? 0.01f : Data.CoyoteTime;
+                if (_lastGroundHit != _groundHit.collider)
                 {
-                    _lastGroundHit = groundHit.collider;
+                    _lastGroundHit = _groundHit.collider;
 
-                    var terrain = groundHit.collider.GetComponent<TerrainCollider>();
+                    var terrain = _groundHit.collider.GetComponent<TerrainCollider>();
                     GroundIsTerrain = terrain != null;
                 }
             }
@@ -250,15 +250,15 @@ namespace Topacai.Player.Movement
 
         protected void DragControl()
         {
-            if (InGround)
+            if (_InGround)
             {
                 _rb.linearDamping = Data.GroundDrag;
             }
-            else if (!InGround && isFalling)
+            else if (!_InGround && IsFalling)
             {
                 _rb.linearDamping = Data.FallDrag;
             }
-            else if (!InGround && !isFalling)
+            else if (!_InGround && !IsFalling)
             {
                 _rb.linearDamping = Data.AirDrag;
             }
@@ -266,21 +266,21 @@ namespace Topacai.Player.Movement
 
         protected void ControlGravityScale()
         {
-            if (InGround && !isJumping)
+            if (_InGround && !IsJumping)
             {
                 SetGravityScale(Data.GroundGravityScale);
             }
-            else if (!InGround && jumpCut && Data.LargeJump)
+            else if (!_InGround && JumpCutting && Data.LargeJump)
             {
-                SetGravityScale(_gravityScale * Data.JumpCutGravityMult);
+                SetGravityScale(_dynamicGravityScale * Data.JumpCutGravityMult);
             }
-            else if (isJumping)
+            else if (IsJumping)
             {
-                SetGravityScale(_gravityScale * Data.JumpingGravityMult);
+                SetGravityScale(_dynamicGravityScale * Data.JumpingGravityMult);
             }
-            else if (!InGround && isFalling)
+            else if (!_InGround && IsFalling)
             {
-                SetGravityScale(_gravityScale * Data.FallingGravityMult);
+                SetGravityScale(_dynamicGravityScale * Data.FallingGravityMult);
             }
 
             if (Data.LimitFallSpeed)
@@ -291,18 +291,8 @@ namespace Topacai.Player.Movement
         #region Inputs
         protected virtual Vector3 GetMoveDirByCameraAndInput()
         {
-            /*
-            Vector3 cameraDir = FirstpersonCamera.CameraDirFlat;
-
-            Vector3 cameraRight = Vector3.Cross(Vector3.up, cameraDir).normalized;
-            Vector3 cameraForward = Vector3.Cross(cameraRight, Vector3.up).normalized;
-
-            Vector3 moveDir = cameraForward * InputDir.y + cameraRight * InputDir.x;
-
-            return moveDir.normalized;*/
-
             Transform cameraTransform = Camera.main.transform;
-            Vector3 dir = cameraTransform.forward * InputDir.y + cameraTransform.right * InputDir.x;
+            Vector3 dir = cameraTransform.forward * _InputDir.y + cameraTransform.right * _InputDir.x;
             dir.y = 0;
 
             return dir.normalized;
@@ -332,11 +322,11 @@ namespace Topacai.Player.Movement
 
         protected virtual void CrouchInputs()
         {
-            if (_crouchInput.IsPressing && !isCrouched)
+            if (_crouchInput.IsPressing && !IsCrouched)
             {
                 Crouch();
             }
-            else if (!_crouchInput.IsPressing && isCrouched)
+            else if (!_crouchInput.IsPressing && IsCrouched)
             {
                 Crouch();
             }
@@ -354,15 +344,15 @@ namespace Topacai.Player.Movement
 
             if (!IsJumpPressed && CanJumpCut())
             {
-                jumpCut = true;
+                JumpCutting = true;
             }
             else if (IsJumpPressed && CanJumpCut())
             {
-                jumpCut = false;
+                JumpCutting = false;
             }
         }
 
-        protected void ResetExitingSlope() => exitingSlope = false;
+        protected void ResetExitingSlope() => IsTryingToJump = false;
 #endregion
 
         #region Actions
@@ -370,10 +360,10 @@ namespace Topacai.Player.Movement
         {
             if (forceJump || CanJump())
             {
-                isJumping = true;
-                jumpCut = false;
-                exitingSlope = true;
-                Invoke(nameof(ResetExitingSlope), exitingSlopeTime);
+                IsJumping = true;
+                JumpCutting = false;
+                IsTryingToJump = true;
+                Invoke(nameof(ResetExitingSlope), _tryingToJumpTime);
                 Jump(height, timeToApex);
             }
         }
@@ -391,10 +381,10 @@ namespace Topacai.Player.Movement
                 timeToApex = Data.JumpTimeToApex;
             }
             
-            float[] jumpData = Data.CalculateJumpForce(height, timeToApex, inUseGravity.y);
+            float[] jumpData = Data.CalculateJumpForce(height, timeToApex, _inUseGravity.y);
 
             _jumpForce = jumpData[0];
-            _gravityScale = jumpData[1];
+            _dynamicGravityScale = jumpData[1];
 
             _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
         }
@@ -403,11 +393,11 @@ namespace Topacai.Player.Movement
         {
             if (run)
             {
-                _maxSpeed = Data.RunSpeed;
+                MaxSpeed = Data.RunSpeed;
             }
             else
             {
-                _maxSpeed = Data.WalkSpeed;
+                MaxSpeed = Data.WalkSpeed;
             }
         }
 
@@ -419,21 +409,21 @@ namespace Topacai.Player.Movement
             _rb.interpolation = RigidbodyInterpolation.None;
 
             Bounds bounds = GetComponent<Renderer>().bounds;
-            crouchPivotPos = new Vector3(bounds.center.x, bounds.min.y, bounds.center.z);
+            _crouchPivotPos = new Vector3(bounds.center.x, bounds.min.y, bounds.center.z);
             Vector3 scaleFactor = Vector3.one;
 
-            if (!isCrouched)
+            if (!IsCrouched)
             {
-                isCrouched = true;
+                IsCrouched = true;
                 scaleFactor = new Vector3(1f, 0.5f, 1f);
             }
             else
             {
-                isCrouched = false;
+                IsCrouched = false;
                 scaleFactor = new Vector3(1f, 2f, 1f);
             }
 
-            Transforms.ScaleRelativeToPivot(transform, scaleFactor, crouchPivotPos);
+            Transforms.ScaleRelativeToPivot(transform, scaleFactor, _crouchPivotPos);
             _rb.interpolation = originalInter;
             _rb.collisionDetectionMode = originalDetection;
         }
@@ -444,7 +434,7 @@ namespace Topacai.Player.Movement
         protected void StepClimbHandler()
         {
             LastStepTime -= Time.deltaTime;
-            if (isJumping || LastStepTime > 0 || GroundIsTerrain) return;
+            if (IsJumping || LastStepTime > 0 || GroundIsTerrain) return;
 
             #region Step Up
             // Step distance is increased if the player is on slope
@@ -458,7 +448,7 @@ namespace Topacai.Player.Movement
             RaycastHit stepRayHit;
             Vector3 stepDir = _moveDir;
 
-            bool stepUpHit = Physics.Raycast(stepStart.position + _moveDir.normalized * -0.075f, stepDir, out stepRayHit, stepDistance, Data.GroundLayer);
+            bool stepUpHit = Physics.Raycast(_stepStart.position + _moveDir.normalized * -0.075f, stepDir, out stepRayHit, stepDistance, Data.GroundLayer);
 
             if (_moveDir.magnitude > 0 && stepUpHit)
             {
@@ -477,7 +467,7 @@ namespace Topacai.Player.Movement
                     return;
                 }
 
-                bool stepDepth = Physics.Raycast(stepHeight.position, _moveDir, Data.StepDepth, Data.GroundLayer);
+                bool stepDepth = Physics.Raycast(_stepHeight.position, _moveDir, Data.StepDepth, Data.GroundLayer);
 
                 if (!stepDepth)
                 {
@@ -491,7 +481,7 @@ namespace Topacai.Player.Movement
                 {
                     ClimbingStair = false;
                     _lastStep = null;
-                    if (!isJumping)
+                    if (!IsJumping)
                         ResetFallSpeed();
                 }
             }
@@ -499,20 +489,20 @@ namespace Topacai.Player.Movement
             {
                 ClimbingStair = false;
                 _lastStep = null;
-                if (!isJumping)
+                if (!IsJumping)
                     ResetFallSpeed();
             }
 
 #if UNITY_EDITOR
-            Debug.DrawRay(stepStart.position, _moveDir * stepDistance, Color.gray);
-            Debug.DrawRay(stepHeight.position, _moveDir * Data.StepDepth, Color.yellow);
+            Debug.DrawRay(_stepStart.position, _moveDir * stepDistance, Color.gray);
+            Debug.DrawRay(_stepHeight.position, _moveDir * Data.StepDepth, Color.yellow);
 #endif
 
             #endregion
 
             #region Step down
 
-            if (stepUpHit || OnSlope() || LastGroundTime < -Data.StepDownGroundBuffer || isJumping || isJumpApex) return;
+            if (stepUpHit || OnSlope() || LastGroundTime < -Data.StepDownGroundBuffer || IsJumping || IsJumpApex) return;
 
             // Step down system - Keep player on ground if is walking down in steps.
             // Check if player has ground under it with a minimum distance to detect the step, then, apply a down force.
@@ -521,10 +511,10 @@ namespace Topacai.Player.Movement
             // This works a little weird, maybe better to implement it in a different way.
 
             RaycastHit[] stepDownHits = new RaycastHit[1];
-            Vector3 downHalfExtents = new Vector3(stepBoxSize * 0.2f, 0.1f, stepBoxSize * 0.2f);
-            Vector3 stepDownStart = stepStart.position - Vector3.up * Data.StepDownOffset;
+            Vector3 downHalfExtents = new Vector3(_stepBoxSize * 0.2f, 0.1f, _stepBoxSize * 0.2f);
+            Vector3 stepDownStart = _stepStart.position - Vector3.up * Data.StepDownOffset;
 
-            stepDownHits = Physics.BoxCastAll(stepDownStart, downHalfExtents, Vector3.down, Quaternion.LookRotation(Vector3.down), (stepHeight.position.y - stepStart.position.y) + Data.StepDownDistance, Data.GroundLayer);
+            stepDownHits = Physics.BoxCastAll(stepDownStart, downHalfExtents, Vector3.down, Quaternion.LookRotation(Vector3.down), (_stepHeight.position.y - _stepStart.position.y) + Data.StepDownDistance, Data.GroundLayer);
 
             bool isStepDownHit = stepDownHits.Length > 0;
             if (isStepDownHit)
@@ -533,7 +523,7 @@ namespace Topacai.Player.Movement
 
                 // If the detected step is not the same as the ground player is standing on, return because the collider detected is above the ground.
                 RaycastHit stepDownHit = stepDownHits[0];
-                if (InGround && stepDownHit.collider != groundHit.collider) return;
+                if (_InGround && stepDownHit.collider != _groundHit.collider) return;
 
                 float distanceFromOrigin = Vector3.Distance(stepDownStart, stepDownHit.point);
                 if (distanceFromOrigin < Data.StepDownMinDistance) return;
@@ -560,7 +550,7 @@ namespace Topacai.Player.Movement
 
         protected void Movement()
         {
-            var dynamicValues = Data.CalculateDynamicValues(_maxSpeed);
+            var dynamicValues = Data.CalculateDynamicValues(MaxSpeed);
             _accelerationAmount = dynamicValues[0];
             _decelerationAmount = dynamicValues[1];
 
@@ -572,11 +562,11 @@ namespace Topacai.Player.Movement
 
             bool onSlope = OnSlope();
 
-            if (onSlope && !exitingSlope)
+            if (onSlope && !IsTryingToJump)
                 _moveDir = GetSlopeMoveDirection();
 
-            _targetSpeed = _moveDir * _maxSpeed;
-            _targetSpeed = Vector3.Lerp(flatVel, _targetSpeed, 1);
+            TargetSpeed = _moveDir * MaxSpeed;
+            TargetSpeed = Vector3.Lerp(flatVel, TargetSpeed, 1);
 
             #endregion
 
@@ -596,10 +586,10 @@ namespace Topacai.Player.Movement
                 // Limit the height where the wall is checked if is on ground at step height.
                 // On air keeps the correct height to avoid get stuck moving to wall
                 // On ground allow player to climb higher step heights.
-                Vector3 bottomCheck = WallStartPointBottom;
-                if (InGround) bottomCheck.y = Mathf.Clamp(bottomCheck.y, stepHeight.position.y + wallSphereRadius, 10);
+                Vector3 bottomCheck = _WallStartPointBottom;
+                if (_InGround) bottomCheck.y = Mathf.Clamp(bottomCheck.y, _stepHeight.position.y + _wallSphereRadius, 10);
 
-                wallHit = Physics.CapsuleCast(WallStartPointUpper, bottomCheck, wallSphereRadius, _moveDir, out wallHitInfo, distanceFromWall, Data.WallLayer);
+                wallHit = Physics.CapsuleCast(_WallStartPointUpper, bottomCheck, _wallSphereRadius, _moveDir, out wallHitInfo, _distanceFromWall, Data.WallLayer);
             }
 
             if (wallHit)
@@ -622,12 +612,12 @@ namespace Topacai.Player.Movement
                 if (Data.WallMinAngleToMove < dirAngle)
                 {
                     _moveDir = cross.normalized;
-                    _targetSpeed = (_moveDir * _maxSpeed) * Mathf.Clamp(dirAngle / 89f, 0.2f, 1f);
+                    TargetSpeed = (_moveDir * MaxSpeed) * Mathf.Clamp(dirAngle / 89f, 0.2f, 1f);
                 }
                 else
                 {
                     _moveDir = Vector2.zero;
-                    _targetSpeed = _moveDir * _maxSpeed;
+                    TargetSpeed = _moveDir * MaxSpeed;
                 }
 
 #if UNITY_EDITOR
@@ -646,14 +636,14 @@ namespace Topacai.Player.Movement
             //
             // A higher force will be calculated if the desired/target speed is distant from the current speed
             float accelRate;
-            bool desaccel = Vector3.Dot(flatVel.normalized, _moveDir) < -0.75f || _targetSpeed.magnitude == 0f;
+            bool desaccel = Vector3.Dot(flatVel.normalized, _moveDir) < -0.75f || TargetSpeed.magnitude == 0f;
 
             accelRate = desaccel ? _decelerationAmount : _accelerationAmount;
 
-            if (!InGround && Data.AirMovement)
+            if (!_InGround && Data.AirMovement)
             {
                 accelRate = desaccel ? _decelerationAmount * Data.AirDecelMult : _accelerationAmount * Data.AirAccelMult;
-                _targetSpeed = _targetSpeed * Data.AirMaxSpeedMult;
+                TargetSpeed = TargetSpeed * Data.AirMaxSpeedMult;
             }
 
             if (CanJumpHang() && Data.JumpHang)
@@ -662,7 +652,7 @@ namespace Topacai.Player.Movement
 #if UNITY_EDITOR
                 Debugcanvas.Instance.AddTextToDebugLog("jumping apex", " ", 0.1f);
 #endif
-                _targetSpeed *= Data.JumpHandMaxSpeed;
+                TargetSpeed *= Data.JumpHandMaxSpeed;
                 accelRate *= Data.JumpHangAccelMult;
             }
 
@@ -675,7 +665,7 @@ namespace Topacai.Player.Movement
             OnMoveAfterAccel?.Invoke(ref accelRate);
 
             // The speed difference between the desired speed and the current speed is calculated without the Y component to avoid affect the vertical/fall speed
-            Vector3 speedDif = _targetSpeed - flatVel;
+            Vector3 speedDif = TargetSpeed - flatVel;
             Vector3 movementForce = speedDif * accelRate;
 
             #endregion
@@ -686,7 +676,7 @@ namespace Topacai.Player.Movement
             {
                 movementForce *= Data.SlopeSpeedMultiplier;
 
-                Vector3 downDir = groundHit.normal.normalized * -1f;
+                Vector3 downDir = _groundHit.normal.normalized * -1f;
 #if UNITY_EDITOR
                 Debug.DrawRay(transform.position + Vector3.up * 1f, downDir * 2f, Color.white);
 #endif
@@ -707,12 +697,12 @@ namespace Topacai.Player.Movement
 
             OnBeforeMove?.Invoke(ref appliedForce, ref _moveDir);
 
-            if (InGround)
+            if (_InGround)
             {
                 if (!onSlope)
                     ResetFallSpeed();
             }
-            if (InGround || (!InGround && Data.AirMovement))
+            if (_InGround || (!_InGround && Data.AirMovement))
             {
                 _rb.AddForce(appliedForce, ForceMode.Force);
             }
@@ -724,7 +714,7 @@ namespace Topacai.Player.Movement
             Debug.DrawLine(transform.position, transform.position + appliedForce.normalized * 5f, Color.yellow);
             Debug.DrawLine(transform.position, transform.position + MoveDir.normalized * 3f, Color.magenta);
 
-            Debugcanvas.Instance.AddTextToDebugLog("targetSpeed: ", _targetSpeed.ToString("0.0"));
+            Debugcanvas.Instance.AddTextToDebugLog("targetSpeed: ", TargetSpeed.ToString("0.0"));
             Debugcanvas.Instance.AddTextToDebugLog("movedir2: ", _moveDir.ToString("0.0"));
             Debugcanvas.Instance.AddTextToDebugLog("Conserve momentum: ", ConserveMomentum().ToString());
             Debugcanvas.Instance.AddTextToDebugLog("Movement: ", movementForce.ToString("0.0"));
@@ -739,7 +729,7 @@ namespace Topacai.Player.Movement
         {
             if (!Data.SlopeDetection) return false;
 
-            float angle = Vector3.Angle(Vector3.up, groundHit.normal);
+            float angle = Vector3.Angle(Vector3.up, _groundHit.normal);
             return angle < Data.MaxSlopeAngle && angle >= Data.MinSlopeAngle;
         }
 
@@ -747,7 +737,7 @@ namespace Topacai.Player.Movement
         {
             if (!Data.SlopeDetection) return _moveDir;
 
-            Vector3 normalSlope = groundHit.normal;
+            Vector3 normalSlope = _groundHit.normal;
             Vector3 cross = Vector3.Cross(Quaternion.AngleAxis(90f, Vector3.up) * _moveDir, normalSlope);
 
 #if UNITY_EDITOR
@@ -766,25 +756,25 @@ namespace Topacai.Player.Movement
         protected virtual void OnDrawGizmos()
         {
             Gizmos.color = Color.blue;
-            Gizmos.DrawCube(crouchPivotPos, Vector3.one * 0.1f);
+            Gizmos.DrawCube(_crouchPivotPos, Vector3.one * 0.1f);
             if (!GIZMOS) return;
             if (_groundT != null)
             {
-                if (InGround)
+                if (_InGround)
                 {
                     Gizmos.color = Color.white;
-                    Gizmos.DrawWireCube(groundHit.point, Vector3.one * 0.1f);
+                    Gizmos.DrawWireCube(_groundHit.point, Vector3.one * 0.1f);
                 }
-                Gizmos.color = InGround ? Color.blue : Color.red;
-                Gizmos.DrawWireSphere(_groundT.position + Vector3.down * GroundSize, GroundSize);
+                Gizmos.color = _InGround ? Color.blue : Color.red;
+                Gizmos.DrawWireSphere(_groundT.position + Vector3.down * _GroundSize, _GroundSize);
             }
 
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(WallStartPointUpper + _moveDir * distanceFromWall, wallSphereRadius);
+            Gizmos.DrawWireSphere(_WallStartPointUpper + _moveDir * _distanceFromWall, _wallSphereRadius);
 
-            Vector3 bottomCheck = WallStartPointBottom + _moveDir * distanceFromWall;
-            if (InGround) bottomCheck.y = Mathf.Clamp(bottomCheck.y, stepHeight.position.y + wallSphereRadius, 10);
-            Gizmos.DrawWireSphere(bottomCheck + _moveDir * distanceFromWall, wallSphereRadius);
+            Vector3 bottomCheck = _WallStartPointBottom + _moveDir * _distanceFromWall;
+            if (_InGround) bottomCheck.y = Mathf.Clamp(bottomCheck.y, _stepHeight.position.y + _wallSphereRadius, 10);
+            Gizmos.DrawWireSphere(bottomCheck + _moveDir * _distanceFromWall, _wallSphereRadius);
         }
         #endregion
 #endif
