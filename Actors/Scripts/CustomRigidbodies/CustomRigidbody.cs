@@ -9,8 +9,10 @@ namespace Topacai.CustomPhysics
     [RequireComponent(typeof(Rigidbody))]
     public class CustomRigidbody : MonoBehaviour
     {
+        public delegate void OnApplyGravity(ref Vector3 gravity);
+
         [Header("Gravity Settings")]
-        [SerializeField] private float gravityScale = 1f;
+        [SerializeField] protected float gravityScale = 1f;
         [Space(10)]
         [SerializeField] private bool gravityOn = true;
         [SerializeField] protected bool useCustomGravity = false;
@@ -18,8 +20,8 @@ namespace Topacai.CustomPhysics
 
         public static Vector3 gravity = new Vector3(0, -9.81f, 0);
 
-        protected Vector3 finalGravity;
-        protected UnityAction BeforeGravity;
+        protected Vector3 inUseGravity = Vector3.zero;
+        protected event OnApplyGravity OnBeforeApplyGravity;
 
         protected Rigidbody _rb;
 
@@ -46,10 +48,11 @@ namespace Topacai.CustomPhysics
             {
                 _rb = GetComponent<Rigidbody>();
             } 
-            finalGravity = useCustomGravity ? customGravity : gravity;
-            finalGravity *= gravityScale;
+            inUseGravity = useCustomGravity ? customGravity : gravity;
 
-            BeforeGravity?.Invoke();
+            Vector3 finalGravity = inUseGravity * gravityScale;
+
+            OnBeforeApplyGravity?.Invoke(ref inUseGravity);
 
             if (gravityOn)
                 _rb.AddForce(finalGravity, ForceMode.Acceleration);
