@@ -503,8 +503,8 @@ MonoBehaviour:
   _distanceFromWall: 0.14
   _wallSphereRadius: 0.3
   _tryingToJumpTime: 0.07
-  _stepStart: {fileID: 7245125603182171273}
-  _stepHeight: {fileID: 6990196419943841137}
+  _stepStart: {fileID: 0}
+  _stepHeight: {fileID: 0}
   _stepBoxSize: 0.2
   GIZMOS: 1
   ShowDebug: 0
