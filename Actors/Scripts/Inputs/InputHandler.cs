@@ -264,5 +264,41 @@ namespace Topacai.Inputs
         public static void UnregisterActionHandler(SimpleActionHandler actionHandler) => _actionHandlers.Remove(actionHandler);
 
         public static void UnregisterActionHandler(string name) => _actionHandlers.Remove(GetActionHandler(name));
+
+        /// <summary>
+        /// Receibes and InputAction and update states passed as reference in parameters
+        /// </summary>
+        /// <param name="action">An InputAction</param>
+        /// <param name="isPressed">bool reference for input is pressed without hold</param>
+        /// <param name="isPressing">bool reference for input hold without release</param>
+        /// <param name="holdTime">float reference to save how much time it is holded</param>
+        /// <param name="pressingThreshold">float value use as threshold to determine if input is being pressing or just pressed</param>
+        public static void UpdateInputState(InputAction action, ref bool isPressed, ref bool isPressing, ref float holdTime, float pressingThreshold = 0.15f)
+        {
+            if (action.IsPressed())
+            {
+                holdTime += Time.deltaTime;
+
+                if (holdTime >= pressingThreshold)
+                {
+                    isPressing = true;
+                }
+
+                isPressed = false;
+            }
+            else
+            {
+                if (holdTime > 0 && holdTime <= pressingThreshold)
+                {
+                    isPressed = true;
+                }
+                else
+                {
+                    isPressed = false;
+                }
+                holdTime = 0;
+                isPressing = false;
+            }
+        }
     }
 }
