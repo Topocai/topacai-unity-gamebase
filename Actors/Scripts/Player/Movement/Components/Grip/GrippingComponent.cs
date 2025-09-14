@@ -32,14 +32,14 @@ namespace Topacai.Player.Movement.Components
         [Header("Debug")]
         [SerializeField] private bool _showDebug;
 
-        [field: SerializeField, ReadOnly, ShowField(nameof(_showDebug))] public static float LastGripUsage { get; private set; }
-        [field: SerializeField, ReadOnly, ShowField(nameof(_showDebug))] public static bool IsGripping { get; private set; }
-        [field: SerializeField, ReadOnly, ShowField(nameof(_showDebug))] public static bool Gripped { get; private set; }
+        [field: SerializeField, ReadOnly, ShowField(nameof(_showDebug))] public float LastGripUsage { get; private set; }
+        [field: SerializeField, ReadOnly, ShowField(nameof(_showDebug))] public bool IsGripping { get; private set; }
+        [field: SerializeField, ReadOnly, ShowField(nameof(_showDebug))] public bool Gripped { get; private set; }
         [field: SerializeField] public float Cooldown { get; set; }
         [field: SerializeField] public bool OwnInputs { get; set; }
         [field: SerializeField] public bool AutoStop { get; set; }
 
-        [ReadOnly, ShowField(nameof(_showDebug))] public static float _lastGrippingTime;
+        [ReadOnly, ShowField(nameof(_showDebug))] public float _lastGrippingTime;
 
         private float _currentSpeed;
         private float _originalMaxFallSpeed;
