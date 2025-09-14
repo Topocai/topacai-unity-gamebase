@@ -19,11 +19,11 @@ namespace Topacai.Player.Movement.Components
         [SerializeField] private bool OwnInputs;
 
         [Header("Debug")]
-        [field: SerializeField, ReadOnly] public static float LastDashUsage { get; private set; }
-        [field: SerializeField, ReadOnly] public static Vector3 LastDashDir { get; private set; }
-        [field: SerializeField, ReadOnly] public static float CooldownTimer { get; private set; }
-        [field: SerializeField, ReadOnly] public static bool IsDashing { get; private set; }
-        [field: SerializeField, ReadOnly] public static bool GroundBeforeDash { get; private set; }
+        [field: SerializeField, ReadOnly] public float LastDashUsage { get; private set; }
+        [field: SerializeField, ReadOnly] public Vector3 LastDashDir { get; private set; }
+        [field: SerializeField, ReadOnly] public float CooldownTimer { get; private set; }
+        [field: SerializeField, ReadOnly] public bool IsDashing { get; private set; }
+        [field: SerializeField, ReadOnly] public bool GroundBeforeDash { get; private set; }
 
         [SerializeField, ReadOnly] private float _accelForce;
         [SerializeField, ReadOnly] private float _deccelForce;
