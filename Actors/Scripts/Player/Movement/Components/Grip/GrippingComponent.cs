@@ -65,7 +65,7 @@ namespace Topacai.Player.Movement.Components
             if (OwnInputs)
                 ReceibeInput();
 
-            if (IsGripping)
+            if (IsGripping && _lineRenderer != null)
             {
                 _lineRenderer.SetPosition(1, _movement.transform.position);
             }
@@ -179,9 +179,12 @@ namespace Topacai.Player.Movement.Components
             _movement.Data.MaxFallSpeed = maxVerticalSpeed;
             //_originalDrag = _movement.DefaultData.AirDrag;
             //_movement.DefaultData.AirDrag = gripDrag;
-
-            _lineRenderer.SetPosition(0, _gripHitPos);
-            _lineRenderer.enabled = true;
+            if (_lineRenderer != null)
+            {
+                _lineRenderer.SetPosition(0, _gripHitPos);
+                _lineRenderer.enabled = true;
+            }
+            
         }
 
         public void StopGrip()
@@ -193,8 +196,8 @@ namespace Topacai.Player.Movement.Components
             IsGripping = false;
             _currentSpeed = 0f;
             LastGripUsage = Cooldown;
-
-            _lineRenderer.enabled = false;
+            if (_lineRenderer != null)
+                _lineRenderer.enabled = false;
         }
         #endregion
     }
