@@ -68,7 +68,6 @@ namespace Topacai.Player.Movement.Components
                 {
                     if (velToComprobate.sqrMagnitude > _initialVel)
                     {
-                        Debug.Log("HHH");
                         Vector3 newVel = _movement.FlatVel.normalized * _movement.MaxSpeed;
                         newVel.y = _movement.Rigidbody.linearVelocity.y;
                         _movement.Rigidbody.linearVelocity = newVel;
@@ -93,11 +92,11 @@ namespace Topacai.Player.Movement.Components
         {
             if (IsDashing)
             {
-                _movement.Data.CanMove = false;
+                _movement.Data.FreezeMove = false;
             }
             else
             {
-                _movement.Data.CanMove = _movement.DefaultData.CanMove;
+                _movement.Data.FreezeMove = _movement.DefaultData.FreezeMove;
             }
 
             if (OwnInputs)
