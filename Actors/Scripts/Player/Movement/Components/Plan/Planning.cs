@@ -14,8 +14,8 @@ namespace Topacai.Player.Movement.Components
         [SerializeField, ShowField(nameof(SHOW_DEBUG))] private bool Show_States;
         [SerializeField, ShowField(nameof(Show_States)), ReadOnly] private float _delayTimer = 0f;
 
-        [field: SerializeField, ReadOnly] public static bool _isPlanning { get; private set; }
-        [field: SerializeField, ReadOnly] public static bool _canPlan { get; private set; } = true;
+        [field: SerializeField, ReadOnly] public bool _isPlanning { get; private set; }
+        [field: SerializeField, ReadOnly] public bool _canPlan { get; private set; } = true;
 
         private void Update()
         {
