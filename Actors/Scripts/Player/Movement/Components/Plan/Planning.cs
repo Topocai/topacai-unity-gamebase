@@ -19,7 +19,7 @@ namespace Topacai.Player.Movement.Components
 
         private void Update()
         {
-            _canPlan = !(CheckState("dash") || CheckState("grip")) && _delayTimer < 0f;
+            _canPlan = !(CheckState("dash") || CheckState("grip")) && _delayTimer < 0f && _movement.IsFalling;
 
             bool newPlanning = InputHandler.GetActionHandler(ActionName.Jump).All && _canPlan;
 
