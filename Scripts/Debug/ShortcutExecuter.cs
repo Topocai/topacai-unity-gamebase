@@ -7,7 +7,7 @@ using UnityEngine.InputSystem.Controls;
 namespace Topacai.TDebug
 {
     [System.Serializable]
-    public struct ShortcutExecuter<T> where T : Delegate
+    public struct ShortcutExecuter<T>
     {
         [SerializeField] public InputAction HotKey;
         [SerializeField] public T ActionToExecute;
@@ -22,11 +22,20 @@ namespace Topacai.TDebug
 
         public void Update()
         {
-            Debug.Log(HotKey.IsPressed());
             if (HotKey.IsPressed())
             {
-                ActionToExecute?.DynamicInvoke();
+                Execute();
             }
+        }
+
+        private void Execute()
+        {
+            if (ActionToExecute is UnityEvent unityEvent)
+                unityEvent.Invoke();
+            else if (ActionToExecute is Action action)
+                action();
+            else if (ActionToExecute is UnityAction unityAction)
+                unityAction();
         }
 
         public void Enable()
