@@ -15,6 +15,8 @@ namespace Topacai.Managers.GameManager
             Application.targetFrameRate = frameRate;
         }
 
+        public void DebugLog(string message) => Debug.Log(message);
+
         private void Start()
         {
             Cursor.lockState = CursorLockMode.Locked;

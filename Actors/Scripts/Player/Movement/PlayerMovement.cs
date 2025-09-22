@@ -45,7 +45,7 @@ namespace Topacai.Player.Movement
 
         [Header("Slope")]
         [Tooltip("Short amount of time that is used as threshold to determine if player is trying to exit from slope (i.e jump)")]
-        [Range(0.001f, 0.1f), SerializeField] private float _tryingToJumpTime = 0.07f;
+        [Range(0.05f, 0.25f), SerializeField] private float _tryingToJumpTime = 0.15f;
 
         [Header("StepClimb")]
         [Tooltip("The transform used to check Y height of the bottom step")]
@@ -167,8 +167,7 @@ namespace Topacai.Player.Movement
             _rb.mass = Data.RBMass;
             AirCheckers();
             InputHandlers();
-
-
+            
             MoveDir = GetMoveDirByCameraAndInput();
         }
 
@@ -560,9 +559,9 @@ namespace Topacai.Player.Movement
 
             Vector3 flatVel = new Vector3(_rb.linearVelocity.x, 0, _rb.linearVelocity.z);
 
-            bool onSlope = OnSlope();
+            bool onSlope = OnSlope() && !IsTryingToJump;
 
-            if (onSlope && !IsTryingToJump)
+            if (onSlope)
                 _moveDir = GetSlopeMoveDirection();
 
             TargetSpeed = _moveDir * MaxSpeed;
@@ -665,7 +664,7 @@ namespace Topacai.Player.Movement
             OnMoveAfterAccel?.Invoke(ref accelRate);
 
             // The speed difference between the desired speed and the current speed is calculated without the Y component to avoid affect the vertical/fall speed
-            Vector3 speedDif = TargetSpeed - flatVel;
+            Vector3 speedDif = TargetSpeed - (onSlope ? _rb.linearVelocity : flatVel);
             Vector3 movementForce = speedDif * accelRate;
 
             #endregion
@@ -730,6 +729,13 @@ namespace Topacai.Player.Movement
             if (!Data.SlopeDetection) return false;
 
             float angle = Vector3.Angle(Vector3.up, _groundHit.normal);
+
+#if UNITY_EDITOR
+            if (GIZMOS)
+            {
+                Debug.DrawRay(_groundHit.point, _groundHit.normal, Color.red);
+            }
+#endif
             return angle < Data.MaxSlopeAngle && angle >= Data.MinSlopeAngle;
         }
 
