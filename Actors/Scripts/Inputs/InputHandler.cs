@@ -243,7 +243,11 @@ namespace Topacai.Inputs
             }
         }
 
-        public static void RegisterActionHandler(SimpleActionHandler actionHandler) => _actionHandlers.Add(actionHandler);
+        public static SimpleActionHandler RegisterActionHandler(SimpleActionHandler actionHandler)
+        {
+            _actionHandlers.Add(actionHandler);
+            return actionHandler;
+        }
         public static SimpleActionHandler GetActionHandler(string name)
         {
             foreach (var handler in _actionHandlers)
