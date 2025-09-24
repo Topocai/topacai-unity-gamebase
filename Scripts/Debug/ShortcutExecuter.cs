@@ -22,7 +22,7 @@ namespace Topacai.TDebug
 
         public void Update()
         {
-            if (HotKey.IsPressed())
+            if (HotKey.WasPerformedThisFrame())
             {
                 Execute();
             }
