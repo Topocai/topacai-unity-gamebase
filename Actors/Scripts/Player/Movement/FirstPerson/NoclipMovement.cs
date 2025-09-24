@@ -17,13 +17,18 @@ namespace Topacai.TDebug.Movement
         [Header("Noclip Settings")]
         [SerializeField] private InputAction _switchNoclipHotkey;
         [SerializeField] private float _horizontalSpeed = 5f;
-        [SerializeField] private float _runSpeed = 10f;
+        [SerializeField] private float _boostSpeed = 10f;
         [SerializeField] private float _upSpeed = 5f;
         [SerializeField] private float _downSpeed = 5f;
 
+        [Header("Input settings")]
+        [SerializeField] private InputAction _upInput;
+        [SerializeField] private InputAction _downInput;
+        [SerializeField] private InputAction _teleportInput;
+
         private bool _goingUp = false;
         private bool _goingDown = false;
-        private bool _isRunning = false;
+        private bool _isBoosted = false;
         private bool _isNoclip;
 
         private Vector3 _inputDir;
@@ -34,11 +39,24 @@ namespace Topacai.TDebug.Movement
         {
             _switchNoclipExecuter = new ShortcutExecuter<Action>(_switchNoclipHotkey, SwitchNoclip);
             SetEnableNoclip(false);
+
+            _upInput.Enable();
+            _downInput.Enable();
+            _teleportInput.Enable();
         }
 
         private void OnDisable()
         {
             SetEnableNoclip(false);
+        }
+
+        private void Teleport()
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(transform.position, FirstpersonCamera.CameraDir.normalized, out hit))
+            {
+                _playerMovement.Rigidbody.position = hit.point;
+            }
         }
 
         private void Update()
@@ -49,6 +67,11 @@ namespace Topacai.TDebug.Movement
 
             ReadInputs();
 
+            if (_teleportInput.WasPerformedThisFrame())
+            {
+                Teleport();
+            }
+
             Vector3 cameraDir = FirstpersonCamera.CameraDir.normalized;
 
             Vector3 cameraRight = Vector3.Cross(Vector3.up, cameraDir).normalized;
@@ -56,18 +79,18 @@ namespace Topacai.TDebug.Movement
 
             Vector3 moveDir = cameraForward * _inputDir.y + cameraRight * _inputDir.x;
 
-            float currentVel = _isRunning ? _runSpeed : _horizontalSpeed;
+            float currentVel = _isBoosted ? _horizontalSpeed*_boostSpeed : _horizontalSpeed;
 
             _playerMovement.Rigidbody.position += moveDir.normalized * currentVel * Time.deltaTime;
 
-            _playerMovement.Rigidbody.position += Vector3.up * (1 * (_goingUp ? _upSpeed : 0) + (_goingDown ? -_downSpeed : 0)) * Time.deltaTime;
+            _playerMovement.Rigidbody.position += Vector3.up * (1 * (_goingUp ? (_isBoosted ? _upSpeed*_boostSpeed : _upSpeed) : 0) + (_goingDown ? -(_isBoosted ? _downSpeed*_boostSpeed : _downSpeed) : 0)) * Time.deltaTime;
         }
 
         private void ReadInputs()
         {
-            _goingUp = InputHandler.GetActionHandler(ActionName.Jump).All;
-            _goingDown = InputHandler.GetActionHandler(ActionName.Crouch).All;
-            _isRunning = InputHandler.GetActionHandler(ActionName.Run).All;
+            _goingUp = _upInput.IsPressed();
+            _goingDown = _downInput.IsPressed();
+            _isBoosted = InputHandler.GetActionHandler(ActionName.Run).All;
 
             _inputDir = InputHandler.MoveDir;
         }

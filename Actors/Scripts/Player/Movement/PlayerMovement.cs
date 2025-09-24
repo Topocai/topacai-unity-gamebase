@@ -44,7 +44,7 @@ namespace Topacai.Player.Movement
         [SerializeField] protected float _wallSphereRadius = 0.3f;
 
         [Header("Slope")]
-        [Tooltip("Short amount of time that is used as threshold to determine if player is trying to exit from slope (i.e jump)")]
+        [Tooltip("Short amount of time that is used as threshold to determine if player is trying to exit from slope by jumping or others\nIf player is jumping lower in slopes then expected you should increase this")]
         [Range(0.05f, 0.25f), SerializeField] private float _tryingToJumpTime = 0.15f;
 
         [Header("StepClimb")]
