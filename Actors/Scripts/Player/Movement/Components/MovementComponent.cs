@@ -69,6 +69,7 @@ namespace Topacai.Player.Movement.Components
             _movement.OnBeforeMove += OnBeforeMoveHandler;
             _movement.OnMoveBeforeWall += OnMoveBeforeWallHandler;
             _movement.OnMoveAfterAccel += OnMoveAfterAccelHandler;
+            _movement.OnGroundChangedEvent += OnGroundChangedHandler;
 
             _registeredComponents.Add(this);
 
@@ -87,6 +88,7 @@ namespace Topacai.Player.Movement.Components
             _movement.OnBeforeMove -= OnBeforeMoveHandler;
             _movement.OnMoveBeforeWall -= OnMoveBeforeWallHandler;
             _movement.OnMoveAfterAccel -= OnMoveAfterAccelHandler;
+            _movement.OnGroundChangedEvent -= OnGroundChangedHandler;
         }
 
         #endregion
@@ -116,6 +118,14 @@ namespace Topacai.Player.Movement.Components
         }
 
         protected virtual void OnBeforeMove(ref Vector3 finalForce, ref Vector3 moveDir) { }
+
+        private void OnGroundChangedHandler(RaycastHit groundData)
+        {
+            if (!enabled) return;
+            OnGroundChanged(groundData);
+        }
+
+        protected virtual void OnGroundChanged(RaycastHit groundData) { }
         #endregion
 
         #region Public Methods
