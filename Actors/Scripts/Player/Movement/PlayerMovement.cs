@@ -15,10 +15,12 @@ namespace Topacai.Player.Movement
         public delegate void BeforeWallDetect(ref Vector3 moveDir, ref Vector3 flatVel, ref RaycastHit wallHitInfo);
         public delegate void AfterDefineAccel(ref float accelRate);
         public delegate void BeforeMove(ref Vector3 finalForce, ref Vector3 moveDir);
+        public delegate void OnGroundChanged(RaycastHit groundData);
 
         public event BeforeWallDetect OnMoveBeforeWall;
         public event AfterDefineAccel OnMoveAfterAccel;
         public event BeforeMove OnBeforeMove;
+        public event OnGroundChanged OnGroundChangedEvent;
 
         [Header("Data")]
         [Tooltip("Sets here the data asset that the movement will use, this will be copied during runtime in order to keep runtime changes during gameplay, also used this to revert any runtime change in data")]
@@ -86,6 +88,7 @@ namespace Topacai.Player.Movement
         public Vector3 MoveDirNative { get { return GetMoveDirByCameraAndInput(); } }
         public MovementSO DataAsset { get { return Data; } protected set { Data = value; } }
         public MovementSO DefaultData { get { return _defaultData; } }
+        public RaycastHit GroundHitData { get { return _groundHit; } }
 
         protected Vector3 _crouchPivotPos;
         protected Collider _lastGroundHit;
@@ -234,13 +237,22 @@ namespace Topacai.Player.Movement
 
         protected void CheckGround()
         {
+            /// Check if the player is on ground using a sphere cast with in a specific layer
+            /// Then, if it exists, a coyote time is added to LastGroundTime
+            /// Also an event is invoked when the ground data changes
+            /// This is used in the script to detect if the ground is a terrain or not but also exposed an event for components implementation
             if (Physics.SphereCast(_groundT.position, _GroundSize, Vector3.down, out _groundHit, _GroundSize, Data.GroundLayer))
             {
                 LastGroundTime = IsJumping ? 0.01f : Data.CoyoteTime;
+                
+                // Checks if the ground is the same that the last one
                 if (_lastGroundHit != _groundHit.collider)
                 {
+                    OnGroundChangedEvent.Invoke(_groundHit);
+
                     _lastGroundHit = _groundHit.collider;
 
+                    // Checks if the ground is a terrain
                     var terrain = _groundHit.collider.GetComponent<TerrainCollider>();
                     GroundIsTerrain = terrain != null;
                 }
