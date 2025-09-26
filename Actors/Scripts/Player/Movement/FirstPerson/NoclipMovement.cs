@@ -107,7 +107,6 @@ namespace Topacai.TDebug.Movement
 
             if (_playerMovement.Rigidbody == null) return;
 
-            _playerMovement.Rigidbody.useGravity = !value;
             _playerMovement.Rigidbody.isKinematic = value;
             _playerMovement.Rigidbody.linearVelocity = Vector3.zero; 
         }
