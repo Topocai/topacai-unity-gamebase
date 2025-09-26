@@ -5,13 +5,26 @@ using UnityEngine.Events;
 
 namespace Topacai.Player.Movement.Components
 {
+    /// <summary>
+    /// Manages state of movement components
+    /// in order to check if a component is being used or not
+    /// without having to know the class of the component just by name state
+    /// </summary>
     public class MovementStateManager
     {
         private Dictionary<string, MovementComponent> _registeredStates = new Dictionary<string, MovementComponent>();
 
+        /// <summary>
+        /// Checks for the state of a component only when it is called.
+        /// If the component is not registered, it will return false
+        /// </summary>
+        /// <param name="stateName">The registered name of the component</param>
+        /// <returns></returns>
         public bool GetState(string stateName)
         {
             if (_registeredStates.TryGetValue(stateName.ToLower(), out MovementComponent state))
+                /// To check if a component is being used correctly it has to
+                /// override the IsUsing method from the base class
                 return state.IsUsing();
             else
                 return false;
@@ -25,6 +38,10 @@ namespace Topacai.Player.Movement.Components
     public class MovementComponent : MonoBehaviour
     {
         protected static UnityEvent<MovementComponent> OnComponentRegistered = new UnityEvent<MovementComponent>();
+        /// <summary>
+        /// Keep register of all MovementComponents existing in the scene
+        /// You can acces to them with the static method GetRegisteredComponentOfType if you know the type
+        /// </summary>
         private static HashSet<MovementComponent> _registeredComponents = new HashSet<MovementComponent>();
 
         private static MovementStateManager _stateManager = new MovementStateManager();
@@ -59,7 +76,6 @@ namespace Topacai.Player.Movement.Components
 
         protected virtual void OnEnable()
         {
-
             if (_movement == null)
             {
                 Debug.LogError($"Component: {gameObject.name} not enabled");
@@ -128,7 +144,7 @@ namespace Topacai.Player.Movement.Components
         protected virtual void OnGroundChanged(RaycastHit groundData) { }
         #endregion
 
-        #region Public Methods
+        #region Public Class-Instance Methods
         public virtual void Enable()
         {
             enabled = true;
@@ -139,6 +155,10 @@ namespace Topacai.Player.Movement.Components
             enabled = false;
         }
 
+        /// <summary>
+        /// Override to share the component status in the state manager
+        /// </summary>
+        /// <returns></returns>
         public virtual bool IsUsing() => false;
 
         public override string ToString()
