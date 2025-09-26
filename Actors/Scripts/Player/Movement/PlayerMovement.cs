@@ -256,6 +256,10 @@ namespace Topacai.Player.Movement
                     var terrain = _groundHit.collider.GetComponent<TerrainCollider>();
                     GroundIsTerrain = terrain != null;
                 }
+            } 
+            else
+            {
+                _lastGroundHit = null;
             }
         }
 
