@@ -37,5 +37,10 @@ namespace Topacai.Player.Movement.Components
 
             _movement.Rigidbody.linearVelocity = Vector3.Lerp(vel, newVel, Time.fixedDeltaTime * 8f);
         }
+
+        public override bool IsUsing()
+        {
+            return _isPlanning;
+        }
     }
 }
