@@ -96,6 +96,8 @@ namespace Topacai.Player.Movement
         protected Vector3 _moveDir;
         protected Collider _lastStep = default;
 
+        protected bool _forcedJump = false;
+
         protected float _accelerationAmount;
         protected float _decelerationAmount;
         protected float _dynamicGravityScale = 1f;
@@ -183,7 +185,7 @@ namespace Topacai.Player.Movement
 
         protected virtual bool CanJumpCut()
         {
-            return IsJumping && Math.Abs(_rb.linearVelocity.y) > 0;
+            return IsJumping && Math.Abs(_rb.linearVelocity.y) > 0 && !_forcedJump;
         }
 
         protected virtual bool CanJumpHang()
@@ -211,12 +213,14 @@ namespace Topacai.Player.Movement
             /// Or if the player is already in ground before a jump
             if (IsJumping && (Mathf.Abs(_rb.linearVelocity.y) < Data.WhenCancelJumping && !_InGround))
             {
+                _forcedJump = false;
                 IsJumping = false;
                 LastJumpApex = Data.JumpApexBuffer;
                 IsJumpApex = true;
             } else if (_InGround && !IsTryingToJump)
             {
                 IsJumping = false;
+                _forcedJump = false;
             }
 
             if (IsJumpApex && !CanJumpHang())
@@ -359,6 +363,9 @@ namespace Topacai.Player.Movement
 
             if (!IsJumpPressed && CanJumpCut())
             {
+#if UNITY_EDITOR
+                Debugcanvas.Instance.AddTextToDebugLog("jumpcutting: ", "", 0.25f);
+#endif
                 JumpCutting = true;
             }
             else if (IsJumpPressed && CanJumpCut())
@@ -375,6 +382,7 @@ namespace Topacai.Player.Movement
         {
             if (forceJump || CanJump())
             {
+                _forcedJump = forceJump;
                 IsJumping = true;
                 JumpCutting = false;
                 IsTryingToJump = true;
