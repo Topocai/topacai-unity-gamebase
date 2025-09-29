@@ -12,16 +12,19 @@ namespace Topacai.Player.Movement.Components
         [SerializeField] private float speed;
         [SerializeField] private float minSpeed;
         [Space(5)]
-        [SerializeField] private float moveModifier = 1f;
+        [SerializeField] private float moveModifier = 0.2f;
         [SerializeField] private float gripDrag;
         [Space(10)]
         [SerializeField] private ForceMode forceMode = ForceMode.VelocityChange;
+        [SerializeField] private bool stopWhenCloseToGrip;
+        [SerializeField] private bool stopOnObstacles;
+        [SerializeField, EnableField(nameof(stopOnObstacles))] private bool useComponentPositionForObstacles;
 
         [Header("Collision Settings")]
         [SerializeField] private LayerMask _layerMask;
 
         [Header("Player Settings")]
-        [SerializeField, EnableField(nameof(AutoStop))] private float distanteToStop;
+        [SerializeField, EnableField(nameof(stopWhenCloseToGrip))] private float distanteToStop;
         [SerializeField] private float gripDistance;
         [SerializeField] private float maxVerticalSpeed;
         [SerializeField] private float timeToRecoverMovement;
@@ -37,8 +40,7 @@ namespace Topacai.Player.Movement.Components
         [field: SerializeField, ReadOnly, ShowField(nameof(_showDebug))] public bool Gripped { get; private set; }
         [field: SerializeField] public float Cooldown { get; set; }
         [field: SerializeField] public bool OwnInputs { get; set; }
-        [field: SerializeField] public bool AutoStop { get; set; }
-
+        
         [ReadOnly, ShowField(nameof(_showDebug))] public float _lastGrippingTime;
 
         private float _currentSpeed;
@@ -47,6 +49,8 @@ namespace Topacai.Player.Movement.Components
         private Vector3 _gripPos;
         private bool _originalCanMoveAir;
         private RaycastHit _hit;
+
+        RaycastHit obstacleHit;
 
         #region Unity Callbacks
         private void OnDrawGizmos()
@@ -58,6 +62,8 @@ namespace Topacai.Player.Movement.Components
             {
                 Gizmos.DrawWireSphere(_gripPos, 0.15f);
             }
+
+            Gizmos.DrawWireCube(obstacleHit.point, Vector3.one * 0.5f);
         }
 
         private void Update()
@@ -93,8 +99,23 @@ namespace Topacai.Player.Movement.Components
                 _movement.Rigidbody.AddForce(dir.normalized * currentSpeed, forceMode);
 
                 float distance = Vector3.Distance(_gripPos, _movement.transform.position);
-                if (AutoStop && distance < distanteToStop)
+
+                /// Checks for flags to stop grip
+
+                // Check for distance between player and grip point and stops if is close
+                if (stopWhenCloseToGrip && distance < distanteToStop)
                 {
+                    StopGrip();
+                }
+
+                // Check for obstacles between player and grip point by using raycast
+                Vector3 _obstaclePos = useComponentPositionForObstacles ? transform.position : Movement.transform.position;
+                Vector3 _obstacleDir = _obstaclePos - _gripHitPos;
+
+
+                if (stopOnObstacles && Physics.Raycast(_gripHitPos, _obstacleDir.normalized, out obstacleHit, _obstacleDir.magnitude, Movement.Data.WallLayer))
+                {
+                    Debug.DrawRay(_gripHitPos, _obstacleDir.normalized * _obstacleDir.magnitude, Color.red, 10f);
                     StopGrip();
                 }
 
@@ -106,6 +127,8 @@ namespace Topacai.Player.Movement.Components
 #endif*/
             }
 
+            /// When player is grapping it air movement is disabled and only applies an offset from hit point
+            /// Also checks if player is on ground to recover movement
             if (Gripped)
             {
                 if (_movement.LastGroundTime > 0)
@@ -200,6 +223,8 @@ namespace Topacai.Player.Movement.Components
                 _lineRenderer.enabled = false;
         }
         #endregion
+
+        
     }
 }
 
