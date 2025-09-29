@@ -106,7 +106,7 @@ namespace Topacai.Player.Movement.Components
 
                 _movement.Rigidbody.AddForce(dir.normalized * currentSpeed, forceMode);
 
-                float distance = Vector3.Distance(_gripPos, _movement.transform.position);
+                float distance = Vector3.Distance(_gripHitPos, _movement.transform.position);
 
                 /// Checks for flags to stop grip
 
@@ -199,7 +199,7 @@ namespace Topacai.Player.Movement.Components
             Transform cameraTransform = Camera.main.transform;
             if (Physics.Raycast(cameraTransform.position, cameraTransform.forward.normalized, out _hit, distance, _layerMask))
             {
-                _gripHitPos = _hit.point;
+                _gripHitPos = _hit.collider.transform.position;
             }
             else _gripHitPos = default;
         }
