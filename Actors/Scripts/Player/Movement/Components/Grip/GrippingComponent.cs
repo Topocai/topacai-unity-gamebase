@@ -1,5 +1,6 @@
 using EditorAttributes;
 using Topacai.Inputs;
+using Topacai.TDebug;
 using UnityEngine;
 
 namespace Topacai.Player.Movement.Components
@@ -33,6 +34,10 @@ namespace Topacai.Player.Movement.Components
         [SerializeField] private LineRenderer _lineRenderer;
 
         [Header("Debug")]
+#if UNITY_EDITOR
+        [SerializeField] private bool _showGizmos;
+        [SerializeField] private bool _displayDebugOnCanvas;
+#endif
         [SerializeField] private bool _showDebug;
 
         [field: SerializeField, ReadOnly, ShowField(nameof(_showDebug))] public float LastGripUsage { get; private set; }
@@ -53,8 +58,10 @@ namespace Topacai.Player.Movement.Components
         RaycastHit obstacleHit;
 
         #region Unity Callbacks
+#if UNITY_EDITOR
         private void OnDrawGizmos()
         {
+            if (!_showGizmos) return;
             Gizmos.color = IsGripping ? Color.red : Color.green;
             Gizmos.DrawCube(_gripHitPos, Vector3.one * 0.5f);
 
@@ -65,6 +72,7 @@ namespace Topacai.Player.Movement.Components
 
             Gizmos.DrawWireCube(obstacleHit.point, Vector3.one * 0.5f);
         }
+#endif
 
         private void Update()
         {
@@ -115,16 +123,22 @@ namespace Topacai.Player.Movement.Components
 
                 if (stopOnObstacles && Physics.Raycast(_gripHitPos, _obstacleDir.normalized, out obstacleHit, _obstacleDir.magnitude, Movement.Data.WallLayer))
                 {
-                    Debug.DrawRay(_gripHitPos, _obstacleDir.normalized * _obstacleDir.magnitude, Color.red, 10f);
+#if UNITY_EDITOR
+                    if (_showGizmos)
+                        Debug.DrawRay(_gripHitPos, _obstacleDir.normalized * _obstacleDir.magnitude, Color.red, 10f);
+#endif
                     StopGrip();
                 }
 
-                /*
+                
 #if UNITY_EDITOR
-                Debugcanvas.Instance.AddTextToDebugLog("gripSpeed", currentSpeed.ToString("0.00"));
-                Debugcanvas.Instance.AddTextToDebugLog("gripCurve", fixedCurve.ToString("0.00"));
-                Debugcanvas.Instance.AddTextToDebugLog("gripCSpeed", _currentSpeed.ToString("0.00"));
-#endif*/
+                if (_displayDebugOnCanvas)
+                {
+                    Debugcanvas.Instance.AddTextToDebugLog("gripSpeed", currentSpeed.ToString("0.00"));
+                    Debugcanvas.Instance.AddTextToDebugLog("gripCurve", fixedCurve.ToString("0.00"));
+                    Debugcanvas.Instance.AddTextToDebugLog("gripCSpeed", _currentSpeed.ToString("0.00"));
+                }
+#endif
             }
 
             /// When player is grapping it air movement is disabled and only applies an offset from hit point
