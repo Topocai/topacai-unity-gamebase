@@ -2,19 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using Topacai.Actors.Interactuables;
 using Topacai.Inputs;
+using Topacai.Player.Movement.Firstperson.Camera;
 using UnityEngine;
 
 namespace Topacai.Player.Movement.Firstperson.Interact
 {
     public class FPInteractHandler : MonoBehaviour
     {
-        [SerializeField] private float _distance = 3f;
+        [SerializeField] private PlayerBrain _playerBrain;
 
+        [SerializeField] private float _distance = 3f;
         [SerializeField] private LayerMask _interactuableLayerMask;
 
-        private Transform _cameraTransform => PlayerBrain.Instance.PlayerReferences.FP_Camera;
+        private Transform _cameraTransform => _playerBrain.PlayerReferences.FirstPersonConfig.FP_Camera;
 
         RaycastHit hit;
+
+        void Start()
+        {
+            if (_playerBrain == null)
+            {
+                _playerBrain = GetComponent<PlayerBrain>();
+            }
+        }
+
+        public void SetPlayerBrain(PlayerBrain playerBrain) => _playerBrain = playerBrain;
 
         private void FixedUpdate()
         {

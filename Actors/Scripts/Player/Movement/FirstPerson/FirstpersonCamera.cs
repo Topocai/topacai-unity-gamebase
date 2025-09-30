@@ -7,13 +7,14 @@ namespace Topacai.Player.Movement.Firstperson.Camera
 {
     public class FirstpersonCamera : MonoBehaviour
     {
-        public static Vector3 CameraDir;
-        public static Vector3 CameraDirFlat;
-        public static Transform CameraTransform => PlayerBrain.Instance.PlayerReferences.FP_Camera;
+        [SerializeField] private PlayerBrain _playerBrain;
 
-        private Transform PlayerOrientation => PlayerBrain.Instance.PlayerReferences.PlayerOrientation;
-        private Transform CameraHolder => PlayerBrain.Instance.PlayerReferences.FP_CameraHolder;
-        private (float, float) Sensivity => PlayerBrain.Instance.PlayerConfig.GetSensivity(InputHandler.CurrentDevice);
+        public Vector3 CameraDir;
+        public Vector3 CameraDirFlat;
+        public Transform CameraTransform => _playerBrain.PlayerReferences.FirstPersonConfig.FP_Camera;
+        private Transform PlayerOrientation => _playerBrain.PlayerReferences.PlayerOrientation;
+        private Transform CameraHolder => _playerBrain.PlayerReferences.FirstPersonConfig.FP_CameraHolder;
+        private (float, float) Sensivity => _playerBrain.PlayerConfig.GetSensivity(InputHandler.CurrentDevice);
         private Vector2 _input => InputHandler.CameraDir;
 
         private float _cameraX;
@@ -54,6 +55,11 @@ namespace Topacai.Player.Movement.Firstperson.Camera
 
         void Update()
         {
+            if (_playerBrain == null)
+            {
+                Debug.LogWarning("[FPCamera] PlayerBrain is null");
+                return;
+            }
             CameraMovement();
             CameraDir = CameraTransform.forward;
 
@@ -93,5 +99,7 @@ namespace Topacai.Player.Movement.Firstperson.Camera
 
             _lastFrame = deltaTime;
         }
+
+        public void SetPlayerBrain(PlayerBrain playerBrain) => _playerBrain = playerBrain;
     }
 }

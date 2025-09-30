@@ -8,15 +8,24 @@ namespace Topacai.Player
     [System.Serializable]
     public class PlayerReferences
     {
+        [System.Serializable]
+        public struct FirstPersonReferences
+        {
+            [SerializeField] private Transform cameraHolder;
+            [SerializeField] private Transform FP_camera;
+
+            public Transform FP_CameraHolder { get => cameraHolder; set => cameraHolder = value; }
+            public Transform FP_Camera { get => FP_camera; set => FP_camera = value; }
+        }
+
         [SerializeField] private Rigidbody rb;
         [SerializeField] private Transform playerOrientation;
-        [SerializeField] private Transform cameraHolder;
-        [SerializeField] private Transform FP_camera;
+        [SerializeField] private FirstPersonReferences firstPersonReferences;
 
         public Rigidbody Rigidbody { get => rb; set => rb = value; }
         public Transform PlayerOrientation { get => playerOrientation; set => playerOrientation = value; }
-        public Transform FP_CameraHolder { get => cameraHolder; set => cameraHolder = value; }
-        public Transform FP_Camera { get => FP_camera; set => FP_camera = value; }
+        
+        public FirstPersonReferences FirstPersonConfig { get => firstPersonReferences; set => firstPersonReferences = value; }
     }
 
     [System.Serializable]
@@ -61,10 +70,12 @@ namespace Topacai.Player
         #endregion
     }
 
-    public class PlayerBrain : Singleton<PlayerBrain>
+    public class PlayerBrain : MonoBehaviour
     {
         [field: SerializeField] public PlayerReferences PlayerReferences { get; private set; }
         [field: SerializeField] public PlayerConfig PlayerConfig { get; private set; }
+
+        [SerializeField] private GameObject _defaultPlayerPrefab;
 
         #region Public Utility Methods
 

@@ -23,6 +23,7 @@ namespace Topacai.Player.Movement
         public event OnGroundChanged OnGroundChangedEvent;
 
         [Header("Data")]
+        [SerializeField] private PlayerBrain _playerBrain;
         [Tooltip("Sets here the data asset that the movement will use, this will be copied during runtime in order to keep runtime changes during gameplay, also used this to revert any runtime change in data")]
         [SerializeField] protected MovementSO _defaultData;
 
@@ -119,9 +120,17 @@ namespace Topacai.Player.Movement
             Data = Instantiate(_defaultData);
         }
 
+        public void SetPlayerBrain(PlayerBrain playerBrain) => _playerBrain = playerBrain;
+
         protected virtual void Start()
         {
-            PlayerBrain.Instance.PlayerReferences.Rigidbody = _rb;
+            if (_playerBrain == null)
+            {
+                _playerBrain = GetComponent<PlayerBrain>();
+            }
+            if (_playerBrain != null)
+                _playerBrain.PlayerReferences.Rigidbody = _rb;
+
             MaxSpeed = Data.WalkSpeed;
 
             float[] jumpData = _defaultData.CalculateJumpForce(_defaultData.JumpHeight, _defaultData.JumpTimeToApex, _customGravity.y);
