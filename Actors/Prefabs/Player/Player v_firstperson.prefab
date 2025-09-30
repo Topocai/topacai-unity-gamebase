@@ -151,7 +151,7 @@ MonoBehaviour:
   Lens:
     FieldOfView: 60.000004
     OrthographicSize: 5
-    NearClipPlane: 0.3
+    NearClipPlane: 0.1
     FarClipPlane: 1000
     Dutch: 0
     ModeOverride: 0
@@ -308,9 +308,9 @@ GameObject:
   - component: {fileID: 5984148882133814291}
   - component: {fileID: 8292286287853943238}
   - component: {fileID: 8036125784681422184}
-  - component: {fileID: 5064102991364604699}
-  - component: {fileID: 1813047750628748523}
-  - component: {fileID: 6252253547830473148}
+  - component: {fileID: 412186270826742940}
+  - component: {fileID: 1344306169245150601}
+  - component: {fileID: 5742053166635316694}
   m_Layer: 0
   m_Name: Player v_firstperson
   m_TagString: Untagged
@@ -457,14 +457,16 @@ MonoBehaviour:
   <PlayerReferences>k__BackingField:
     rb: {fileID: 8292286287853943238}
     playerOrientation: {fileID: 2385655470761369254}
-    cameraHolder: {fileID: 5275599765821146820}
-    FP_camera: {fileID: 1844920786845300941}
+    firstPersonReferences:
+      cameraHolder: {fileID: 5275599765821146820}
+      FP_camera: {fileID: 1844920786845300941}
   <PlayerConfig>k__BackingField:
-    sensivity_horizontal: 1
-    sensivity_vertical: 1
-    j_sensivity_horizontal: 50
-    j_sensivity_vertical: 50
---- !u!114 &5064102991364604699
+    sensivity_horizontal: 5
+    sensivity_vertical: 5
+    j_sensivity_horizontal: 0.8
+    j_sensivity_vertical: 0.8
+  _defaultPlayerPrefab: {fileID: 8804685584716161075}
+--- !u!114 &412186270826742940
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -476,9 +478,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c7d32cd812cc524588b1114be006dcb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _playerBrain: {fileID: 8036125784681422184}
+  CameraDir: {x: 0, y: 0, z: 0}
+  CameraDirFlat: {x: 0, y: 0, z: 0}
   SHOW_CAMERA_DIR: 0
   SHOW_CAMERA_DIR_FLAT: 0
---- !u!114 &1813047750628748523
+--- !u!114 &1344306169245150601
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -494,6 +499,7 @@ MonoBehaviour:
   _gravityOn: 1
   _useCustomGravity: 0
   _customGravity: {x: 0, y: -9.81, z: 0}
+  _playerBrain: {fileID: 8036125784681422184}
   _defaultData: {fileID: 11400000, guid: cd9d5626a36f01e46957fad92854af5a, type: 2}
   <Data>k__BackingField: {fileID: 0}
   _groundT: {fileID: 911841005251527460}
@@ -502,9 +508,9 @@ MonoBehaviour:
   _heightToCheckWall: -0.42
   _distanceFromWall: 0.14
   _wallSphereRadius: 0.3
-  _tryingToJumpTime: 0.07
-  _stepStart: {fileID: 0}
-  _stepHeight: {fileID: 0}
+  _tryingToJumpTime: 0.08
+  _stepStart: {fileID: 7245125603182171273}
+  _stepHeight: {fileID: 6990196419943841137}
   _stepBoxSize: 0.2
   GIZMOS: 1
   ShowDebug: 0
@@ -521,7 +527,8 @@ MonoBehaviour:
   <MaxSpeed>k__BackingField: 0
   <TargetSpeed>k__BackingField: {x: 0, y: 0, z: 0}
   <ClimbingStair>k__BackingField: 0
---- !u!114 &6252253547830473148
+  _cameraController: {fileID: 0}
+--- !u!114 &5742053166635316694
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -533,7 +540,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d63ff7474c70b864b9f49c7ecbd5d289, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _playerBrain: {fileID: 8036125784681422184}
   _distance: 3
   _interactuableLayerMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 0
