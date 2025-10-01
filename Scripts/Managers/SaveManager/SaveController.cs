@@ -121,13 +121,5 @@ namespace Topacai.Utils.SaveSystem
             ProfileExists();
             return SaveManager.GetProfileData<T>(_currentProfile, fileName, out data, subFolder);
         }
-
-        private void Update()
-        {
-            if (InputHandler.CrouchPressed)
-            {
-                SaveGame();
-            }
-        }
     }
 }
