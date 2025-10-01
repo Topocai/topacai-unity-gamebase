@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Unity.Properties;
 using UnityEngine;
 
 namespace Topacai.Utils.SaveSystem
@@ -237,13 +238,17 @@ namespace Topacai.Utils.SaveSystem
         public object Data;
     }
 
+    [System.Serializable]
     public struct UserProfile : IComparable
     {
-        public string ID { get; private set; }
-        public string Name { get; private set; }
-        public int TimePlayed { get; private set; }
+        [CreateProperty]
+        [field: SerializeField] public string ID { get; private set; }
+        [CreateProperty]
+        [field: SerializeField] public string Name { get; private set; }
+        [CreateProperty]
+        [field: SerializeField] public float TimePlayed { get; private set; }
 
-        public UserProfile(string id, string name, int timePlayed)
+        public UserProfile(string id, string name, float timePlayed)
         {
             ID = id;
             Name = name;

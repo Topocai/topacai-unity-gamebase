@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Topacai.Inputs;
+
 using Topacai.Utils.GameObjects;
 using UnityEngine;
 using UnityEngine.Events;
@@ -11,13 +11,18 @@ namespace Topacai.Utils.SaveSystem
     {
         public static UnityEvent OnSaveGameEvent = new UnityEvent();
 
+        public static UnityEvent<UserProfile> OnProfileChanged = new ();
+        public static UnityEvent<List<UserProfile>> OnProfilesFetched = new ();
+
+        [Header("Paths definition")]
         [SerializeField] private string _savePath = "/SaveData";
         [SerializeField] private string _profilesFileName = "profiles.json";
         [Space(5)]
         [SerializeField] private string _levelsPath = "/Levels";
 
-        List<UserProfile> _profiles = new List<UserProfile>();
-        UserProfile _currentProfile;
+        private static List<UserProfile> _profiles = new List<UserProfile>();
+        
+        private static UserProfile _currentProfile;
 
         protected override void Awake()
         {
@@ -29,13 +34,17 @@ namespace Topacai.Utils.SaveSystem
 
         private void SetDebugProfile()
         {
-            _currentProfile = _profiles.Count > 0 ? _profiles[0] : SaveManager.CreateProfile("Debug Profile");
+            SetProfile(_profiles.Count > 0 ? _profiles[0] : SaveManager.CreateProfile("Debug Profile"));
         }
 
         public UserProfile[] GetProfiles() => _profiles.ToArray();
 
-        public void SetProfile(UserProfile profile) => _currentProfile = profile;
-        public void SetProfile(int index) => _currentProfile = _profiles[index % _profiles.Count];
+        public void SetProfile(UserProfile profile)
+        {
+            _currentProfile = profile;
+            OnProfileChanged?.Invoke(_currentProfile);
+        }
+        public void SetProfile(int index) => SetProfile(_profiles[index % _profiles.Count]);
 
         public void RecoverProfiles()
         {
@@ -43,6 +52,8 @@ namespace Topacai.Utils.SaveSystem
             SaveManager.RecoverProfiles();
 
             _profiles = SaveManager.GetProfiles();
+
+            OnProfilesFetched?.Invoke(_profiles);
         }
 
         private void ProfileExists()
