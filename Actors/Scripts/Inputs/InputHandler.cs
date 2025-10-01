@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Topacai.Player;
-using Topacai.Utils.GameObjects;
+
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -169,15 +169,15 @@ namespace Topacai.Inputs
 
         #region Instance - Multiplayer fields 
 
-        public OnSchemeChangedEvent OnSchemeChanged = new OnSchemeChangedEvent();
+        [HideInInspector] public OnSchemeChangedEvent OnSchemeChanged = new OnSchemeChangedEvent();
 
         public PlayerInput PlayerInput;
 
-        public string CurrentScheme;
-        public DeviceType CurrentDevice;
+        [HideInInspector] public string CurrentScheme;
+        [HideInInspector] public DeviceType CurrentDevice;
 
-        public Vector2 MoveDir;
-        public Vector2 CameraDir;
+        [HideInInspector] public Vector2 MoveDir;
+        [HideInInspector] public Vector2 CameraDir;
 
         private HashSet<SimpleActionHandler> _actionHandlers = new();
 
@@ -191,11 +191,12 @@ namespace Topacai.Inputs
 
         private void Start()
         {
-           PlayerInput = GetComponent<PlayerInput>();
+            if (PlayerInput == null)
+                PlayerInput = GetComponent<PlayerInput>();
 
-           _Move = PlayerInput.actions["Move"];
-           _Camera = PlayerInput.actions["Camera"];
-           _Pause = PlayerInput.actions["Pause"];
+            _Move = PlayerInput.actions["Move"];
+            _Camera = PlayerInput.actions["Camera"];
+            _Pause = PlayerInput.actions["Pause"];
 
             var move = new SimpleActionHandler(PlayerInput.actions["Move"], pressingThreshold);
             var run = new SimpleActionHandler(PlayerInput.actions["Run"], pressingThreshold);
