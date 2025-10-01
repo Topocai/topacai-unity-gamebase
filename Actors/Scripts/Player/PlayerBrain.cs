@@ -83,7 +83,18 @@ namespace Topacai.Player
         [SerializeField] private InputActionAsset _inputAsset;
         [SerializeField] private InputHandler _playerInputs;
 
-        public InputHandler InputHandler => _playerInputs;
+        public InputHandler InputHandler
+        {
+            get
+            {
+                if (_playerInputs == null)
+                {
+                    CreateInputs();
+                    throw new System.Exception("Inputs not initialized for this player");
+                }
+                return _playerInputs;
+            }
+        }
 
         private void CreateInputs()
         {
