@@ -14,8 +14,8 @@ namespace Topacai.Player.Movement.Firstperson.Camera
         public Transform CameraTransform => _playerBrain.PlayerReferences.FirstPersonConfig.FP_Camera;
         private Transform PlayerOrientation => _playerBrain.PlayerReferences.PlayerOrientation;
         private Transform CameraHolder => _playerBrain.PlayerReferences.FirstPersonConfig.FP_CameraHolder;
-        private (float, float) Sensivity => _playerBrain.PlayerConfig.GetSensivity(InputHandler.CurrentDevice);
-        private Vector2 _input => InputHandler.CameraDir;
+        private (float, float) Sensivity => _playerBrain.PlayerConfig.GetSensivity(_playerBrain.InputHandler.CurrentDevice);
+        private Vector2 _input => _playerBrain.InputHandler.CameraDir;
 
         private float _cameraX;
         private float _cameraY;
@@ -48,9 +48,9 @@ namespace Topacai.Player.Movement.Firstperson.Camera
             CameraDir = Vector3.zero;
             CameraDirFlat = Vector3.zero;
 
-            SetSensMultiplier(InputHandler.CurrentDevice);
+            SetSensMultiplier(_playerBrain.InputHandler.CurrentDevice);
 
-            InputHandler.OnSchemeChanged.AddListener(OnSchemeChanged);
+            _playerBrain.InputHandler.OnSchemeChanged.AddListener(OnSchemeChanged);
         }
 
         void Update()

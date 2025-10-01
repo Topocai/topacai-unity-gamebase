@@ -115,7 +115,7 @@ namespace Topacai.Inputs
                     ""name"": ""Pause"",
                     ""type"": ""Button"",
                     ""id"": ""64f5b5d0-0322-44b0-bb4f-11f936aea1b3"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -124,7 +124,7 @@ namespace Topacai.Inputs
                     ""name"": ""Run"",
                     ""type"": ""Button"",
                     ""id"": ""d3e1a732-b100-4298-b721-7f8768c6db83"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -133,7 +133,7 @@ namespace Topacai.Inputs
                     ""name"": ""Interact"",
                     ""type"": ""Button"",
                     ""id"": ""8bdb1c23-6bfd-4550-a0de-0cd19a1fec10"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -151,7 +151,7 @@ namespace Topacai.Inputs
                     ""name"": ""Crouch"",
                     ""type"": ""Button"",
                     ""id"": ""b41710a6-c4fd-4b20-a111-4cf8e05dfb21"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -208,13 +208,13 @@ namespace Topacai.Inputs
                     ""path"": ""<Keyboard>/d"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": "";GenericPCScheme"",
                     ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
                 {
-                    ""name"": """",
+                    ""name"": ""2D Vector"",
                     ""id"": ""d5b9a73b-a14b-4155-8f05-45144d1c754e"",
                     ""path"": ""<Mouse>/delta"",
                     ""interactions"": """",
@@ -302,34 +302,6 @@ namespace Topacai.Inputs
                     ""isPartOfComposite"": false
                 }
             ]
-        },
-        {
-            ""name"": ""Haibanme"",
-            ""id"": ""66d19ec1-2755-4a24-8167-5594763db74f"",
-            ""actions"": [
-                {
-                    ""name"": ""Dash"",
-                    ""type"": ""Button"",
-                    ""id"": ""e2ba2bd0-33e2-492c-8ab5-de1b732a465e"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                }
-            ],
-            ""bindings"": [
-                {
-                    ""name"": """",
-                    ""id"": ""11d1c09f-3d07-4992-9c24-31721d7a4be8"",
-                    ""path"": ""<Keyboard>/c"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Dash"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                }
-            ]
         }
     ],
     ""controlSchemes"": [
@@ -376,15 +348,11 @@ namespace Topacai.Inputs
             m_GenericMap_Interact = m_GenericMap.FindAction("Interact", throwIfNotFound: true);
             m_GenericMap_Jump = m_GenericMap.FindAction("Jump", throwIfNotFound: true);
             m_GenericMap_Crouch = m_GenericMap.FindAction("Crouch", throwIfNotFound: true);
-            // Haibanme
-            m_Haibanme = asset.FindActionMap("Haibanme", throwIfNotFound: true);
-            m_Haibanme_Dash = m_Haibanme.FindAction("Dash", throwIfNotFound: true);
         }
 
         ~@InputAsset()
         {
             UnityEngine.Debug.Assert(!m_GenericMap.enabled, "This will cause a leak and performance issues, InputAsset.GenericMap.Disable() has not been called.");
-            UnityEngine.Debug.Assert(!m_Haibanme.enabled, "This will cause a leak and performance issues, InputAsset.Haibanme.Disable() has not been called.");
         }
 
         /// <summary>
@@ -618,102 +586,6 @@ namespace Topacai.Inputs
         /// Provides a new <see cref="GenericMapActions" /> instance referencing this action map.
         /// </summary>
         public GenericMapActions @GenericMap => new GenericMapActions(this);
-
-        // Haibanme
-        private readonly InputActionMap m_Haibanme;
-        private List<IHaibanmeActions> m_HaibanmeActionsCallbackInterfaces = new List<IHaibanmeActions>();
-        private readonly InputAction m_Haibanme_Dash;
-        /// <summary>
-        /// Provides access to input actions defined in input action map "Haibanme".
-        /// </summary>
-        public struct HaibanmeActions
-        {
-            private @InputAsset m_Wrapper;
-
-            /// <summary>
-            /// Construct a new instance of the input action map wrapper class.
-            /// </summary>
-            public HaibanmeActions(@InputAsset wrapper) { m_Wrapper = wrapper; }
-            /// <summary>
-            /// Provides access to the underlying input action "Haibanme/Dash".
-            /// </summary>
-            public InputAction @Dash => m_Wrapper.m_Haibanme_Dash;
-            /// <summary>
-            /// Provides access to the underlying input action map instance.
-            /// </summary>
-            public InputActionMap Get() { return m_Wrapper.m_Haibanme; }
-            /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
-            public void Enable() { Get().Enable(); }
-            /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
-            public void Disable() { Get().Disable(); }
-            /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
-            public bool enabled => Get().enabled;
-            /// <summary>
-            /// Implicitly converts an <see ref="HaibanmeActions" /> to an <see ref="InputActionMap" /> instance.
-            /// </summary>
-            public static implicit operator InputActionMap(HaibanmeActions set) { return set.Get(); }
-            /// <summary>
-            /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
-            /// </summary>
-            /// <param name="instance">Callback instance.</param>
-            /// <remarks>
-            /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
-            /// </remarks>
-            /// <seealso cref="HaibanmeActions" />
-            public void AddCallbacks(IHaibanmeActions instance)
-            {
-                if (instance == null || m_Wrapper.m_HaibanmeActionsCallbackInterfaces.Contains(instance)) return;
-                m_Wrapper.m_HaibanmeActionsCallbackInterfaces.Add(instance);
-                @Dash.started += instance.OnDash;
-                @Dash.performed += instance.OnDash;
-                @Dash.canceled += instance.OnDash;
-            }
-
-            /// <summary>
-            /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
-            /// </summary>
-            /// <remarks>
-            /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
-            /// </remarks>
-            /// <seealso cref="HaibanmeActions" />
-            private void UnregisterCallbacks(IHaibanmeActions instance)
-            {
-                @Dash.started -= instance.OnDash;
-                @Dash.performed -= instance.OnDash;
-                @Dash.canceled -= instance.OnDash;
-            }
-
-            /// <summary>
-            /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="HaibanmeActions.UnregisterCallbacks(IHaibanmeActions)" />.
-            /// </summary>
-            /// <seealso cref="HaibanmeActions.UnregisterCallbacks(IHaibanmeActions)" />
-            public void RemoveCallbacks(IHaibanmeActions instance)
-            {
-                if (m_Wrapper.m_HaibanmeActionsCallbackInterfaces.Remove(instance))
-                    UnregisterCallbacks(instance);
-            }
-
-            /// <summary>
-            /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
-            /// </summary>
-            /// <remarks>
-            /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
-            /// </remarks>
-            /// <seealso cref="HaibanmeActions.AddCallbacks(IHaibanmeActions)" />
-            /// <seealso cref="HaibanmeActions.RemoveCallbacks(IHaibanmeActions)" />
-            /// <seealso cref="HaibanmeActions.UnregisterCallbacks(IHaibanmeActions)" />
-            public void SetCallbacks(IHaibanmeActions instance)
-            {
-                foreach (var item in m_Wrapper.m_HaibanmeActionsCallbackInterfaces)
-                    UnregisterCallbacks(item);
-                m_Wrapper.m_HaibanmeActionsCallbackInterfaces.Clear();
-                AddCallbacks(instance);
-            }
-        }
-        /// <summary>
-        /// Provides a new <see cref="HaibanmeActions" /> instance referencing this action map.
-        /// </summary>
-        public HaibanmeActions @Haibanme => new HaibanmeActions(this);
         private int m_GenericPCSchemeSchemeIndex = -1;
         /// <summary>
         /// Provides access to the input control scheme.
@@ -796,21 +668,6 @@ namespace Topacai.Inputs
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnCrouch(InputAction.CallbackContext context);
-        }
-        /// <summary>
-        /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Haibanme" which allows adding and removing callbacks.
-        /// </summary>
-        /// <seealso cref="HaibanmeActions.AddCallbacks(IHaibanmeActions)" />
-        /// <seealso cref="HaibanmeActions.RemoveCallbacks(IHaibanmeActions)" />
-        public interface IHaibanmeActions
-        {
-            /// <summary>
-            /// Method invoked when associated input action "Dash" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-            /// </summary>
-            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-            void OnDash(InputAction.CallbackContext context);
         }
     }
 }

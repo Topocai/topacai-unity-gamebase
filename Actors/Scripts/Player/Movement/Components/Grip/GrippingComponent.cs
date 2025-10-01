@@ -175,7 +175,7 @@ namespace Topacai.Player.Movement.Components
         {
             if (!IsGripping)
             {
-                if (InputHandler.GetActionHandler(ActionName.Interact).IsPressing)
+                if (_movement.PlayerBrain.InputHandler.GetActionHandler(ActionName.Interact).IsPressing)
                 {
 
                     RayGrip();
@@ -184,7 +184,7 @@ namespace Topacai.Player.Movement.Components
             }
             else
             {
-                if (!InputHandler.GetActionHandler(ActionName.Interact).IsPressing)
+                if (!_movement.PlayerBrain.InputHandler.GetActionHandler(ActionName.Interact).IsPressing)
                 {
                     StopGrip();
                 }

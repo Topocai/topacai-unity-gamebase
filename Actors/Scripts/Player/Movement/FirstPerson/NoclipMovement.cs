@@ -90,9 +90,9 @@ namespace Topacai.TDebug.Movement
         {
             _goingUp = _upInput.IsPressed();
             _goingDown = _downInput.IsPressed();
-            _isBoosted = InputHandler.GetActionHandler(ActionName.Run).All;
+            _isBoosted = _playerMovement.PlayerBrain.InputHandler.GetActionHandler(ActionName.Run).All;
 
-            _inputDir = InputHandler.MoveDir;
+            _inputDir = _playerMovement.PlayerBrain.InputHandler.MoveDir;
         }
 
         public void SetEnableNoclip(bool value)

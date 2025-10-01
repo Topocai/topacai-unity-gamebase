@@ -42,12 +42,12 @@ namespace Topacai.Player.Movement.Firstperson.Interact
 
         private void Update()
         {
-            if (InputHandler.GetActionHandler(ActionName.Interact).IsPressed)
+            if (_playerBrain.InputHandler.GetActionHandler(ActionName.Interact).IsPressed)
             {
                 Interactuable.Interact();
             }
 
-            if (InputHandler.GetActionHandler(ActionName.Interact).IsPressing)
+            if (_playerBrain.InputHandler.GetActionHandler(ActionName.Interact).IsPressing)
             {
                 Interactuable.HoldInteract();
             }

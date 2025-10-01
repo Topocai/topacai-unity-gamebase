@@ -90,6 +90,7 @@ namespace Topacai.Player.Movement
         public MovementSO DataAsset { get { return Data; } protected set { Data = value; } }
         public MovementSO DefaultData { get { return _defaultData; } }
         public RaycastHit GroundHitData { get { return _groundHit; } }
+        public PlayerBrain PlayerBrain { get { return _playerBrain; } }
 
         protected Vector3 _crouchPivotPos;
         protected Collider _lastGroundHit;
@@ -111,7 +112,7 @@ namespace Topacai.Player.Movement
         protected float _GroundSize => _groundSize * transform.localScale.magnitude;
         protected float _PlayerHeight => InitialPlayerHeight * transform.localScale.y;
         protected bool _InGround => LastGroundTime >= 0;
-        protected Vector3 _InputDir => InputHandler.MoveDir;
+        protected Vector3 _InputDir => _playerBrain.InputHandler.MoveDir;
         protected Vector3 _WallStartPointUpper => _wallCheckMidPoint.position + Vector3.down * (_PlayerHeight * 0.5f + _heightToCheckWall * transform.localScale.y);
         protected Vector3 _WallStartPointBottom => _wallCheckMidPoint.position + Vector3.down * (_PlayerHeight * 0.5f + -_heightToCheckWall * transform.localScale.y);
 
@@ -139,9 +140,11 @@ namespace Topacai.Player.Movement
 
             _defaultData.OnValuesChanged.AddListener(SyncValuesWithBaseDataMovement);
 
-            _jumpInput = InputHandler.GetActionHandler(ActionName.Jump);
-            _crouchInput = InputHandler.GetActionHandler(ActionName.Crouch);
-            _sprintInput = InputHandler.GetActionHandler(ActionName.Run);
+            var inputHandler = _playerBrain.InputHandler;
+
+            _jumpInput = inputHandler.GetActionHandler(ActionName.Jump);
+            _crouchInput = inputHandler.GetActionHandler(ActionName.Crouch);
+            _sprintInput = inputHandler.GetActionHandler(ActionName.Run);
         }
 
         /// <summary>
@@ -261,7 +264,7 @@ namespace Topacai.Player.Movement
                 // Checks if the ground is the same that the last one
                 if (_lastGroundHit != _groundHit.collider)
                 {
-                    OnGroundChangedEvent.Invoke(_groundHit);
+                    OnGroundChangedEvent?.Invoke(_groundHit);
 
                     _lastGroundHit = _groundHit.collider;
 

@@ -27,7 +27,7 @@
                     "name": "Pause",
                     "type": "Button",
                     "id": "64f5b5d0-0322-44b0-bb4f-11f936aea1b3",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -36,7 +36,7 @@
                     "name": "Run",
                     "type": "Button",
                     "id": "d3e1a732-b100-4298-b721-7f8768c6db83",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -45,7 +45,7 @@
                     "name": "Interact",
                     "type": "Button",
                     "id": "8bdb1c23-6bfd-4550-a0de-0cd19a1fec10",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -63,7 +63,7 @@
                     "name": "Crouch",
                     "type": "Button",
                     "id": "b41710a6-c4fd-4b20-a111-4cf8e05dfb21",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -120,13 +120,13 @@
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";GenericPCScheme",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "",
+                    "name": "2D Vector",
                     "id": "d5b9a73b-a14b-4155-8f05-45144d1c754e",
                     "path": "<Mouse>/delta",
                     "interactions": "",
@@ -210,34 +210,6 @@
                     "processors": "",
                     "groups": "GenericPCScheme",
                     "action": "Crouch",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                }
-            ]
-        },
-        {
-            "name": "Haibanme",
-            "id": "66d19ec1-2755-4a24-8167-5594763db74f",
-            "actions": [
-                {
-                    "name": "Dash",
-                    "type": "Button",
-                    "id": "e2ba2bd0-33e2-492c-8ab5-de1b732a465e",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                }
-            ],
-            "bindings": [
-                {
-                    "name": "",
-                    "id": "11d1c09f-3d07-4992-9c24-31721d7a4be8",
-                    "path": "<Keyboard>/c",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Dash",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

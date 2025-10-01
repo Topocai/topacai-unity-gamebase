@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Topacai.Player;
 using Topacai.Utils.GameObjects;
 using UnityEngine;
 using UnityEngine.Events;
@@ -127,17 +128,26 @@ namespace Topacai.Inputs
 
     }
 
-    public class InputHandler : Singleton<InputHandler>
+    /// <summary>
+    /// Use static values only when Singleplayer mode is enabled
+    /// </summary>
+    public class InputHandler : MonoBehaviour
     {
-        public static OnSchemeChangedEvent OnSchemeChanged = new OnSchemeChangedEvent();
+        #region Single player fields
 
-        public static PlayerInput PlayerInput;
+        public static OnSchemeChangedEvent SP_OnSchemeChanged = new OnSchemeChangedEvent();
 
-        public static string CurrentScheme;
-        public static DeviceType CurrentDevice;
+        public static PlayerInput SP_PlayerInput;
 
-        public static Vector2 MoveDir;
-        public static Vector2 CameraDir;
+        public static string SP_CurrentScheme;
+        public static DeviceType SP_CurrentDevice;
+
+        public static Vector2 SP_MoveDir;
+        public static Vector2 SP_CameraDir;
+
+        private static HashSet<SimpleActionHandler> sp_actionHandlers = new();
+
+        #endregion
 
         [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool IsRunning;
         [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool RunPressed;
@@ -157,7 +167,21 @@ namespace Topacai.Inputs
 
         public static bool PausePressed;
 
-        private static HashSet<SimpleActionHandler> _actionHandlers = new();
+        #region Instance - Multiplayer fields 
+
+        public OnSchemeChangedEvent OnSchemeChanged = new OnSchemeChangedEvent();
+
+        public PlayerInput PlayerInput;
+
+        public string CurrentScheme;
+        public DeviceType CurrentDevice;
+
+        public Vector2 MoveDir;
+        public Vector2 CameraDir;
+
+        private HashSet<SimpleActionHandler> _actionHandlers = new();
+
+        #endregion
 
         private InputAction _Move;
         private InputAction _Camera;
@@ -186,6 +210,8 @@ namespace Topacai.Inputs
             _actionHandlers.Add(crouch);
 
             OnSchemeChangedHandler(PlayerInput.currentControlScheme);
+
+            SP_PlayerInput = PlayerInput;
         }
 
         private void OnSchemeChangedHandler(string scheme)
@@ -203,6 +229,10 @@ namespace Topacai.Inputs
             }
 
             OnSchemeChanged.Invoke(new OnSchemeChangedArgs(scheme, CurrentDevice));
+
+            SP_OnSchemeChanged.Invoke(new OnSchemeChangedArgs(scheme, CurrentDevice));
+            SP_CurrentDevice = CurrentDevice;
+            SP_CurrentScheme = scheme;
         }
 
         private void OnDisable()
@@ -227,6 +257,7 @@ namespace Topacai.Inputs
         private void Update()
         {
             string currentScheme = PlayerInput.currentControlScheme;
+
             if (currentScheme != CurrentScheme)
             {
                 OnSchemeChangedHandler(currentScheme);
@@ -234,21 +265,36 @@ namespace Topacai.Inputs
 
             MoveDir = _Move.ReadValue<Vector2>();
             CameraDir = _Camera.ReadValue<Vector2>();
-
             PausePressed = _Pause.WasPressedThisFrame();
 
             foreach (var actionHandler in _actionHandlers)
             {
                 actionHandler.Update(Time.deltaTime);
             }
+
+            if (PlayerBrain.SINGLEPLAYER_MODE)
+            {
+                foreach (var actionHandler in sp_actionHandlers)
+                {
+                    actionHandler.Update(Time.deltaTime);
+                }
+
+                SP_MoveDir = MoveDir;
+                SP_CameraDir = CameraDir;
+            }
         }
 
-        public static SimpleActionHandler RegisterActionHandler(SimpleActionHandler actionHandler)
+        #region ActionHandler
+
+        #region Instance - Multiplayer
+
+        public SimpleActionHandler RegisterActionHandler(SimpleActionHandler actionHandler)
         {
             _actionHandlers.Add(actionHandler);
             return actionHandler;
         }
-        public static SimpleActionHandler GetActionHandler(string name)
+
+        public SimpleActionHandler GetActionHandler(string name)
         {
             foreach (var handler in _actionHandlers)
             {
@@ -261,13 +307,58 @@ namespace Topacai.Inputs
             return null;
         }
 
-        public static SimpleActionHandler GetActionHandler(InputAction action) => GetActionHandler(action.name);
+        public SimpleActionHandler GetActionHandler(InputAction action) => GetActionHandler(action.name);
 
-        public static SimpleActionHandler GetActionHandler(ActionName action) => GetActionHandler(action.ToString());
+        public SimpleActionHandler GetActionHandler(ActionName action) => GetActionHandler(action.ToString());
 
-        public static void UnregisterActionHandler(SimpleActionHandler actionHandler) => _actionHandlers.Remove(actionHandler);
+        public void UnregisterActionHandler(SimpleActionHandler actionHandler) => _actionHandlers.Remove(actionHandler);
 
-        public static void UnregisterActionHandler(string name) => _actionHandlers.Remove(GetActionHandler(name));
+        public void UnregisterActionHandler(string name) => _actionHandlers.Remove(GetActionHandler(name));
+
+        #endregion
+
+        #region Static - Singleplayer
+
+        public static SimpleActionHandler SP_RegisterActionHandler(SimpleActionHandler actionHandler)
+        {
+            if (!PlayerBrain.SINGLEPLAYER_MODE)
+            {
+                throw new Exception("This method is only available in singleplayer mode");
+            }
+
+            sp_actionHandlers.Add(actionHandler);
+            return actionHandler;
+        }
+
+        public static SimpleActionHandler SP_GetActionHandler(string name)
+        {
+            if (!PlayerBrain.SINGLEPLAYER_MODE)
+            {
+                throw new Exception("This method is only available in singleplayer mode");
+            }
+
+            foreach (var handler in sp_actionHandlers)
+            {
+                if (handler.Name == name)
+                {
+                    return handler;
+                }
+            }
+
+            return null;
+        }
+
+        public static SimpleActionHandler SP_GetActionHandler(InputAction action) => SP_GetActionHandler(action.name);
+
+        public static SimpleActionHandler SP_GetActionHandler(ActionName action) => SP_GetActionHandler(action.ToString());
+
+        public static void SP_UnregisterActionHandler(SimpleActionHandler actionHandler) => sp_actionHandlers.Remove(actionHandler);
+
+        public static void SP_UnregisterActionHandler(string name) => sp_actionHandlers.Remove(SP_GetActionHandler(name));
+
+        #endregion
+
+        #endregion
 
         /// <summary>
         /// Receibes and InputAction and update states passed as reference in parameters

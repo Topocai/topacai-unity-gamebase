@@ -101,7 +101,7 @@ namespace Topacai.Player.Movement.Components
 
             if (OwnInputs)
             {
-                if (InputHandler.GetActionHandler(ActionName.Run).InstantPress)
+                if (_movement.PlayerBrain.InputHandler.GetActionHandler(ActionName.Run).InstantPress)
                     Dash(_movement.MoveDir.normalized);
             }
         }

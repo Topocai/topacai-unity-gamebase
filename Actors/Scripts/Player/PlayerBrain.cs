@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Topacai.Inputs;
 using Topacai.Utils.GameObjects;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Topacai.Player
 {
@@ -72,10 +74,73 @@ namespace Topacai.Player
 
     public class PlayerBrain : MonoBehaviour
     {
+        public const bool SINGLEPLAYER_MODE = true;
+        public static List<PlayerBrain> Players { get; private set; }
+
         [field: SerializeField] public PlayerReferences PlayerReferences { get; private set; }
         [field: SerializeField] public PlayerConfig PlayerConfig { get; private set; }
 
-        [SerializeField] private GameObject _defaultPlayerPrefab;
+        [SerializeField] private InputActionAsset _inputAsset;
+        [SerializeField] private InputHandler _playerInputs;
+
+        public InputHandler InputHandler => _playerInputs;
+
+        private void CreateInputs()
+        {
+            if (_playerInputs != null || _inputAsset == null) return;
+
+            var playerInput = gameObject.AddComponent<PlayerInput>();
+
+            playerInput.actions = _inputAsset;
+
+            gameObject.AddComponent<InputHandler>();
+            
+        }
+
+        protected void Initialize()
+        {
+            CreateInputs();
+        }
+
+        private void Start()
+        {
+            CreateInputs();
+        }
+
+        #region Factory Pattern
+
+        public static GameObject CreatePlayerPrefab(GameObject playerPrefab)
+        {
+            var instance = Instantiate(playerPrefab);
+
+            if (instance.TryGetComponent(out PlayerBrain playerBrain))
+            {
+                Players.Add(playerBrain);
+
+                playerBrain.Initialize();
+
+                if (playerBrain.InputHandler == null)
+                {
+                    playerBrain.CreateInputs();
+                }
+            } else
+            {
+                throw new System.Exception("Player prefab must have a PlayerBrain component");
+            }
+
+            return instance;
+        }
+
+        public static GameObject CreatePlayerPrefab(GameObject playerPrefab, Vector3 pos)
+        {
+            var instance = CreatePlayerPrefab(playerPrefab);
+            instance.transform.position = pos;
+            return instance;
+        }
+
+        public static GameObject CreatePlayerPrefab(GameObject playerPrefab,Transform pos) => CreatePlayerPrefab(playerPrefab, pos.position);
+
+        #endregion
 
         #region Public Utility Methods
 
