@@ -84,3 +84,4 @@ crashlytics-build.properties
 Actors/Scripts/Player/FP_Movement/OLD MOVEMENT.txt
 /Just-Experimenting
 *.ehy~
+ScriptableObjects/GameDataSO.asset
