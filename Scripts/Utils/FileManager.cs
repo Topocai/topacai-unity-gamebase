@@ -7,6 +7,21 @@ namespace Topacai.Utils.Files
 {
     public static class FileManager
     {
+        public static void CreateDirectory(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+        }
+
+        public static void WriteFile(string path, string name, string content)
+        {
+            CreateDirectory(path);
+
+            File.WriteAllText($"{path}/{name}", content);
+        }
+
         //Get all files with a specified prefix and extension from a directory
         public static List<string> GetFilesByPrefix(string directoryPath, string prefix, string fileExtension = ".json")
         {
