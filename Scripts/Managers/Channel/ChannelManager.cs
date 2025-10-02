@@ -1,8 +1,8 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using Topacai.Utils.Files;
 using UnityEditor;
-using System;
+using System.IO;
 
 namespace Topacai.Channels
 {
@@ -27,73 +27,23 @@ namespace Topacai.Channels
         public string name;
     }
 
-    public class ChannelManagerWindow : EditorWindow
-    {
-        string channelName = "DontUseSpaces";
-
-        List<ArgumentData> arguments = new();
-
-        [MenuItem("TopacaiTools/Channel Manager")]
-        public static void ShowWindow()
-        {
-            GetWindow<ChannelManagerWindow>("Channel Manager");
-        }
-
-        private void OnGUI()
-        {
-            GUILayout.Label("Channel Name", EditorStyles.boldLabel);
-            channelName = EditorGUILayout.TextField("Channel Name: ", channelName);
-
-            GUILayout.Space(10);
-
-            GUILayout.Label("Channel arguments", EditorStyles.boldLabel);
-            for (int i = 0; i < arguments.Count; i++)
-            {
-                EditorGUILayout.BeginVertical("box");
-
-                arguments[i] = DrawArgument(arguments[i]);
-
-                if (GUILayout.Button("Remove"))
-                {
-                    arguments.RemoveAt(i);
-                    break;
-                }
-
-                EditorGUILayout.EndVertical();
-            }
-
-            if (GUILayout.Button("Add argument"))
-            {
-                arguments.Add(new ArgumentData());
-            }
-
-            GUILayout.Space(20);
-
-            if (GUILayout.Button("Create Channel"))
-            {
-                ChannelManager.CreateChannel(channelName, arguments);
-            }
-        }
-
-        private ArgumentData DrawArgument(ArgumentData argument)
-        {
-            argument.type = EditorGUILayout.TextField("Type", argument.type);
-            argument.name = EditorGUILayout.TextField("Name", argument.name);
-            return argument;
-        }
-    }
-
     public static class ChannelManager
     {
         private const string CHANNEL_BROADCASTER_PATH = "Assets/TopacaiCore/GeneratedScripts/ChannelBroadcaster/";
 
+        /// <summary>
+        /// Creates a channel with custom arguments that can be invoked, add/remove listeners
+        /// Automatic generates a c# script adding the desired channel
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="arguments"></param>
         public static void CreateChannel(string name, List<ArgumentData> arguments)
         {
             string args = "";
 
             for (int i = 0; i < arguments.Count; i++)
             {
-                args += $"public {arguments[i].type} {arguments[i].name};\n";
+                args += $"public {arguments[i].type} {arguments[i].name};\n\t\t";
             }
 
             string code =
@@ -102,6 +52,15 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                                                                                                        ///
+///                                                                                                                        ///
+///     ▄▀█ █░█ ▀█▀ █▀█ █▀▄▀█ ▄▀█ ▀█▀ █ █▀▀   █▀▀ █▀▀ █▄░█ █▀▀ █▀█ ▄▀█ ▀█▀ █▀▀ █▀▄   █▀▀ █▀█ █▀▄ █▀▀       ///
+///     █▀█ █▄█ ░█░ █▄█ █░▀░█ █▀█ ░█░ █ █▄▄   █▄█ ██▄ █░▀█ ██▄ █▀▄ █▀█ ░█░ ██▄ █▄▀   █▄▄ █▄█ █▄▀ ██▄       ///
+///                                                                                                                        ///
+///                                               By Topacai                                                               ///
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace Topacai.Channels 
 {{
@@ -128,11 +87,20 @@ namespace Topacai.Channels
 ";
             FileManager.WriteFile(CHANNEL_BROADCASTER_PATH, $"{name}.cs", code);
 
-            AssetDatabase.Refresh();
+            if (!File.Exists($"{CHANNEL_BROADCASTER_PATH}/topacai-assembly-reference.asmref"))
+            {
+                FileManager.WriteFile(CHANNEL_BROADCASTER_PATH, "topacai-assembly-reference.asmref", "{ \"reference\": \"Topacai\" }");
+            }
 
             Debug.Log($"Channel {name} created");
+            AssetDatabase.Refresh();
         }
     }
+
+    ///
+    /// All channels will use this delegate and static class
+    /// To keep logic on all channels
+    ///
     public delegate void ChannelDelegate<T>(T arg);
     public static class ChannelBaseClass<T>
     {
