@@ -24,12 +24,27 @@ namespace Topacai.Utils.SaveSystem
         
         private static UserProfile _currentProfile;
 
+        private void OnApplicationQuit()
+        {
+            OnSaveGameEvent?.Invoke();
+        }
+
         protected override void Awake()
         {
             base.Awake();
 
             RecoverProfiles();
             SetDebugProfile();
+        }
+
+        private void Start()
+        {
+            OnSaveGameEvent.AddListener(SaveGameHandler);
+        }
+
+        private void SaveGameHandler()
+        {
+            Debug.Log("Saving game");
         }
 
         private void SetDebugProfile()
