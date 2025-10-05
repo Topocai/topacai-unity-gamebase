@@ -42,6 +42,26 @@ namespace Topacai.Utils
 
             return dotProduct <= -1 + tolerance;
         }
+
+        public static float NormalizeAngle(float angle)
+        {
+            angle %= 360f;
+            if (angle < 0f) angle += 360f;
+            return angle;
+        }
+
+        public static float GetNormalizedProgress(float from, float to, float current)
+        {
+            float start = NormalizeAngle(from);
+            float end = NormalizeAngle(to);
+            float value = NormalizeAngle(current);
+
+            float delta = Mathf.DeltaAngle(start, end);
+            float progress = Mathf.DeltaAngle(start, value) / delta;
+
+            return Mathf.Clamp01(progress);
+        }
+
     }
 
     public static class Numbers
