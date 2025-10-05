@@ -7,33 +7,37 @@ namespace Topacai.Actors.Interactuables
 {
     public class InteractuableSelectedEventArgs
     {
-        public InteractuableSelectedEventArgs(IInteractuable interactuable)
+        public InteractuableSelectedEventArgs(IInteractuable interactuable, InteractingSystem system, object interacter = null)
         {
             CurrentInteractuable = interactuable;
-            LastInteractuable = Interactuable.Client;
+            LastInteractuable = system.Client;
+            Interacter = interacter;
         }
         public IInteractuable LastInteractuable { get; }
         public IInteractuable CurrentInteractuable { get; }
+        public object Interacter { get; }
     }
 
     public class InteractuableInteractEventArgs
     {
-        public InteractuableInteractEventArgs(IInteractuable interactuable)
+        public InteractuableInteractEventArgs(IInteractuable interactuable, object interacter = null)
         {
             Interactuable = interactuable;
             CanInteract = interactuable?.CanInteract ?? null;
             InCooldown = interactuable?.InCooldown ?? null;
             CooldownLeft = interactuable?.CooldownLeft() ?? null;
+            Interacter = interacter;
         }
         public IInteractuable Interactuable { get; }
         public bool? CanInteract { get; }
         public bool? InCooldown { get; }
         public float? CooldownLeft { get; }
+        public object Interacter { get; }
     }
 
     public class InteractuableHoldInteractEventArgs : InteractuableInteractEventArgs
     {
-        public InteractuableHoldInteractEventArgs(IInteractuable interactuable) : base(interactuable)
+        public InteractuableHoldInteractEventArgs(IInteractuable interactuable, object interacter = null) : base(interactuable, interacter)
         {
             CanHoldInteract = interactuable?.CanHoldInteract ?? null;
             HoldInCooldown = interactuable?.HoldInCooldown ?? null;
@@ -46,11 +50,13 @@ namespace Topacai.Actors.Interactuables
 
     public class InteractuableChangedCooldownEventArgs
     {
-        public InteractuableChangedCooldownEventArgs(bool inCooldown, bool holdInCooldown)
+        public InteractuableChangedCooldownEventArgs(IInteractuable interactuable, bool inCooldown, bool holdInCooldown)
         {
+            Interactuable = interactuable;
             InCooldown = inCooldown;
             HoldInCooldown = holdInCooldown;
         }
+        public IInteractuable Interactuable { get; }
         public bool InCooldown { get; }
         public bool HoldInCooldown { get; }
     }
@@ -63,63 +69,55 @@ namespace Topacai.Actors.Interactuables
 
     public class InteractuableChangedCooldownEvent : UnityEvent<InteractuableChangedCooldownEventArgs> { }
 
-    public class Interactuable : MonoBehaviour
+    public class InteractingSystem : MonoBehaviour
     {
-        public static IInteractuable Client { get; private set; }
-        public static InteractuableSelectedEvent OnInteractuableSelected { get; private set; } = new InteractuableSelectedEvent();
+        public IInteractuable Client { get; private set; }
+        public InteractuableSelectedEvent OnInteractuableSelected { get; private set; } = new InteractuableSelectedEvent();
 
-        public static InteractuableInteractEvent OnInteract { get; private set; } = new InteractuableInteractEvent();
-        public static InteractuableHoldInteractEvent OnHoldInteract { get; private set; } = new InteractuableHoldInteractEvent();
-        public static InteractuableChangedCooldownEvent OnInteractuableChangedCooldown { get; private set; } = new InteractuableChangedCooldownEvent();
+        public InteractuableInteractEvent OnInteract { get; private set; } = new InteractuableInteractEvent();
+        public InteractuableHoldInteractEvent OnHoldInteract { get; private set; } = new InteractuableHoldInteractEvent();
+        public InteractuableChangedCooldownEvent OnInteractuableChangedCooldown { get; private set; } = new InteractuableChangedCooldownEvent();
 
-        private static bool _lastInteractuableCooldown = false;
-        private static bool _lastInteractuableHoldCooldown = false;
-
-        public static void ResetInteractuable()
+        public void ResetInteractuable()
         {
             if (Client == null) return;
-            OnInteractuableSelected.Invoke(new InteractuableSelectedEventArgs(null));
+            OnInteractuableSelected.Invoke(new InteractuableSelectedEventArgs(null, this));
             Client.Deselect();
             Client = null;
-            _lastInteractuableCooldown = false;
-            _lastInteractuableHoldCooldown = false;
         }
 
-        public static void Interact()
+        public void Interact(object sender = null)
         {
-            OnInteract.Invoke(new InteractuableInteractEventArgs(Client));
+            OnInteract.Invoke(new InteractuableInteractEventArgs(Client, sender));
 
             if (Client == null) return;
 
             if (!Client.CanInteract || Client.InCooldown) return;
             
-            Client.Interact();
+            Client.Interact(sender);
         }
 
-        public static void HoldInteract()
+        public void HoldInteract(object sender = null)
         {
-            OnHoldInteract.Invoke(new InteractuableHoldInteractEventArgs(Client));
+            OnHoldInteract.Invoke(new InteractuableHoldInteractEventArgs(Client, sender));
             if (Client == null) return;
 
             if (!Client.CanHoldInteract || Client.InCooldown) return;
 
-            Client.HoldInteract();
+            Client.HoldInteract(sender);
         }
 
-        public static void SetInteractuable(IInteractuable interactuable)
+        public void SetInteractuable(IInteractuable interactuable, object sender = null)
         {
             if (Client == interactuable) return;
 
-            OnInteractuableSelected.Invoke(new InteractuableSelectedEventArgs(interactuable));
+            OnInteractuableSelected.Invoke(new InteractuableSelectedEventArgs(interactuable, this, sender));
 
             if (Client != null)
-                Client.Deselect();
+                Client.Deselect(sender);
 
             Client = interactuable;
-            interactuable.Select();
-
-            _lastInteractuableCooldown = Client.InCooldown;
-            _lastInteractuableHoldCooldown = Client.HoldInCooldown;
+            interactuable.Select(sender);
         }
 
     }
@@ -132,9 +130,9 @@ namespace Topacai.Actors.Interactuables
 
         float CooldownLeft();
         float HoldCooldownLeft();
-        void Interact();
-        void HoldInteract();
-        void Select();
-        void Deselect();
+        void Interact(object sender = null);
+        void HoldInteract(object sender = null);
+        void Select(object sender = null);
+        void Deselect(object sender = null);
     }
 }
