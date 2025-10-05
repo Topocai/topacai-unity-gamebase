@@ -37,26 +37,26 @@ namespace Topacai.Actors.Interactuables.SimpleInteractuable
             return Mathf.Clamp(_lastTimeInteracted, 0f, _cooldownTime);
         }
 
-        public virtual void Deselect()
+        public virtual void Deselect(object interacter = null)
         {
             Debug.Log("Deselect: " + gameObject.name);
             _onDeselect.Invoke();
         }
 
-        public virtual void Interact()
+        public virtual void Interact(object interacter = null)
         {
             Debug.Log("Interact: " + gameObject.name);
             _lastTimeInteracted = _cooldownTime;
             _onInteract.Invoke();
         }
 
-        public void HoldInteract()
+        public void HoldInteract(object interacter = null)
         {
             Debug.Log("Interacting: " + gameObject.name);
             _onHoldInteract.Invoke();
         }
 
-        public virtual void Select()
+        public virtual void Select(object interacter = null)
         {
             Debug.Log("Select: " + gameObject.name);
             _onSelect.Invoke();

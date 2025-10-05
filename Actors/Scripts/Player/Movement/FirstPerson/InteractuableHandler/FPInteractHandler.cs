@@ -2,13 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using Topacai.Actors.Interactuables;
 using Topacai.Inputs;
-using Topacai.Player.Movement.Firstperson.Camera;
+
 using UnityEngine;
 
 namespace Topacai.Player.Movement.Firstperson.Interact
 {
     public class FPInteractHandler : MonoBehaviour
     {
+        [SerializeField] private InteractingSystem playerInteractingSystem;
+
         [SerializeField] private PlayerBrain _playerBrain;
 
         [SerializeField] private float _distance = 3f;
@@ -18,11 +20,22 @@ namespace Topacai.Player.Movement.Firstperson.Interact
 
         RaycastHit hit;
 
+        public PlayerBrain PlayerBrain => _playerBrain;
+
         void Start()
         {
             if (_playerBrain == null)
             {
                 _playerBrain = GetComponent<PlayerBrain>();
+            }
+
+            if (playerInteractingSystem == null)
+            {
+                playerInteractingSystem = GetComponent<InteractingSystem>();
+                if (playerInteractingSystem == null)
+                {
+                    playerInteractingSystem = gameObject.AddComponent<InteractingSystem>();
+                }
             }
         }
 
@@ -34,22 +47,22 @@ namespace Topacai.Player.Movement.Firstperson.Interact
             {
                 if (hit.collider.TryGetComponent(out IInteractuable interactuable))
                 {
-                    Interactuable.SetInteractuable(interactuable);
+                    playerInteractingSystem.SetInteractuable(interactuable, this);
                     
-                } else Interactuable.ResetInteractuable();
-            } else Interactuable.ResetInteractuable();
+                } else playerInteractingSystem.ResetInteractuable();
+            } else playerInteractingSystem.ResetInteractuable();
         }
 
         private void Update()
         {
             if (_playerBrain.InputHandler.GetActionHandler(ActionName.Interact).IsPressed)
             {
-                Interactuable.Interact();
+                playerInteractingSystem.Interact(this);
             }
 
             if (_playerBrain.InputHandler.GetActionHandler(ActionName.Interact).IsPressing)
             {
-                Interactuable.HoldInteract();
+                playerInteractingSystem.HoldInteract(this);
             }
         }
     }
