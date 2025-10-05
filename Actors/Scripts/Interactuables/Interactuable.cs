@@ -109,7 +109,7 @@ namespace Topacai.Actors.Interactuables
         public static void SetInteractuable(IInteractuable interactuable)
         {
             if (Client == interactuable) return;
-            Debug.Log("Holding Int");
+
             OnInteractuableSelected.Invoke(new InteractuableSelectedEventArgs(interactuable));
 
             if (Client != null)
