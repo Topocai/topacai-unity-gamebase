@@ -15,15 +15,15 @@ MonoBehaviour:
   startShakeThreshold: 0.34
   resetPosSpeed: 1
   smooth: 1.87
-  speed: 0.57
+  speed: 0.3
   stableStrenght: 15
   factor: 0.18
-  horizontalAmplitude: 0.18
-  verticalAmplitude: 0.09
-  frequency: 1
+  horizontalAmplitude: 0.06
+  verticalAmplitude: 0.04
+  frequency: 0.58
   verticalOffset: 0
   verticalShift: 0
   horizontalShift: 0
   movementFactorMin: 0.2
-  movementFactorMax: 1.2
-  movementSpeedSmooth: 1.2
+  movementFactorMax: 1.31
+  movementSpeedSmooth: 1.72
