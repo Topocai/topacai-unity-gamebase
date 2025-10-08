@@ -83,7 +83,11 @@ namespace Topacai.Utils.SaveSystem
             _profiles = JsonConvert.DeserializeObject<List<UserProfile>>(File.ReadAllText(Application.dataPath + _savePath + _profilesFileName));
         }
 
-        public static List<UserProfile> GetProfiles() => _profiles;
+        public static List<UserProfile> GetProfiles()
+        {
+            RecoverProfiles();
+            return _profiles;
+        }
 
         /// <summary>
         /// Serialize and save a user game profile and add to the current profiles data.
