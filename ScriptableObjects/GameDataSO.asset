@@ -13,7 +13,10 @@ MonoBehaviour:
   m_Name: GameDataSO
   m_EditorClassIdentifier: 
   CurrentProfile:
-    <ID>k__BackingField: 3
-    <Name>k__BackingField: asd
+    <ID>k__BackingField: ad2248df-2205-4873-8acd-082d96b913b3
+    <Name>k__BackingField: Debug Profile
     <TimePlayed>k__BackingField: 0
-  Profiles: []
+  Profiles:
+  - <ID>k__BackingField: ad2248df-2205-4873-8acd-082d96b913b3
+    <Name>k__BackingField: Debug Profile
+    <TimePlayed>k__BackingField: 0
