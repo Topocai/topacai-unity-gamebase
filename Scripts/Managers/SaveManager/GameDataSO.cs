@@ -13,11 +13,11 @@ namespace Topacai.Utils.SaveSystem
 
         private void OnValidate()
         {
-            SaveSystem.OnProfileChanged.RemoveListener(SetCurrentProfile);
-            SaveSystem.OnProfilesFetched.RemoveListener(SetProfiles);
+            SaveSystemClass.OnProfileChanged.RemoveListener(SetCurrentProfile);
+            SaveSystemClass.OnProfilesFetched.RemoveListener(SetProfiles);
 
-            SaveSystem.OnProfileChanged.AddListener(SetCurrentProfile);
-            SaveSystem.OnProfilesFetched.AddListener(SetProfiles);
+            SaveSystemClass.OnProfileChanged.AddListener(SetCurrentProfile);
+            SaveSystemClass.OnProfilesFetched.AddListener(SetProfiles);
         }
 
         public void SetProfiles(List<UserProfile> profiles) => Profiles = profiles;

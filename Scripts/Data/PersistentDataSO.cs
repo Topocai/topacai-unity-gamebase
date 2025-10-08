@@ -14,7 +14,7 @@ namespace Topacai.Utils.SaveSystem
         {
             if (!isSuscribed)
             {
-                SaveSystem.OnSaveGameEvent.AddListener(SaveData);
+                SaveSystemClass.OnSaveGameEvent.AddListener(SaveData);
                 isSuscribed = true;
             }
         }

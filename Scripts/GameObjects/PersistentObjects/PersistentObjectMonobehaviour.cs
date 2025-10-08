@@ -72,7 +72,7 @@ namespace Topacai.Utils.GameObjects.Persistent
                 dataObject.ObjectList.Add(item.GetUniqueID(), item.PersistentData);
             }
 
-            SaveSystem.SaveSystem.Instance.SaveLevelDataToProfile(dataObject, category, DATA_KEY);
+            SaveSystemClass.SaveLevelDataToProfile(dataObject, category, DATA_KEY);
         }
         /// <summary>
         /// Recover all persistent objects
@@ -90,11 +90,9 @@ namespace Topacai.Utils.GameObjects.Persistent
         /// <param name="category">Category to recover.</param>
         public static void RecoverCategory(string category)
         {
-            if (SaveSystem.SaveSystem.Instance == null) return;
-
             // Load category's data from save system
             PersistentObjectsCategoryData data = default(PersistentObjectsCategoryData);
-            bool dataExists = SaveSystem.SaveSystem.Instance.GetLevelData<PersistentObjectsCategoryData>(category, out data, DATA_KEY);
+            bool dataExists = SaveSystemClass.GetLevelData<PersistentObjectsCategoryData>(category, out data, DATA_KEY);
 
             if(!dataExists)
             {
@@ -139,7 +137,7 @@ namespace Topacai.Utils.GameObjects.Persistent
 
             PersistentInstancesByCategory[_category].Add(this);
 
-            SaveSystem.SaveSystem.OnSaveGameEvent.AddListener(OnSaveGame);
+            SaveSystem.SaveSystemClass.OnSaveGameEvent.AddListener(OnSaveGame);
         }
         /// <summary>
         /// Updates the persistent data of the object setting transform values and also call the OnUpdateData auxiliary method

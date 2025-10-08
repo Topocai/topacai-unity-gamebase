@@ -1,91 +1,110 @@
 using System.Collections.Generic;
 
 using Topacai.Utils.GameObjects;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using UnityEngine.SocialPlatforms.Impl;
 
 namespace Topacai.Utils.SaveSystem
-{
-    public class SaveSystem : Singleton<SaveSystem>
+{/*
+    public class SaveSystemWindow : EditorWindow
+    {
+        [MenuItem("TopacaiTools/Save System")]
+        public static void ShowWindow()
+        {
+            GetWindow<SaveSystemWindow>("Save System");
+        }
+
+        private void OnGUI()
+        {
+            GUILayout.Label("Current Profile");
+            
+        }
+
+        private UserProfile DrawProfile(UserProfile profile)
+        {
+            EditorGUILayout.BeginVertical("box");
+            GUILayout.Label("ID: ");
+            GUILayout.Label(profile.ID);
+
+            GUILayout.Label("Name: ");
+            GUILayout.Label(profile.ID);
+            EditorGUILayout.EndVertical();
+
+            return profile;
+        }
+    }*/
+
+    public class SaveSystemClass
     {
         public static UnityEvent OnSaveGameEvent = new UnityEvent();
 
         public static UnityEvent<UserProfile> OnProfileChanged = new ();
         public static UnityEvent<List<UserProfile>> OnProfilesFetched = new ();
 
-        [Header("Paths definition")]
-        [SerializeField] private string _savePath = "/SaveData";
-        [SerializeField] private string _profilesFileName = "profiles.json";
-        [Space(5)]
-        [SerializeField] private string _levelsPath = "/Levels";
+        public static string SavePath { get; private set; } = "/SaveData";
+        public static string ProfilesFileName { get; private set; } = "profiles.json";
+        public static string LevelsPath { get; private set; } = "/Levels";
+        public static void SetPaths(string savePath, string profileFileName, string levelsPath) { SavePath = savePath; ProfilesFileName = profileFileName; LevelsPath = levelsPath; }
 
-        private static List<UserProfile> _profiles = new List<UserProfile>();
+        private static List<UserProfile> _profiles => SaveDataManager.GetProfiles();
         
         private static UserProfile _currentProfile;
+        public static UserProfile GetCurrentProfile() => _currentProfile;
 
-        private void OnApplicationQuit()
+        #region Profile management
+
+        private static UserProfile GetDebugProfile()
         {
-            OnSaveGameEvent?.Invoke();
+            var debugProfile = _profiles.Find(x => x.Name == "Debug Profile");
+
+            if (debugProfile.ID == null) debugProfile = SaveDataManager.CreateProfile("Debug Profile");
+
+            return debugProfile;
         }
 
-        protected override void Awake()
+        private static void SetDebugProfile()
         {
-            base.Awake();
-
-            RecoverProfiles();
-            SetDebugProfile();
+            SetProfile(GetDebugProfile());
         }
 
-        private void Start()
-        {
-            OnSaveGameEvent.AddListener(SaveGameHandler);
-        }
-
-        private void SaveGameHandler()
-        {
-            Debug.Log("Saving game");
-        }
-
-        private void SetDebugProfile()
-        {
-            SetProfile(_profiles.Count > 0 ? _profiles[0] : SaveDataManager.CreateProfile("Debug Profile"));
-        }
-
-        public UserProfile[] GetProfiles() => _profiles.ToArray();
-
-        public void SetProfile(UserProfile profile)
+        public static void SetProfile(UserProfile profile)
         {
             _currentProfile = profile;
             OnProfileChanged?.Invoke(_currentProfile);
         }
-        public void SetProfile(int index) => SetProfile(_profiles[index % _profiles.Count]);
 
-        public void RecoverProfiles()
+        public static void SetProfile(int index) => SetProfile(_profiles[index % _profiles.Count]);
+
+        public static void RecoverProfiles()
         {
-            SaveDataManager.SetPaths(_savePath, _profilesFileName);
+            SaveDataManager.SetPaths(SavePath, ProfilesFileName);
             SaveDataManager.RecoverProfiles();
-
-            _profiles = SaveDataManager.GetProfiles();
 
             OnProfilesFetched?.Invoke(_profiles);
         }
 
-        private void ProfileExists()
+        private static void ProfileExists()
         {
-            if(_currentProfile.Equals(null))
+            SaveDataManager.SetPaths(SavePath, ProfilesFileName);
+
+            if (_currentProfile.ID == null)
             {
                 Debug.LogWarning("No profile selected, using debug profile");
                 SetDebugProfile();
             }
         }
 
+#endregion
+
         #region Save and Recovery Data methods
 
         /// <summary>
         /// Save the current profile data and emits `OnSaveGameEvent` in order to notify custom saves
         /// </summary>
-        public void SaveGame()
+        public static void SaveGame()
         {
             ProfileExists();
             OnSaveGameEvent?.Invoke();
@@ -100,7 +119,7 @@ namespace Topacai.Utils.SaveSystem
         /// <param name="fileName"></param>
         /// <param name="data"></param>
         /// <param name="subFolder"></param>
-        public void SaveDataToProfile<T>(T data, string fileName, string subFolder = "")
+        public static void SaveDataToProfile<T>(T data, string fileName, string subFolder = "")
         {
             ProfileExists();
             SaveDataManager.SaveProfileData(_currentProfile, fileName, data, subFolder);
@@ -114,11 +133,11 @@ namespace Topacai.Utils.SaveSystem
         /// <param name="data"></param>
         /// <param name="fileName"></param>
         /// <param name="subFolder"></param>
-        public void SaveLevelDataToProfile<T>(T data, string fileName, string subFolder = "") 
+        public static void SaveLevelDataToProfile<T>(T data, string fileName, string subFolder = "") 
         {
             ProfileExists();
             string levelName = SceneManager.GetActiveScene().name;
-            SaveDataManager.SaveProfileData(_currentProfile, fileName + ".json", data, $"{_levelsPath}/{levelName}/{subFolder}");
+            SaveDataManager.SaveProfileData(_currentProfile, fileName + ".json", data, $"{LevelsPath}/{levelName}/{subFolder}");
         }
 
         /// <summary>
@@ -129,11 +148,11 @@ namespace Topacai.Utils.SaveSystem
         /// <param name="data">Variable to store the data</param>
         /// <param name="subFolder">(optional) subfolder path to search data</param>
         /// <returns>True flag if data was found</returns>
-        public bool GetLevelData<T>(string fileName, out T data, string subFolder = "")
+        public static bool GetLevelData<T>(string fileName, out T data, string subFolder = "")
         {
             ProfileExists();
             string levelName = SceneManager.GetActiveScene().name;
-            return SaveDataManager.GetProfileData<T>(_currentProfile, fileName + ".json", out data, $"{_levelsPath}/{levelName}/{subFolder}");
+            return SaveDataManager.GetProfileData<T>(_currentProfile, fileName + ".json", out data, $"{LevelsPath}/{levelName}/{subFolder}");
         }
 
         /// <summary>
@@ -144,7 +163,7 @@ namespace Topacai.Utils.SaveSystem
         /// <param name="data">Variable to store the data</param>
         /// <param name="subFolder">(optional) subfolder path to search data</param>
         /// <returns>True flag if data was found</returns>
-        public bool GetProfileData<T>(string fileName, out T data, string subFolder = "")
+        public static bool GetProfileData<T>(string fileName, out T data, string subFolder = "")
         {
             ProfileExists();
             return SaveDataManager.GetProfileData<T>(_currentProfile, fileName, out data, subFolder);
