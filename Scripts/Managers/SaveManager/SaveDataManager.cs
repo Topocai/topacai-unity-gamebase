@@ -8,7 +8,8 @@ using UnityEngine;
 
 namespace Topacai.Utils.SaveSystem
 {
-    public class SaveManager
+    public static partial class SaveDataManager
+
     {
         private static string _savePath;
         private static string _profilesFileName;

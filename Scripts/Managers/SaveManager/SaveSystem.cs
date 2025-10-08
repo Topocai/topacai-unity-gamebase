@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 namespace Topacai.Utils.SaveSystem
 {
-    public class SaveController : Singleton<SaveController>
+    public class SaveSystem : Singleton<SaveSystem>
     {
         public static UnityEvent OnSaveGameEvent = new UnityEvent();
 
@@ -49,7 +49,7 @@ namespace Topacai.Utils.SaveSystem
 
         private void SetDebugProfile()
         {
-            SetProfile(_profiles.Count > 0 ? _profiles[0] : SaveManager.CreateProfile("Debug Profile"));
+            SetProfile(_profiles.Count > 0 ? _profiles[0] : SaveDataManager.CreateProfile("Debug Profile"));
         }
 
         public UserProfile[] GetProfiles() => _profiles.ToArray();
@@ -63,10 +63,10 @@ namespace Topacai.Utils.SaveSystem
 
         public void RecoverProfiles()
         {
-            SaveManager.SetPaths(_savePath, _profilesFileName);
-            SaveManager.RecoverProfiles();
+            SaveDataManager.SetPaths(_savePath, _profilesFileName);
+            SaveDataManager.RecoverProfiles();
 
-            _profiles = SaveManager.GetProfiles();
+            _profiles = SaveDataManager.GetProfiles();
 
             OnProfilesFetched?.Invoke(_profiles);
         }
@@ -75,10 +75,12 @@ namespace Topacai.Utils.SaveSystem
         {
             if(_currentProfile.Equals(null))
             {
-                Debug.LogWarning("No profile selected");
+                Debug.LogWarning("No profile selected, using debug profile");
                 SetDebugProfile();
             }
         }
+
+        #region Save and Recovery Data methods
 
         /// <summary>
         /// Save the current profile data and emits `OnSaveGameEvent` in order to notify custom saves
@@ -87,7 +89,7 @@ namespace Topacai.Utils.SaveSystem
         {
             ProfileExists();
             OnSaveGameEvent?.Invoke();
-            SaveManager.SaveProfile(_currentProfile);
+            SaveDataManager.SaveProfile(_currentProfile);
         }
 
         /// <summary>
@@ -101,7 +103,7 @@ namespace Topacai.Utils.SaveSystem
         public void SaveDataToProfile<T>(T data, string fileName, string subFolder = "")
         {
             ProfileExists();
-            SaveManager.SaveProfileData(_currentProfile, fileName, data, subFolder);
+            SaveDataManager.SaveProfileData(_currentProfile, fileName, data, subFolder);
         }
 
         /// <summary>
@@ -116,7 +118,7 @@ namespace Topacai.Utils.SaveSystem
         {
             ProfileExists();
             string levelName = SceneManager.GetActiveScene().name;
-            SaveManager.SaveProfileData(_currentProfile, fileName + ".json", data, $"{_levelsPath}/{levelName}/{subFolder}");
+            SaveDataManager.SaveProfileData(_currentProfile, fileName + ".json", data, $"{_levelsPath}/{levelName}/{subFolder}");
         }
 
         /// <summary>
@@ -131,7 +133,7 @@ namespace Topacai.Utils.SaveSystem
         {
             ProfileExists();
             string levelName = SceneManager.GetActiveScene().name;
-            return SaveManager.GetProfileData<T>(_currentProfile, fileName + ".json", out data, $"{_levelsPath}/{levelName}/{subFolder}");
+            return SaveDataManager.GetProfileData<T>(_currentProfile, fileName + ".json", out data, $"{_levelsPath}/{levelName}/{subFolder}");
         }
 
         /// <summary>
@@ -145,7 +147,9 @@ namespace Topacai.Utils.SaveSystem
         public bool GetProfileData<T>(string fileName, out T data, string subFolder = "")
         {
             ProfileExists();
-            return SaveManager.GetProfileData<T>(_currentProfile, fileName, out data, subFolder);
+            return SaveDataManager.GetProfileData<T>(_currentProfile, fileName, out data, subFolder);
         }
+
+#endregion
     }
 }
