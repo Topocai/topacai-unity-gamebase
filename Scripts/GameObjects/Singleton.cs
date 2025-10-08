@@ -47,7 +47,8 @@ namespace Topacai.Utils.GameObjects
                 instance = instanceGo.AddComponent<T>(); 
             }
 
-            DontDestroyOnLoad(instanceGo);
+            if (Application.isPlaying)
+                DontDestroyOnLoad(instanceGo);
         }
 
         protected virtual void Awake()
