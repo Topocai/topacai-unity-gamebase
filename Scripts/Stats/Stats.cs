@@ -35,13 +35,7 @@ namespace Topacai.StatsSystem
         public override void HandleQuery(object sender, Query query)
         {
             if (query.ValueType != statType || query.Name != statName) return;
-
-            var newValue = operation((T)query.Value);
-#if UNITY_EDITOR
-            if(debugLogs)
-                Debug.Log($"Query handled, ({statName}) prev value: {query.Value}, new value: {newValue}");
-#endif
-            query.Value = newValue;
+            query.Value = operation((T)query.Value);
         }
 
         public override string ToString()
@@ -72,25 +66,18 @@ namespace Topacai.StatsSystem
         {
 #if UNITY_EDITOR
             if (debugLogs)
-                Debugcanvas.Instance.AddTextToDebugLog(this.ToString(), $"Time left: {TimeLeft} / {Duration}");
+                Debugcanvas.Instance.AddTextToDebugLog(this.ToString(), $"Time left: {TimeLeft} / {Duration}", 0.5f);
 #endif
             if (Duration == 0) return;
 
             TimeLeft -= deltaTime;
         }
 
-        public void Remove(object sender)
-        {
-            OnRemoved?.Invoke(sender, this);
-            Dispose();
-        }
+        public void Remove(object sender) => OnRemoved?.Invoke(sender, this);
 
         public abstract void HandleQuery(object sender, Query query);
 
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-        }
+        public void Dispose() => GC.SuppressFinalize(this);
     }
 
     /// <summary>
@@ -102,6 +89,7 @@ namespace Topacai.StatsSystem
         private T baseStats;
         private StatsBroker statsMiddleware;
 
+        public T BaseStats => baseStats;
         public StatsBroker StatsMiddleware => statsMiddleware;
 
         private object GetBaseStat(string statName)
@@ -138,10 +126,27 @@ namespace Topacai.StatsSystem
             statsMiddleware = new StatsBroker();
             this.baseStats = baseStats;
         }
+
+        public T GetCloneWithModifiers()
+        {
+            object copy = Activator.CreateInstance<T>();
+            foreach (var field in typeof(T).GetFields())
+            {
+                var val = GetStat(field.FieldType, field.Name);
+                field.SetValue(copy, val);
+            }
+
+            return (T)copy;
+        }
+
+        public void PasteStats(out T target) => target = GetCloneWithModifiers();
+        public void PasteStatsAsReference(ref T target) => target = GetCloneWithModifiers();
     }
 
     public class StatsBroker
     {
+        public event EventHandler OnStatsChanged;
+
         private LinkedList<StatModifier> modifiers = new();
         private bool debugLogs = false;
 
@@ -151,7 +156,6 @@ namespace Topacai.StatsSystem
         public void AddModifier(StatModifier modifier)
         {
             modifiers.AddLast(modifier);
-
             Queries += modifier.HandleQuery;
 
             modifier.OnRemoved += (sender, modifier) =>
@@ -162,7 +166,11 @@ namespace Topacai.StatsSystem
                 if(debugLogs)
                     Debug.Log($"[StatsBroker] modifier {modifier.ToString()} removed");
 #endif
+                modifier.Dispose();
+                OnStatsChanged?.Invoke(this, new EventArgs());
             };
+
+            OnStatsChanged?.Invoke(this, new EventArgs());
         }
 
         public void RemoveModifier(StatModifier modifier) => modifiers.Remove(modifier);
@@ -179,16 +187,19 @@ namespace Topacai.StatsSystem
                 modifierNode = modifierNode.Next;
             }
 
-            foreach (var modifier in modifiers)
+            modifierNode = modifiers.First;
+
+            while (modifierNode != null)
             {
-                if (modifier.Expired)
+                if (modifierNode.Value.Expired)
                 {
-                    modifier.Remove(this);
+                    modifierNode.Value.Remove(this);
 #if UNITY_EDITOR
                     if (debugLogs)
-                        Debug.Log($"[StatsBroker] modifier {modifier.ToString()} removed");
+                        Debug.Log($"[StatsBroker] modifier {modifierNode.Value.ToString()} removed");
 #endif
                 }
+                modifierNode = modifierNode.Next;
             }
         }
 

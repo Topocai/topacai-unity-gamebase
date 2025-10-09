@@ -3,7 +3,8 @@
     "rootNamespace": "Topacai.StatsSystem",
     "references": [
         "Topacai",
-        "Topacai.TDebug"
+        "Topacai.TDebug",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
