@@ -2,7 +2,8 @@
     "name": "Topacai.StatsSystem",
     "rootNamespace": "Topacai.StatsSystem",
     "references": [
-        "Topacai"
+        "Topacai",
+        "Topacai.TDebug"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

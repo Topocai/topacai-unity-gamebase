@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Topacai.TDebug;
 using UnityEngine;
 
 namespace Topacai.StatsSystem
@@ -20,30 +21,46 @@ namespace Topacai.StatsSystem
 
     public class BasicStatModifier<T> : StatModifier
     {
-        private Type statType;
-        private Func<T, T> operation;
+        protected Type statType;
+        protected string statName;
+        protected Func<T, T> operation;
 
-        public BasicStatModifier(float duration, Func<T, T> operation) : base(duration)
+        public BasicStatModifier(float duration, Func<T, T> operation, string statName) : base(duration)
         {
             this.statType = typeof(T);
             this.operation = operation;
+            this.statName = statName;
         }
 
         public override void HandleQuery(object sender, Query query)
         {
-            if (query.ValueType != statType) return;
+            if (query.ValueType != statType || query.Name != statName) return;
 
-            query.Value = operation((T)query.Value);
+            var newValue = operation((T)query.Value);
+#if UNITY_EDITOR
+            if(debugLogs)
+                Debug.Log($"Query handled, ({statName}) prev value: {query.Value}, new value: {newValue}");
+#endif
+            query.Value = newValue;
+        }
+
+        public override string ToString()
+        {
+            return $"{statName} with type {statType})";
         }
     }
 
-    public abstract class StatModifier
+    public abstract class StatModifier : IDisposable
     {
         public event EventHandler<StatModifier> OnRemoved;
         public bool Expired => TimeLeft <= 0 && Duration > 0;
 
         public float Duration { get; set; }
         public float TimeLeft { get; set; }
+
+#if UNITY_EDITOR
+        public bool debugLogs = false;
+#endif
 
         public StatModifier(float duration = 0)
         {
@@ -53,14 +70,27 @@ namespace Topacai.StatsSystem
 
         public void Update(float deltaTime)
         {
+#if UNITY_EDITOR
+            if (debugLogs)
+                Debugcanvas.Instance.AddTextToDebugLog(this.ToString(), $"Time left: {TimeLeft} / {Duration}");
+#endif
             if (Duration == 0) return;
 
             TimeLeft -= deltaTime;
         }
 
-        public void Remove(object sender) => OnRemoved?.Invoke(sender, this);
+        public void Remove(object sender)
+        {
+            OnRemoved?.Invoke(sender, this);
+            Dispose();
+        }
 
         public abstract void HandleQuery(object sender, Query query);
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+        }
     }
 
     /// <summary>
@@ -71,6 +101,8 @@ namespace Topacai.StatsSystem
     {
         private T baseStats;
         private StatsBroker statsMiddleware;
+
+        public StatsBroker StatsMiddleware => statsMiddleware;
 
         private object GetBaseStat(string statName)
         {
@@ -111,6 +143,7 @@ namespace Topacai.StatsSystem
     public class StatsBroker
     {
         private LinkedList<StatModifier> modifiers = new();
+        private bool debugLogs = false;
 
         public event EventHandler<Query> Queries;
         public void PerformQuery(object sender, Query query) => Queries?.Invoke(sender, query);
@@ -125,6 +158,10 @@ namespace Topacai.StatsSystem
             {
                 modifiers.Remove(modifier);
                 Queries -= modifier.HandleQuery;
+#if UNITY_EDITOR
+                if(debugLogs)
+                    Debug.Log($"[StatsBroker] modifier {modifier.ToString()} removed");
+#endif
             };
         }
 
@@ -135,6 +172,9 @@ namespace Topacai.StatsSystem
             var modifierNode = modifiers.First;
             while (modifierNode != null)
             {
+#if UNITY_EDITOR
+                modifierNode.Value.debugLogs = debugLogs;
+#endif
                 modifierNode.Value.Update(deltaTime);
                 modifierNode = modifierNode.Next;
             }
@@ -144,8 +184,14 @@ namespace Topacai.StatsSystem
                 if (modifier.Expired)
                 {
                     modifier.Remove(this);
+#if UNITY_EDITOR
+                    if (debugLogs)
+                        Debug.Log($"[StatsBroker] modifier {modifier.ToString()} removed");
+#endif
                 }
             }
         }
+
+        public void SetDebug(bool value) => debugLogs = value;
     }
 }
