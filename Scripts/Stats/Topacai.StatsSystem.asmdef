@@ -1,0 +1,16 @@
+{
+    "name": "Topacai.StatsSystem",
+    "rootNamespace": "Topacai.StatsSystem",
+    "references": [
+        "Topacai"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
