@@ -13,45 +13,43 @@ namespace Topacai.StatsSystem
 
     public abstract class ConfigurableModifier<T> : BaseStatModifier<T>
     {
-        protected ModifierOperation operationType;
-
+        public ModifierOperation operationType { get; protected set; }
         protected abstract Func<T, T> GetOperation();
 
-        public ConfigurableModifier(float duration, string statName, ModifierOperation operationType) : base(duration, null, statName)
+        public T ModifierValue { get; protected set; }
+
+        public ConfigurableModifier(float duration, string statName, ModifierOperation operationType, T modifierValue) : base(duration, null, statName)
         {
             this.operationType = operationType;
+            ModifierValue = modifierValue;
+
             SetOperation(GetOperation());
         }
     }
 
     public class IntModifier : ConfigurableModifier<int>
     {
-        protected int Amount { get; set; }
-
-        public IntModifier(float duration, string statName, ModifierOperation operationType, int modifierAmount) : base(duration, statName, operationType)
-        {
-            Amount = modifierAmount;
-        }
+        public IntModifier(float duration, string statName, ModifierOperation operationType, int modifierValue) : base(duration, statName, operationType, modifierValue) { }
 
         protected override Func<int, int> GetOperation()
         {
             switch (operationType)
             {
                 case ModifierOperation.Add:
-                    return (int value) => (int)(value + Amount);
+                    return (int value) => (int)(value + ModifierValue);
                 case ModifierOperation.Multiply:
-                    return (int value) => (int)(value * Amount);
+                    return (int value) => (int)(value * ModifierValue);
                 case ModifierOperation.Subtract:
-                    return (int value) => (int)(value - Amount);
+                    return (int value) => (int)(value - ModifierValue);
                 default:
-                    return (int value) => (int)(value + Amount);
+                    return (int value) => (int)(value + ModifierValue);
             }
         }
 
         public override string ToString()
         {
             var op = operationType == ModifierOperation.Add ? "+" : operationType == ModifierOperation.Multiply ? "*" : "-";
-            return $"Modifier of {statName} ( {operationType}{Amount} ))";
+            return $"Modifier of {statName} ( {operationType}{ModifierValue} ))";
         }
     }
 
@@ -59,41 +57,33 @@ namespace Topacai.StatsSystem
     {
         protected float Amount { get; set; }
 
-        public FloatModifier(float duration, string statName, ModifierOperation operationType, float modifierAmount) : base(duration, statName, operationType)
-        {
-            Amount = modifierAmount;
-        }
+        public FloatModifier(float duration, string statName, ModifierOperation operationType, float modifierValue) : base(duration, statName, operationType, modifierValue) { }
 
         protected override Func<float, float> GetOperation()
         {
             switch (operationType)
             {
                 case ModifierOperation.Add:
-                    return (float value) => (float)(value + Amount);
+                    return (float value) => (float)(value + ModifierValue);
                 case ModifierOperation.Multiply:
-                    return (float value) => (float)(value * Amount);
+                    return (float value) => (float)(value * ModifierValue);
                 case ModifierOperation.Subtract:
-                    return (float value) => (float)(value - Amount);
+                    return (float value) => (float)(value - ModifierValue);
                 default:
-                    return (float value) => (float)(value + Amount);
+                    return (float value) => (float)(value + ModifierValue);
             }
         }
 
         public override string ToString()
         {
             var op = operationType == ModifierOperation.Add ? "+" : operationType == ModifierOperation.Multiply ? "*" : "-";
-            return $"Modifier of {statName} ( {operationType}{Amount} ))";
+            return $"Modifier of {statName} ( {operationType}{ModifierValue} ))";
         }
     }
 
     public class BoolModifier : ConfigurableModifier<bool>
     {
-        protected bool ModifierValue { get; set; }
-
-        public BoolModifier(float duration, string statName, ModifierOperation operationType, bool modifierAmount) : base(duration, statName, operationType)
-        {
-            ModifierValue = modifierAmount;
-        }
+        public BoolModifier(float duration, string statName, ModifierOperation operationType, bool modifierValue) : base(duration, statName, operationType, modifierValue) { }
 
         protected override Func<bool, bool> GetOperation()
         {
@@ -122,6 +112,9 @@ namespace Topacai.StatsSystem
         protected Type statType;
         protected string statName;
         protected Func<T, T> operation;
+
+        public string StatName => statName;
+        public override Type GetStatType() => statType;
 
         public BaseStatModifier(float duration, Func<T, T> operation, string statName) : base(duration)
         {
@@ -172,6 +165,8 @@ namespace Topacai.StatsSystem
 
             TimeLeft -= deltaTime;
         }
+
+        public abstract Type GetStatType();
 
         public void Remove(object sender) => OnRemoved?.Invoke(sender, this);
 
