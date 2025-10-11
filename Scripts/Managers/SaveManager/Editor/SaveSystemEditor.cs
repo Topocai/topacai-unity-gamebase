@@ -1,8 +1,11 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+
+using UnityEditor;
 using UnityEngine;
 
 namespace Topacai.Utils.SaveSystem
 {
+
     public class SaveSystemWindow : EditorWindow
     {
         #region Style
@@ -200,3 +203,5 @@ namespace Topacai.Utils.SaveSystem
     }
 
 }
+
+#endif

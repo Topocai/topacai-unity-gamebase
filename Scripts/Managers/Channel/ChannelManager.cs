@@ -31,6 +31,7 @@ namespace Topacai.Channels
 
     public static class ChannelManager
     {
+#if UNITY_EDITOR
         private const string CHANNEL_BROADCASTER_PATH = "Assets/TopacaiCore/GeneratedScripts/ChannelBroadcaster/";
 
         private const string CHANNEL_SYSTEM_VERSION = "0.3.1";
@@ -161,8 +162,10 @@ namespace Topacai.Channels{((customNamespace != "") ? $".{customNamespace}" : ""
             }
 
             Debug.Log($"Channel {name} created");
+
             AssetDatabase.Refresh();
         }
+#endif
     }
 
     ///

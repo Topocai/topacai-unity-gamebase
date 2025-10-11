@@ -103,7 +103,7 @@ namespace Topacai.Utils.Collections
 #if UNITY_EDITOR 
                 Debug.LogWarning($"Node {node.Name} already exists in the graph, it will be updated.");
 #else
-                Console.WriteLine($"Node {node.Name} already exists in the graph, it will be updated.");
+                System.Console.WriteLine($"Node {node.Name} already exists in the graph, it will be updated.");
 #endif
                 if (connections != null) InsertEdge(node, connections.ToArray());
                 return node;

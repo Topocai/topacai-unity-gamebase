@@ -67,11 +67,12 @@ namespace Topacai.Utils.GameObjects.Unique
         private void GenerateUniqueID()
         {
             uniqueID = System.Guid.NewGuid().ToString();
-
+#if UNITY_EDITOR
             if (!Application.isPlaying)
             {
                 usedIDs[uniqueID] = this;
             }
+#endif
         }
 
 #if UNITY_EDITOR
