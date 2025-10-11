@@ -1,6 +1,8 @@
 // Original code from: https://forum.unity.com/threads/unwanted-editor-hotkeys-in-game-mode.182073/#post-6886781
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.ShortcutManagement;
+
 
 namespace Topacai.Utils.Editor
 {
@@ -31,4 +33,5 @@ namespace Topacai.Utils.Editor
         }
     }
 }
+#endif
 

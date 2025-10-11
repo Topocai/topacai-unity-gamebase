@@ -7,7 +7,7 @@ namespace Topacai.Utils.SaveSystem
     {
         private void OnApplicationQuit()
         {
-            SaveSystemClass.CallSaveGameEvent();
+            SaveSystemClass.CallSaveGameEvent(this);
         }
 
         protected override void Awake()

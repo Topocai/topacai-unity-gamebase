@@ -15,6 +15,8 @@ namespace Topacai.StatsSystem
         public float Duration;
     }
 
+#if UNITY_EDITOR
+
     [CustomEditor(typeof(MultipleModifiersCreatorSO))]
     public class MultipleModifiersCreatorEditor : Editor
     {
@@ -236,6 +238,8 @@ namespace Topacai.StatsSystem
         }
     }
 
+#endif
+
     [System.Serializable]
     /// <summary>
     /// Class created in order to allow List collection for Modifiers and keep their data serializable (keep data even after recompile)
@@ -258,6 +262,8 @@ namespace Topacai.StatsSystem
         private List<SerializedModifier> modifiers = new();
         public IEnumerable<StatModifier> Modifiers => modifiers.Select(m => m.modifier);
 
+#if UNITY_EDITOR
+
         [SerializeField] private MonoScript ScriptAsset;
 
         private Type scriptObject;
@@ -272,28 +278,38 @@ namespace Topacai.StatsSystem
             scriptObject = ScriptAsset.GetClass();
         }
 
+#endif
+
         public void CreateStatModifier(ModifierConfig<int> modifierConfig)
         {
             modifiers.Add(new (new IntModifier(modifierConfig.Duration, modifierConfig.Name, modifierConfig.ModifierType, modifierConfig.ModifierValue)));
+#if UNITY_EDITOR
             EditorUtility.SetDirty(this);
+#endif
         }
 
         public void CreateStatModifier(ModifierConfig<float> modifierConfig)
         {
             modifiers.Add(new (new FloatModifier(modifierConfig.Duration, modifierConfig.Name, modifierConfig.ModifierType, modifierConfig.ModifierValue)));
+#if UNITY_EDITOR
             EditorUtility.SetDirty(this);
+#endif
         }
 
         public void CreateStatModifier(ModifierConfig<bool> modifierConfig)
         {
             modifiers.Add(new (new BoolModifier(modifierConfig.Duration, modifierConfig.Name, modifierConfig.ModifierType, modifierConfig.ModifierValue)));
+#if UNITY_EDITOR
             EditorUtility.SetDirty(this);
+#endif
         }
 
         public void CreateStatModifier<T>(float duration, Func<T, T> operation, string name)
         {
             modifiers.Add(new (new BaseStatModifier<T>(duration, operation, name)));
+#if UNITY_EDITOR
             EditorUtility.SetDirty(this);
+#endif
         }
 
         public void RemoveStatModifier(StatModifier modifier)
@@ -306,7 +322,9 @@ namespace Topacai.StatsSystem
                     break;
                 }
             }
+#if UNITY_EDITOR
             EditorUtility.SetDirty(this);
+#endif
         }
     }
 }

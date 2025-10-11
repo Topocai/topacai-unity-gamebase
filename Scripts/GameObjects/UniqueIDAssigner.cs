@@ -75,20 +75,21 @@ namespace Topacai.Utils.GameObjects.Unique
 #endif
         }
 
-#if UNITY_EDITOR
+
         /// <summary>
         /// Ensures the ID is registered at runtime.
         /// Logs a warning if a duplicate is detected, which should not happen.
         /// </summary>
         protected virtual void Awake()
         {
+#if UNITY_EDITOR
             // Register ID in runtime
             if (!usedIDs.ContainsKey(uniqueID))
             {
                 usedIDs[uniqueID] = this;
             }
-        }
 #endif
+        }
 
         public string GetUniqueID()
         {
