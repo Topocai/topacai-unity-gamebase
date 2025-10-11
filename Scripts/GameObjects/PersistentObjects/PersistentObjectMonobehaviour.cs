@@ -40,7 +40,7 @@ namespace Topacai.Utils.GameObjects.Persistent
         /// <summary>
         /// Helper to call when game manager save game event is called
         /// </summary>
-        private static void OnSaveGame()
+        private static void OnSaveGame(object sender, System.EventArgs e)
         {
             SaveAllObjects();
         }
@@ -137,7 +137,7 @@ namespace Topacai.Utils.GameObjects.Persistent
 
             PersistentInstancesByCategory[_category].Add(this);
 
-            SaveSystem.SaveSystemClass.OnSaveGameEvent.AddListener(OnSaveGame);
+            SaveSystem.SaveSystemClass.OnSaveGameEvent += OnSaveGame;
         }
         /// <summary>
         /// Updates the persistent data of the object setting transform values and also call the OnUpdateData auxiliary method

@@ -14,11 +14,11 @@ namespace Topacai.Utils.SaveSystem
         {
             if (!isSuscribed)
             {
-                SaveSystemClass.OnSaveGameEvent.AddListener(SaveData);
+                SaveSystemClass.OnSaveGameEvent += SaveData;
                 isSuscribed = true;
             }
         }
-        public virtual void SaveData()
+        public virtual void SaveData(object sender, System.EventArgs e)
         {
             EditorUtility.SetDirty(this);
         }

@@ -7,7 +7,7 @@ namespace Topacai.Utils.SaveSystem
     {
         private void OnApplicationQuit()
         {
-            SaveSystemClass.OnSaveGameEvent?.Invoke();
+            SaveSystemClass.CallSaveGameEvent();
         }
 
         protected override void Awake()
@@ -19,10 +19,10 @@ namespace Topacai.Utils.SaveSystem
 
         private void Start()
         {
-            SaveSystemClass.OnSaveGameEvent.AddListener(SaveGameHandler);
+            SaveSystemClass.OnSaveGameEvent += SaveGameHandler;
         }
 
-        private void SaveGameHandler()
+        private void SaveGameHandler(object sender, System.EventArgs e)
         {
             Debug.Log("Saving game");
         }
