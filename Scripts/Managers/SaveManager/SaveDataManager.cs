@@ -16,6 +16,8 @@ namespace Topacai.Utils.SaveSystem
 
         private static List<UserProfile> _profiles = new List<UserProfile>();
 
+        public static string GetProfilePath(UserProfile profile) => Application.dataPath + _savePath + $"/{profile.ID}";
+
         /// <summary>
         /// Create paths for file and subfolder given a filename and a user profile
         /// and checks if them already exists
@@ -31,7 +33,7 @@ namespace Topacai.Utils.SaveSystem
         /// </returns>
         private static (bool directory, bool file, string directoryPath, string filePath) CheckDirectoryAndFile(UserProfile profile, string fileName, string subFolder = "")
         {
-            string path = subFolder == "" ? Application.dataPath + _savePath + $"/{profile.ID}" : Application.dataPath + _savePath + $"/{profile.ID}/{subFolder}";
+            string path = subFolder == "" ? GetProfilePath(profile) : GetProfilePath(profile) + $"/{subFolder}";
 
             return (
                 Directory.Exists(path),
