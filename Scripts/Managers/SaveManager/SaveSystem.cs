@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using System;
-
+﻿using System;
+using System.Collections.Generic;
+using Topacai.Utils.PersistentData;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
@@ -8,9 +8,6 @@ using UnityEngine.SceneManagement;
 
 namespace Topacai.Utils.SaveSystem
 {
-#if UNITY_EDITOR
-    [InitializeOnLoad]
-#endif
     public static class SaveSystemClass
     {
         public static event EventHandler OnSaveGameEvent;
@@ -28,7 +25,19 @@ namespace Topacai.Utils.SaveSystem
         private static UserProfile _currentProfile;
         public static UserProfile GetCurrentProfile() => _currentProfile;
 
-        public static void CallSaveGameEvent() => OnSaveGameEvent?.Invoke(null, new ());
+        public static void CallSaveGameEvent(object sender = null, System.EventArgs e = null)
+        {
+            SaveGame();
+            OnSaveGameEvent?.Invoke(sender, new());
+        }
+
+        public static void CallProfileChanged(UserProfile profile)
+        {
+            OnProfileChanged?.Invoke(profile);
+
+            foreach (var data in Resources.FindObjectsOfTypeAll<PersistentProfileDataSO>())
+                data.OnProfileLoaded();
+        }
 
         #region Profile management
 
@@ -49,7 +58,7 @@ namespace Topacai.Utils.SaveSystem
         public static void SetProfile(UserProfile profile)
         {
             _currentProfile = profile;
-            OnProfileChanged?.Invoke(_currentProfile);
+            CallProfileChanged(_currentProfile);
         }
 
         public static void SetProfile(int index) => SetProfile(_profiles[index % _profiles.Count]);
@@ -88,8 +97,11 @@ namespace Topacai.Utils.SaveSystem
         public static void SaveGame()
         {
             ProfileExists();
-            CallSaveGameEvent();
+
             SaveDataManager.SaveProfile(_currentProfile);
+
+            foreach (var data in Resources.FindObjectsOfTypeAll<PersistentProfileDataSO>())
+                data.OnProfileSaved();
         }
 
         /// <summary>
