@@ -1,5 +1,6 @@
 using EditorAttributes;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace Topacai.Utils.GameObjects.Unique
@@ -14,15 +15,23 @@ namespace Topacai.Utils.GameObjects.Unique
     /// 
     /// Used for save persistend data during sessions in each GameObject
     /// </summary>
-    /// 
-    [ExecuteAlways] // Hace que se ejecute en el Editor y en el modo Play
+
+#if UNITY_EDITOR
+    [ExecuteAlways]
+#endif
     public class UniqueIDAssigner : MonoBehaviour
     {
+#if UNITY_EDITOR
+        public static bool showLogs { get; protected set; } = false;
+
+        public static void ToggleLogs() => showLogs = !showLogs;
+#endif
+
         /// <summary>
         /// The unique identifier assigned to this object.
         /// serialized to ensure persistence.
         /// </summary>
-        [SerializeField, ReadOnly] private string uniqueID;
+        [SerializeField, HideInInspector] private string uniqueID;
 
 #if UNITY_EDITOR
         /// <summary>
@@ -50,28 +59,36 @@ namespace Topacai.Utils.GameObjects.Unique
         }
 
 #if UNITY_EDITOR
-        private void CheckAndCreateID()
+        public void CheckAndCreateID()
         {
-            if (usedIDs.TryGetValue(uniqueID, out var register))
+            if (string.IsNullOrEmpty(uniqueID))
             {
-                if (register != this)
+                if (showLogs)
+                    Debug.Log("Generating new ID: it was null or empty.", this);
+                GenerateUniqueID();
+            }
+            else if (usedIDs.TryGetValue(uniqueID, out var register))
+            {
+                if (register != this && register != null)
                 {
+                    if (showLogs)
+                        Debug.Log("Duplicate ID found: " + uniqueID + ". Generating a new ID.", this);
                     GenerateUniqueID();
                 }
             }
-            else if (string.IsNullOrEmpty(uniqueID)) GenerateUniqueID();
+            else
+            {
+                usedIDs[uniqueID] = this;
+            }
         }
 
 #endif
 
-        private void GenerateUniqueID()
+        public void GenerateUniqueID()
         {
             uniqueID = System.Guid.NewGuid().ToString();
 #if UNITY_EDITOR
-            if (!Application.isPlaying)
-            {
-                usedIDs[uniqueID] = this;
-            }
+            usedIDs[uniqueID] = this;
 #endif
         }
 
@@ -82,13 +99,7 @@ namespace Topacai.Utils.GameObjects.Unique
         /// </summary>
         protected virtual void Awake()
         {
-#if UNITY_EDITOR
-            // Register ID in runtime
-            if (!usedIDs.ContainsKey(uniqueID))
-            {
-                usedIDs[uniqueID] = this;
-            }
-#endif
+            CheckAndCreateID();
         }
 
         public string GetUniqueID()
@@ -96,4 +107,42 @@ namespace Topacai.Utils.GameObjects.Unique
             return uniqueID;
         }
     }
+
+#if UNITY_EDITOR
+    [CanEditMultipleObjects]
+    [CustomEditor(typeof(UniqueIDAssigner), true)]
+    public class UniqueIDAssignerEditor : UnityEditor.Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            DrawDefaultInspector();
+
+            GUILayout.Space(10);
+
+            var idObject = (UniqueIDAssigner)target;
+
+            EditorGUI.BeginDisabledGroup(true);
+            EditorGUILayout.TextField("Unique ID", idObject.GetUniqueID());
+            EditorGUI.EndDisabledGroup();
+
+            if (GUILayout.Button("Generate ID"))
+            {
+                idObject.GenerateUniqueID();
+            }
+
+            if (GUILayout.Button("Check duplicate (and regenerate)"))
+            {
+                idObject.CheckAndCreateID();
+            }
+
+            if (GUILayout.Button(UniqueIDAssigner.showLogs ? "Hide logs" : "Show logs"))
+            {
+                UniqueIDAssigner.ToggleLogs();
+            }
+
+            GUILayout.Space(15);
+        }
+    }
+
+#endif
 }
