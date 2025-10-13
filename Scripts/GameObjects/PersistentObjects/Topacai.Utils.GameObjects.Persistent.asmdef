@@ -2,8 +2,7 @@
     "name": "Topacai.Utils.GameObjects.Persistent",
     "rootNamespace": "Topacai.Utils.GameObjects.Persistent",
     "references": [
-        "Topacai",
-        "Topacai.Utils.SaveSystem"
+        "Topacai"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

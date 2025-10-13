@@ -1,17 +1,49 @@
+using System.Collections;
 using System.Collections.Generic;
+using Topacai.Utils.Editor;
 using Topacai.Utils.GameObjects.Unique;
 using Topacai.Utils.SaveSystem;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 namespace Topacai.Utils.GameObjects.Persistent
 {
+    
+#if UNITY_EDITOR
+
+    [InitializeOnLoad]
     /// <summary>
-    /// Monobehaviour script that provides persistent functionality on gameobjects between game sessions
-    /// It automatically saves and recovers gameobject transform data and you can add your own data
-    /// by implementing IPersistentDataObject (which force you to save transform data, this will be changed later)
+    /// When exiting play mode and entering edit mode, recover all persistent objects
+    /// and sets it transform to show the current state in inspector
     /// </summary>
-    public class PersistentObjectMonobehaviour : UniqueIDAssigner
+    public static class PersistentObjectStateWatcher
+    {
+        [InitializeOnLoadMethod]
+        private static void AddPersistentObjectListener() => ModeStateWatcher.OnPlayModeStateChangedEvent += PersistentObjectWatcher;
+
+        private static void PersistentObjectWatcher(object sender, PlayModeStateChange state)
+        {
+            if (state == PlayModeStateChange.EnteredEditMode)
+            {
+                PersistentObjectsSystem.RecoverAllObjects();
+
+                var persistentObjects = GameObject.FindObjectsByType<PersistentObjectMonobehaviour>(FindObjectsSortMode.None);
+                foreach (var persistentObject in persistentObjects)
+                {
+                    persistentObject.RecoveryAndApplyData();
+                }
+            }
+        }
+    }
+
+#endif
+
+#if UNITY_EDITOR
+    [InitializeOnLoad]
+#endif
+    public static class PersistentObjectsSystem
     {
         private const string DATA_KEY = "PersistentObjectsData";
 
@@ -20,11 +52,6 @@ namespace Topacai.Utils.GameObjects.Persistent
         /// </summary>
         public static UnityEvent<string> OnDataRecoveredEvent = new UnityEvent<string>();
 
-        // category -> object list
-        /// <summary>
-        /// Keep track of persistent objects instances in each category
-        /// </summary>
-        private static Dictionary<string, HashSet<PersistentObjectMonobehaviour>> PersistentInstancesByCategory = new();
         // category -> uniqueID -> data
         /// <summary>
         /// Contains all the data recovered, indexed by category and then by uniqueID with the data recovered
@@ -32,24 +59,27 @@ namespace Topacai.Utils.GameObjects.Persistent
         /// </summary>
         private static Dictionary<string, Dictionary<string, IPersistentDataObject>> PersistentDataByCategory = new();
 
-        [Tooltip("Category of the persistent object")]
-        [SerializeField] protected string _category = "other";
+        public static bool CategoryExists(string category) => PersistentDataByCategory.ContainsKey(category);
 
-        public IPersistentDataObject PersistentData { get; protected set; }
+        public static void AddDataToCategory(string category, Dictionary<string, IPersistentDataObject> data) => PersistentDataByCategory.Add(category, data);
+
+        public static void SetDataInCategory(string category, string id, IPersistentDataObject data) => PersistentDataByCategory[category][id] = data;
+
 
         /// <summary>
         /// Helper to call when game manager save game event is called
         /// </summary>
         private static void OnSaveGame(object sender, System.EventArgs e)
         {
+            Debug.Log("[PersistentObjects] Saving all objects");
             SaveAllObjects();
         }
 
         public static void SaveAllObjects()
         {
-            foreach (var item in PersistentInstancesByCategory)
+            foreach (var category in PersistentDataByCategory.Keys)
             {
-                SaveCategoryObjects(item.Key);
+                SaveCategoryObjects(category);
             }
         }
         /// <summary>
@@ -58,30 +88,36 @@ namespace Topacai.Utils.GameObjects.Persistent
         /// <param name="category">Category to save.</param>
         public static void SaveCategoryObjects(string category)
         {
-            if (!PersistentInstancesByCategory.TryGetValue(category, out var objects))
+            PersistentObjectMonobehaviour[] objects = GameObject.FindObjectsByType<PersistentObjectMonobehaviour>(FindObjectsSortMode.None);
+
+            if (objects.Length == 0)
             {
                 Debug.LogWarning($"[PersistentObjects] No persistent objects found for category '{category}'");
                 return;
             }
 
-            var dataObject = new PersistentObjectsCategoryData(category, new());
+            var categoryData = new PersistentObjectsCategoryData(category, new());
 
-            foreach (var item in PersistentInstancesByCategory[category])
+            foreach (var objectInstance in objects)
             {
-                item.UpdateData();
-                dataObject.ObjectList.Add(item.GetUniqueID(), item.PersistentData);
+                objectInstance.UpdateData();
+                categoryData.ObjectList.Add(objectInstance.GetUniqueID(), objectInstance.PersistentData);
             }
 
-            SaveSystemClass.SaveLevelDataToProfile(dataObject, category, DATA_KEY);
+            SaveSystemClass.SaveLevelDataToProfile(categoryData, category, DATA_KEY);
         }
+
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+#endif
         /// <summary>
         /// Recover all persistent objects
         /// </summary>
         public static void RecoverAllObjects()
         {
-            foreach (var item in PersistentInstancesByCategory.Keys)
+            foreach (var category in PersistentDataByCategory.Keys)
             {
-                RecoverCategory(item);
+                RecoverCategory(category);
             }
         }
         /// <summary>
@@ -94,15 +130,16 @@ namespace Topacai.Utils.GameObjects.Persistent
             PersistentObjectsCategoryData data = default(PersistentObjectsCategoryData);
             bool dataExists = SaveSystemClass.GetLevelData<PersistentObjectsCategoryData>(category, out data, DATA_KEY);
 
-            if(!dataExists)
+            if (!dataExists)
             {
                 Debug.LogWarning($"[PersistentObjects] No data found for category '{category}'");
                 return;
             }
 
             PersistentDataByCategory[data.Category] = data.ObjectList;
-            OnDataRecoveredEvent.Invoke(data.Category);
+            OnDataRecoveredEvent?.Invoke(data.Category);
         }
+
         /// <summary>
         /// Retrieves the persistent data object for a given unique ID and category.
         /// </summary>
@@ -111,7 +148,7 @@ namespace Topacai.Utils.GameObjects.Persistent
         /// <returns>Persistent data object, or null if not found.</returns>
         public static IPersistentDataObject GetObjectData(string uniqueID, string category)
         {
-            if(PersistentDataByCategory.TryGetValue(category, out var cat))
+            if (PersistentDataByCategory.TryGetValue(category, out var cat))
             {
                 if (cat.TryGetValue(uniqueID, out var obj))
                 {
@@ -122,23 +159,85 @@ namespace Topacai.Utils.GameObjects.Persistent
             Debug.LogWarning($"[PersistentObjects] Object data not found for ID: {uniqueID} in category: {category}");
             return null;
         }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void SuscribeToSaveGameEvent()
+        {
+            SaveSystem.SaveSystemClass.OnSaveGameEvent += OnSaveGame;
+        }
+    }
+
+    /// <summary>
+    /// Monobehaviour script that provides persistent functionality on gameobjects between game sessions
+    /// It automatically saves and recovers gameobject transform data and you can add your own data
+    /// by implementing IPersistentDataObject (which force you to save transform data, this will be changed later)
+    /// </summary>
+    public class PersistentObjectMonobehaviour : UniqueIDAssigner
+    {
+        [Tooltip("Category of the persistent object")]
+        [SerializeField] protected string _category = null;
+
         /// <summary>
-        /// Awake method makes sure to add the category to the PersistentInstancesByCategory dictionary and then
-        /// the object itself on it.
+        /// The data that will be saved and recovered for the object. You could use PersistentObjectData struct to save all
+        /// transform data, or implement your own IPersistentDataObject
+        /// </summary>
+        public IPersistentDataObject PersistentData { get; protected set; }
+
+        #region Instance Methods
+
+        private void SetLevelNameAsCategory()
+        {
+            _category = SceneManager.GetActiveScene().name;
+        }
+
+        /// <summary>
+        /// Awake method makes sure to add the category to the PersistentDataByCategory dictionary and then
+        /// the object itself on it. If the data already exists, the object will be updated
         /// </summary>
         protected override void Awake()
         {
             base.Awake();
-            if(!PersistentInstancesByCategory.ContainsKey(_category))
+
+            if (string.IsNullOrEmpty(_category)) SetLevelNameAsCategory();
+
+            PersistentObjectsSystem.OnDataRecoveredEvent.AddListener(OnDataRecovered);
+
+            if (!PersistentObjectsSystem.CategoryExists(_category))
             {
-                PersistentInstancesByCategory.Add(_category, new());
-                RecoverCategory(_category);
+                PersistentObjectsSystem.AddDataToCategory(_category, new());
+                PersistentObjectsSystem.RecoverCategory(_category);
             }
 
-            PersistentInstancesByCategory[_category].Add(this);
+            string id = GetUniqueID();
+            var objectData = PersistentObjectsSystem.GetObjectData(id, _category);
 
-            SaveSystem.SaveSystemClass.OnSaveGameEvent += OnSaveGame;
+            if (objectData != null)
+            {
+                PersistentData = objectData;
+            }
+            else
+            {
+                UpdateData();
+                PersistentObjectsSystem.SetDataInCategory(_category, id, PersistentData);
+            }
+
+            ApplyData();
+            
         }
+
+        public void RecoveryAndApplyData()
+        {
+            string id = GetUniqueID();
+            var objectData = PersistentObjectsSystem.GetObjectData(id, _category);
+
+            if (objectData != null)
+            {
+                PersistentData = objectData;
+            }
+
+            ApplyData();
+        }
+
         /// <summary>
         /// Updates the persistent data of the object setting transform values and also call the OnUpdateData auxiliary method
         /// to implement any custom data to be saved
@@ -156,6 +255,15 @@ namespace Topacai.Utils.GameObjects.Persistent
             PersistentData.Rotation = (SerializeableVector3)transform.eulerAngles;
             PersistentData.Scale = (SerializeableVector3)transform.localScale;
         }
+
+        /// <summary>
+        /// Saves the persistent data of the object (all the category will be saved)
+        /// </summary>
+        public void SaveObjectData()
+        {
+            PersistentObjectsSystem.SaveCategoryObjects(_category);
+        }
+
         /// <summary>
         /// Applies the persistent data of the object setting transform values
         /// and also call the OnApplyData auxiliary method
@@ -173,24 +281,12 @@ namespace Topacai.Utils.GameObjects.Persistent
 
         public virtual void OnUpdateData() { }
 
-        protected virtual void Start()
-        {
-            if (PersistentData == null)
-            {
-                PersistentData = new PersistentObjectData();
-            }
-            PersistentData = GetObjectData(GetUniqueID(), _category);
-            ApplyData();
-            OnDataRecoveredEvent.AddListener(OnDataRecovered);
-            
-        }
-
         protected override void OnEnable()
         {
             base.OnEnable();
             if (Application.isPlaying)
             {
-                OnDataRecoveredEvent.AddListener(OnDataRecovered);
+                PersistentObjectsSystem.OnDataRecoveredEvent.AddListener(OnDataRecovered);
             }
         }
 
@@ -198,7 +294,7 @@ namespace Topacai.Utils.GameObjects.Persistent
         {
             if (Application.isPlaying)
             {
-                OnDataRecoveredEvent.RemoveListener(OnDataRecovered);
+                PersistentObjectsSystem.OnDataRecoveredEvent.RemoveListener(OnDataRecovered);
             }
         }
 
@@ -206,11 +302,12 @@ namespace Topacai.Utils.GameObjects.Persistent
         {
             if(category == _category)
             {
-                PersistentData = GetObjectData(GetUniqueID(), _category);
+                Debug.Log($"({GetUniqueID()}) Data recovered for category: {category}");
+                PersistentData = PersistentObjectsSystem.GetObjectData(GetUniqueID(), _category);
                 ApplyData();
             }
         }
-    }
 
-    
+        #endregion
+    }
 }
