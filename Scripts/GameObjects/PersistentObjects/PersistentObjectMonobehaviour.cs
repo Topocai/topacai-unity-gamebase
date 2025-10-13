@@ -65,6 +65,20 @@ namespace Topacai.Utils.GameObjects.Persistent
 
         public static void SetDataInCategory(string category, string id, IPersistentDataObject data) => PersistentDataByCategory[category][id] = data;
 
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+#else
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+#endif
+        private static void SuscribeToProfileEvent() => SaveSystemClass.OnProfileChanged.AddListener(OnProfileChanged);
+
+        private static void OnProfileChanged(UserProfile profile)
+        {
+            Debug.Log("[PersistentObjects] Profile changed detected, recovering all objects");
+
+            PersistentDataByCategory.Clear();
+            RecoverAllObjects();
+        }
 
         /// <summary>
         /// Helper to call when game manager save game event is called
@@ -77,6 +91,14 @@ namespace Topacai.Utils.GameObjects.Persistent
 
         public static void SaveAllObjects()
         {
+            PersistentObjectMonobehaviour[] objects = GameObject.FindObjectsByType<PersistentObjectMonobehaviour>(FindObjectsSortMode.None);
+
+            foreach (var persistentObject in objects)
+            {
+                if (!PersistentDataByCategory.ContainsKey(persistentObject.Category))
+                    PersistentDataByCategory.Add(persistentObject.Category, new());
+            }
+
             foreach (var category in PersistentDataByCategory.Keys)
             {
                 SaveCategoryObjects(category);
@@ -115,6 +137,14 @@ namespace Topacai.Utils.GameObjects.Persistent
         /// </summary>
         public static void RecoverAllObjects()
         {
+            PersistentObjectMonobehaviour[] objects = GameObject.FindObjectsByType<PersistentObjectMonobehaviour>(FindObjectsSortMode.None);
+
+            foreach (var persistentObject in objects)
+            {
+                if (!PersistentDataByCategory.ContainsKey(persistentObject.Category))
+                    PersistentDataByCategory.Add(persistentObject.Category, new());
+            }
+
             foreach (var category in PersistentDataByCategory.Keys)
             {
                 RecoverCategory(category);
@@ -126,6 +156,7 @@ namespace Topacai.Utils.GameObjects.Persistent
         /// <param name="category">Category to recover.</param>
         public static void RecoverCategory(string category)
         {
+            Debug.Log($"[PersistentObjects] Recovering category '{category}'");
             // Load category's data from save system
             PersistentObjectsCategoryData data = default(PersistentObjectsCategoryData);
             bool dataExists = SaveSystemClass.GetLevelData<PersistentObjectsCategoryData>(category, out data, DATA_KEY);
@@ -133,11 +164,13 @@ namespace Topacai.Utils.GameObjects.Persistent
             if (!dataExists)
             {
                 Debug.LogWarning($"[PersistentObjects] No data found for category '{category}'");
-                return;
+            }
+            else
+            {
+                PersistentDataByCategory[data.Category] = data.ObjectList;
             }
 
-            PersistentDataByCategory[data.Category] = data.ObjectList;
-            OnDataRecoveredEvent?.Invoke(data.Category);
+            OnDataRecoveredEvent?.Invoke(category);
         }
 
         /// <summary>
@@ -167,6 +200,48 @@ namespace Topacai.Utils.GameObjects.Persistent
         }
     }
 
+#if UNITY_EDITOR
+    [CanEditMultipleObjects]
+    [CustomEditor(typeof(PersistentObjectMonobehaviour), true)]
+    public class PersistentObjectEditor : UniqueIDAssignerEditor
+    {        
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+
+            PersistentObjectMonobehaviour persistentObject = (PersistentObjectMonobehaviour)target;
+
+            if (GUILayout.Button("Save Original Transform"))
+            {
+                persistentObject.SetOriginalPosition(persistentObject.transform.position);
+                persistentObject.SetOriginalRotation(persistentObject.transform.rotation.eulerAngles);
+                persistentObject.SetOriginalScale(persistentObject.transform.localScale);
+                SceneView.RepaintAll();
+            }
+
+            if (GUILayout.Button("Recover Original Transform"))
+            {
+                persistentObject.ResetTransform();
+            }
+
+            if (GUILayout.Button(persistentObject.DisplayOriginalTransform ? "Hide Original Transform" : "Show Original Transform"))
+            {
+                persistentObject.DisplayOriginalTransform = !persistentObject.DisplayOriginalTransform;
+                SceneView.RepaintAll();
+            }
+
+            if (GUILayout.Button("Highlight/Look At Original Transform"))
+            {
+                persistentObject.HightlightOriginalTransform();
+                SceneView.RepaintAll();
+
+                SceneView.lastActiveSceneView?.LookAt(persistentObject.originalPosition, SceneView.lastActiveSceneView.rotation, 2f);
+            }
+        }
+    }
+
+#endif
+
     /// <summary>
     /// Monobehaviour script that provides persistent functionality on gameobjects between game sessions
     /// It automatically saves and recovers gameobject transform data and you can add your own data
@@ -177,6 +252,51 @@ namespace Topacai.Utils.GameObjects.Persistent
         [Tooltip("Category of the persistent object")]
         [SerializeField] protected string _category = null;
 
+        public string Category => _category;
+
+        [field: SerializeField, HideInInspector] public Vector3 originalPosition { get; protected set; }
+        [field: SerializeField, HideInInspector] public Vector3 originalRotation { get; protected set; }
+        [field: SerializeField, HideInInspector] public Vector3 originalScale { get; protected set; }
+
+        [field: SerializeField, HideInInspector] protected bool isInitialized = false;
+
+#if UNITY_EDITOR
+
+        [HideInInspector] public bool DisplayOriginalTransform = false;
+
+        private Color originalTransformColor = Color.blue;
+
+        private Coroutine highlighting;
+
+        private void OnDrawGizmos()
+        {
+            if (!DisplayOriginalTransform) return;
+
+            Gizmos.color = originalTransformColor;
+            Gizmos.DrawWireCube(originalPosition, originalScale);
+            Gizmos.color = default;
+
+            Quaternion rot = Quaternion.Euler(originalRotation);
+            Vector3 direction = rot * Vector3.forward;
+            Debug.DrawRay(originalPosition, direction * 1.25f * originalScale.magnitude, Color.red);
+        }
+
+        public void HightlightOriginalTransform()
+        {
+            if (highlighting != null) StopCoroutine(highlighting);
+            highlighting = StartCoroutine(Highlight());
+        }
+
+        private IEnumerator Highlight()
+        {
+            originalTransformColor = Color.red;
+            yield return new WaitForSeconds(0.5f);
+            originalTransformColor = Color.blue;
+
+            SceneView.RepaintAll();
+        }
+
+#endif
         /// <summary>
         /// The data that will be saved and recovered for the object. You could use PersistentObjectData struct to save all
         /// transform data, or implement your own IPersistentDataObject
@@ -221,6 +341,14 @@ namespace Topacai.Utils.GameObjects.Persistent
                 PersistentObjectsSystem.SetDataInCategory(_category, id, PersistentData);
             }
 
+            if (!isInitialized)
+            {
+                originalPosition = transform.position;
+                originalRotation = transform.eulerAngles;
+                originalScale = transform.localScale;
+                isInitialized = true;
+            }
+
             ApplyData();
             
         }
@@ -247,7 +375,7 @@ namespace Topacai.Utils.GameObjects.Persistent
             if(PersistentData == null)
             {
                 PersistentData = new PersistentObjectData();
-                Debug.LogWarning("PersistentData is null");
+                Debug.LogWarning("PersistentData is null", this);
             }
             OnUpdateData();
             PersistentData.UniqueID = GetUniqueID();
@@ -277,6 +405,25 @@ namespace Topacai.Utils.GameObjects.Persistent
             OnApplyData();
         }
 
+        public void SetOriginalPosition(Vector3 position) => originalPosition = position;
+
+        public void SetOriginalRotation(Vector3 rotation) => originalRotation = rotation;
+
+        public void SetOriginalScale(Vector3 scale) => originalScale = scale;
+
+        public void ResetTransform()
+        {
+            transform.position = originalPosition;
+            transform.eulerAngles = originalRotation;
+            transform.localScale = originalScale;
+
+            PersistentData.Position = (SerializeableVector3)transform.position;
+            PersistentData.Rotation = (SerializeableVector3)transform.eulerAngles;
+            PersistentData.Scale = (SerializeableVector3)transform.localScale;
+
+            SaveObjectData();
+        }
+
         protected virtual void OnApplyData() { }
 
         public virtual void OnUpdateData() { }
@@ -300,10 +447,21 @@ namespace Topacai.Utils.GameObjects.Persistent
 
         protected virtual void OnDataRecovered(string category)
         {
-            if(category == _category)
+            if (category == _category)
             {
-                Debug.Log($"({GetUniqueID()}) Data recovered for category: {category}");
-                PersistentData = PersistentObjectsSystem.GetObjectData(GetUniqueID(), _category);
+                var savedData = PersistentObjectsSystem.GetObjectData(GetUniqueID(), _category);
+                if (savedData == null)
+                {
+                    Debug.Log("[PersistentObjects] No data found for object, using original values", this);
+                    ResetTransform();
+                    UpdateData();
+                }
+                else
+                {
+                    Debug.Log("[PersistentObjects] Data found for object, using saved values", this);
+                    PersistentData = savedData;
+                }
+
                 ApplyData();
             }
         }
