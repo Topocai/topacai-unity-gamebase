@@ -58,15 +58,17 @@ namespace Topacai.Utils.GameObjects.Unique
 #endif
         }
 
-#if UNITY_EDITOR
         public void CheckAndCreateID()
         {
             if (string.IsNullOrEmpty(uniqueID))
             {
+#if UNITY_EDITOR
                 if (showLogs)
                     Debug.Log("Generating new ID: it was null or empty.", this);
+#endif
                 GenerateUniqueID();
             }
+#if UNITY_EDITOR
             else if (usedIDs.TryGetValue(uniqueID, out var register))
             {
                 if (register != this && register != null)
@@ -80,9 +82,9 @@ namespace Topacai.Utils.GameObjects.Unique
             {
                 usedIDs[uniqueID] = this;
             }
+#endif
         }
 
-#endif
 
         public void GenerateUniqueID()
         {
