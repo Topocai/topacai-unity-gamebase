@@ -1,45 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
-using Topacai.Utils.Editor;
+using System.Linq;
+using UnityEditor;
 using Topacai.Utils.GameObjects.Unique;
 using Topacai.Utils.SaveSystem;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 namespace Topacai.Utils.GameObjects.Persistent
 {
-    
-#if UNITY_EDITOR
-
-    [InitializeOnLoad]
-    /// <summary>
-    /// When exiting play mode and entering edit mode, recover all persistent objects
-    /// and sets it transform to show the current state in inspector
-    /// </summary>
-    public static class PersistentObjectStateWatcher
-    {
-        [InitializeOnLoadMethod]
-        private static void AddPersistentObjectListener() => ModeStateWatcher.OnPlayModeStateChangedEvent += PersistentObjectWatcher;
-
-        private static void PersistentObjectWatcher(object sender, PlayModeStateChange state)
-        {
-            if (state == PlayModeStateChange.EnteredEditMode)
-            {
-                PersistentObjectsSystem.RecoverAllObjects();
-
-                var persistentObjects = GameObject.FindObjectsByType<PersistentObjectMonobehaviour>(FindObjectsSortMode.None);
-                foreach (var persistentObject in persistentObjects)
-                {
-                    persistentObject.RecoveryAndApplyData();
-                }
-            }
-        }
-    }
-
-#endif
-
 #if UNITY_EDITOR
     [InitializeOnLoad]
 #endif
@@ -99,7 +69,9 @@ namespace Topacai.Utils.GameObjects.Persistent
                     PersistentDataByCategory.Add(persistentObject.Category, new());
             }
 
-            foreach (var category in PersistentDataByCategory.Keys)
+            var categoryKeys = PersistentDataByCategory.Keys.ToList();
+
+            foreach (var category in categoryKeys)
             {
                 SaveCategoryObjects(category);
             }
@@ -145,7 +117,9 @@ namespace Topacai.Utils.GameObjects.Persistent
                     PersistentDataByCategory.Add(persistentObject.Category, new());
             }
 
-            foreach (var category in PersistentDataByCategory.Keys)
+            var categoryKeys = PersistentDataByCategory.Keys.ToList();
+
+            foreach (var category in categoryKeys)
             {
                 RecoverCategory(category);
             }
@@ -199,48 +173,6 @@ namespace Topacai.Utils.GameObjects.Persistent
             SaveSystem.SaveSystemClass.OnSaveGameEvent += OnSaveGame;
         }
     }
-
-#if UNITY_EDITOR
-    [CanEditMultipleObjects]
-    [CustomEditor(typeof(PersistentObjectMonobehaviour), true)]
-    public class PersistentObjectEditor : UniqueIDAssignerEditor
-    {        
-        public override void OnInspectorGUI()
-        {
-            base.OnInspectorGUI();
-
-            PersistentObjectMonobehaviour persistentObject = (PersistentObjectMonobehaviour)target;
-
-            if (GUILayout.Button("Save Original Transform"))
-            {
-                persistentObject.SetOriginalPosition(persistentObject.transform.position);
-                persistentObject.SetOriginalRotation(persistentObject.transform.rotation.eulerAngles);
-                persistentObject.SetOriginalScale(persistentObject.transform.localScale);
-                SceneView.RepaintAll();
-            }
-
-            if (GUILayout.Button("Recover Original Transform"))
-            {
-                persistentObject.ResetTransform();
-            }
-
-            if (GUILayout.Button(persistentObject.DisplayOriginalTransform ? "Hide Original Transform" : "Show Original Transform"))
-            {
-                persistentObject.DisplayOriginalTransform = !persistentObject.DisplayOriginalTransform;
-                SceneView.RepaintAll();
-            }
-
-            if (GUILayout.Button("Highlight/Look At Original Transform"))
-            {
-                persistentObject.HightlightOriginalTransform();
-                SceneView.RepaintAll();
-
-                SceneView.lastActiveSceneView?.LookAt(persistentObject.originalPosition, SceneView.lastActiveSceneView.rotation, 2f);
-            }
-        }
-    }
-
-#endif
 
     /// <summary>
     /// Monobehaviour script that provides persistent functionality on gameobjects between game sessions
@@ -431,18 +363,12 @@ namespace Topacai.Utils.GameObjects.Persistent
         protected override void OnEnable()
         {
             base.OnEnable();
-            if (Application.isPlaying)
-            {
-                PersistentObjectsSystem.OnDataRecoveredEvent.AddListener(OnDataRecovered);
-            }
+            PersistentObjectsSystem.OnDataRecoveredEvent.AddListener(OnDataRecovered);
         }
 
         protected virtual void OnDisable()
         {
-            if (Application.isPlaying)
-            {
-                PersistentObjectsSystem.OnDataRecoveredEvent.RemoveListener(OnDataRecovered);
-            }
+            PersistentObjectsSystem.OnDataRecoveredEvent.RemoveListener(OnDataRecovered);
         }
 
         protected virtual void OnDataRecovered(string category)

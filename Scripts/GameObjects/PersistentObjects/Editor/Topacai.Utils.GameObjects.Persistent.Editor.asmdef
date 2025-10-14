@@ -1,0 +1,19 @@
+{
+    "name": "Topacai.Utils.GameObjects.Persistent.Editor",
+    "rootNamespace": "Topacai.Utils.GameObjects.Persistent.Editor",
+    "references": [
+        "Topacai",
+        "Topacai.Utils.GameObjects.Persistent"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
