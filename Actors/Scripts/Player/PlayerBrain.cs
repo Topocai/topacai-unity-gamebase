@@ -1,3 +1,4 @@
+using Codice.Client.BaseCommands;
 using System.Collections;
 using System.Collections.Generic;
 using Topacai.Inputs;
@@ -75,6 +76,26 @@ namespace Topacai.Player
     public class PlayerBrain : MonoBehaviour
     {
         public const bool SINGLEPLAYER_MODE = true;
+
+        private static PlayerBrain sp_Player;
+
+        public static PlayerBrain SP_Player
+        {
+            get
+            {
+                if (sp_Player == null)
+                {
+                    Debug.LogWarning("SP_Player is null");
+                }
+                return sp_Player;
+            }
+
+            private set
+            {
+                sp_Player = value;
+            }
+        }
+
         public static List<PlayerBrain> Players { get; private set; }
 
         [field: SerializeField] public PlayerReferences PlayerReferences { get; private set; }
@@ -106,6 +127,21 @@ namespace Topacai.Player
 
             gameObject.AddComponent<InputHandler>();
             
+        }
+
+        private void Awake()
+        {
+            if (SINGLEPLAYER_MODE)
+            {
+                if (SP_Player != null && SP_Player != this)
+                {
+                    Destroy(this);
+                } 
+                else
+                {
+                    SP_Player = this;
+                }
+            }
         }
 
         protected void Initialize()
@@ -161,6 +197,12 @@ namespace Topacai.Player
         {
             PlayerReferences.Rigidbody.position = pos;
             transform.position = pos;
+        }
+
+        public void TeleportPlayerToUsingPivot(Vector3 pos, Vector3 pivot)
+        {
+            Vector3 offset = transform.TransformPoint(pivot) - transform.position;
+            TeleportPlayerTo(pos - offset);
         }
 
         public void TeleportPlayerRelativeTo(Transform pos, Vector3? origin) => TeleportPlayerRelativeTo(pos.position, origin);
