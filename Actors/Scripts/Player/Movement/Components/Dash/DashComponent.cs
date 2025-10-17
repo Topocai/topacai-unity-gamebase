@@ -68,13 +68,15 @@ namespace Topacai.Player.Movement.Components
                 {
                     if (velToComprobate.sqrMagnitude > _initialVel)
                     {
-                        Vector3 newVel = _movement.FlatVel.normalized * _movement.MaxSpeed;
+                        Vector3 newVel = _movement.FlatVel.normalized * Mathf.Clamp(_movement.MaxSpeed, 0, _movement.FlatVel.magnitude);
                         newVel.y = _movement.Rigidbody.linearVelocity.y;
                         _movement.Rigidbody.linearVelocity = newVel;
                     }
 
                     SetDashing(false);
                 }
+
+                _movement.Rigidbody.linearVelocity = new Vector3(_movement.Rigidbody.linearVelocity.x, Mathf.Clamp(_movement.Rigidbody.linearVelocity.y, 0, _movement.Data.MaxFallSpeed), _movement.Rigidbody.linearVelocity.z);
 
                 Debug.DrawRay(transform.position, -LastDashDir * _deccelForce * 9.81f, Color.aquamarine);
             }
