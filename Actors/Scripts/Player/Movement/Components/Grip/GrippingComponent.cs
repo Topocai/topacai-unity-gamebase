@@ -101,7 +101,7 @@ namespace Topacai.Player.Movement.Components
                 float currentSpeed = Mathf.Lerp(minSpeed, speed, fixedCurve);
 
                 // Adds an offset from hit point of grip relative to player input direction
-                _gripPos = _gripHitPos + new Vector3(_movement.MoveDir.x, 0, _movement.MoveDir.y).normalized * moveModifier;
+                _gripPos = _gripHitPos + new Vector3(_movement.MoveDir.x, 0, _movement.MoveDir.z).normalized * moveModifier;
                 Vector3 dir = _gripPos - _movement.transform.position;
 
                 _movement.Rigidbody.AddForce(dir.normalized * currentSpeed, forceMode);
