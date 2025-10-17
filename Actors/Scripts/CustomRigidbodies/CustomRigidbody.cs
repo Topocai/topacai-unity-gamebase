@@ -24,8 +24,7 @@ namespace Topacai.CustomPhysics
         protected event OnApplyGravity _OnBeforeApplyGravity;
 
         protected Rigidbody _rb;
-
-        private void Start()
+        protected virtual void Start()
         {
             _rb = GetComponent<Rigidbody>();
             _rb.useGravity = false;

@@ -123,13 +123,16 @@ namespace Topacai.Player.Movement
 
         public void SetPlayerBrain(PlayerBrain playerBrain) => _playerBrain = playerBrain;
 
-        protected virtual void Start()
+        protected override void Start()
         {
+            base.Start();
+
             if (_playerBrain == null)
             {
                 _playerBrain = GetComponent<PlayerBrain>();
             }
-            if (_playerBrain != null)
+
+            if (_playerBrain != null && _rb != null)
                 _playerBrain.PlayerReferences.Rigidbody = _rb;
 
             MaxSpeed = Data.WalkSpeed;
