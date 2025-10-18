@@ -20,6 +20,7 @@ namespace Topacai.Channels.Editor
 
         private void OnGUI()
         {
+            ChannelManager.ReloadAssets = EditorGUILayout.ToggleLeft("Recompile after add", ChannelManager.ReloadAssets);
             GUILayout.Label("Channel Name", EditorStyles.boldLabel);
             channelName = EditorGUILayout.TextField("Channel Name: ", channelName);
 

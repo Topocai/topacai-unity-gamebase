@@ -36,6 +36,10 @@ namespace Topacai.Channels
 
         private const string CHANNEL_SYSTEM_VERSION = "0.3.1";
 
+        private static bool _ReloadAssets = false;
+
+        public static bool ReloadAssets { get => _ReloadAssets; set => _ReloadAssets = value; }
+
         /// <summary>
         /// Creates a channel with custom arguments that can be invoked, add/remove listeners
         /// Automatic generates a c# script adding the desired channel
@@ -163,7 +167,8 @@ namespace Topacai.Channels{((customNamespace != "") ? $".{customNamespace}" : ""
 
             Debug.Log($"Channel {name} created");
 
-            AssetDatabase.Refresh();
+            if (ReloadAssets)
+                AssetDatabase.Refresh();
         }
 #endif
     }
