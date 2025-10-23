@@ -35,81 +35,92 @@ namespace Topacai.Player.Movement.Components
             _registeredStates.TryAdd(stateName.ToLower(), state);
         }
     }
+
+    public struct MovementData
+    {
+        public MovementStateManager StateManager;
+        public HashSet<MovementComponent> Components;
+    }
+
     public class MovementComponent : MonoBehaviour
     {
-        protected static UnityEvent<MovementComponent> OnComponentRegistered = new UnityEvent<MovementComponent>();
-        /// <summary>
-        /// Keep register of all MovementComponents existing in the scene
-        /// You can acces to them with the static method GetRegisteredComponentOfType if you know the type
-        /// </summary>
-        private static HashSet<MovementComponent> _registeredComponents = new HashSet<MovementComponent>();
+        private static Dictionary<PlayerMovement, MovementData> _Movements = new();
 
-        private static MovementStateManager _stateManager = new MovementStateManager();
-
-        [Header("Component Setup")]
-        [SerializeField] protected PlayerMovement _movement;
-        [SerializeField] protected string _componentStateName;
-
-        public PlayerMovement Movement => _movement;
-        public bool IsEnabled => this.enabled;
+        protected static Dictionary<PlayerMovement, MovementData> _movements => _Movements;
 
         #region Register Components
         protected static void RegisterComponent(MovementComponent component)
         {
-            _registeredComponents.Add(component);
+            if (_Movements.TryGetValue(component.Movement, out MovementData data))
+            {
+                data.Components.Add(component);
+            } 
+            else if (component.Movement != null)
+            {
+                RegisterPlayerMovement(component.Movement);
+                _Movements[component.Movement].Components.Add(component);
+            }
+            else
+            {
+                Debug.LogWarning("Movement instance in component is null");
+            }
         }
 
-        protected static object GetRegisteredComponentOfType(System.Type typeObject)
+        protected static object GetRegisteredComponentOfType(PlayerMovement movement, System.Type typeObject)
         {
-            foreach (MovementComponent component in _registeredComponents)
+            if (_Movements.TryGetValue(movement, out MovementData data))
             {
-                if (component.GetType() == typeObject)
+                foreach (MovementComponent component in data.Components)
                 {
-                    return component;
+                    if (component.GetType() == typeObject)
+                    {
+                        return component;
+                    }
                 }
+                Debug.LogWarning("Movement Component not found");
             }
+            else
+            {
+                Debug.LogWarning("Movement instance not found");
+            }
+
             return null;
         }
-        #endregion
 
-        #region Unity Callbacks
-
-        protected virtual void OnEnable()
+        protected static void RegisterPlayerMovement(PlayerMovement movement)
         {
-            if (_movement == null)
+            if (!_Movements.ContainsKey(movement))
             {
-                Debug.LogError($"Component: {gameObject.name} not enabled");
-                return;
+                _Movements.Add(movement, new MovementData()
+                {
+                    StateManager = new MovementStateManager(),
+                    Components = new HashSet<MovementComponent>()
+                });
+            } 
+            else 
+            {
+                Debug.LogWarning("Movement instance already registered");
             }
-
-            _movement.OnBeforeMove += OnBeforeMoveHandler;
-            _movement.OnMoveBeforeWall += OnMoveBeforeWallHandler;
-            _movement.OnMoveAfterAccel += OnMoveAfterAccelHandler;
-            _movement.OnGroundChangedEvent += OnGroundChangedHandler;
-
-            _registeredComponents.Add(this);
-
-            if (string.IsNullOrEmpty(_componentStateName))
-                _componentStateName = this.ToString();
-
-            _stateManager.RegisterState(_componentStateName, this);
-
-            OnComponentRegistered.Invoke(this);
-
-            Debug.Log($"Component: {gameObject.name} enabled");
         }
+        #endregion
 
-        protected virtual void OnDisable()
-        {
-            _movement.OnBeforeMove -= OnBeforeMoveHandler;
-            _movement.OnMoveBeforeWall -= OnMoveBeforeWallHandler;
-            _movement.OnMoveAfterAccel -= OnMoveAfterAccelHandler;
-            _movement.OnGroundChangedEvent -= OnGroundChangedHandler;
-        }
+        #region Instance Data
+
+        /// FIELDS 
+        [Header("Component Setup")]
+        [SerializeField] protected PlayerMovement _movement;
+        [SerializeField] protected string _componentStateName;
+
+        /// PROPERTIES
+        protected MovementStateManager _currentManager => _Movements[_movement].StateManager;
+        protected bool CheckState(string stateName) => _currentManager.GetState(stateName);
+
+        public PlayerMovement Movement => _movement;
+        public virtual bool IsEnabled => this.enabled;
 
         #endregion
 
-        #region Events
+        #region Movement Events
 
         private void OnMoveBeforeWallHandler(ref Vector3 moveDir, ref Vector3 flatVel, ref RaycastHit wallHitInfo)
         {
@@ -144,7 +155,49 @@ namespace Topacai.Player.Movement.Components
         protected virtual void OnGroundChanged(RaycastHit groundData) { }
         #endregion
 
-        #region Public Class-Instance Methods
+        #region Instance Methods
+
+        #region Unity Callbacks
+
+        protected virtual void Awake()
+        {
+            if (_movement == null) return;
+
+            if(!_movements.ContainsKey(_movement))
+                RegisterPlayerMovement(_movement);
+
+            RegisterComponent(this);
+        }
+
+        protected virtual void OnEnable()
+        {
+            if (_movement == null)
+            {
+                Debug.LogError($"Component: {gameObject.name} not enabled");
+                return;
+            }
+
+            _movement.OnBeforeMove += OnBeforeMoveHandler;
+            _movement.OnMoveBeforeWall += OnMoveBeforeWallHandler;
+            _movement.OnMoveAfterAccel += OnMoveAfterAccelHandler;
+            _movement.OnGroundChangedEvent += OnGroundChangedHandler;
+
+            if (string.IsNullOrEmpty(_componentStateName))
+                _componentStateName = this.ToString();
+
+            Debug.Log($"Component: {gameObject.name} enabled");
+        }
+
+        protected virtual void OnDisable()
+        {
+            _movement.OnBeforeMove -= OnBeforeMoveHandler;
+            _movement.OnMoveBeforeWall -= OnMoveBeforeWallHandler;
+            _movement.OnMoveAfterAccel -= OnMoveAfterAccelHandler;
+            _movement.OnGroundChangedEvent -= OnGroundChangedHandler;
+        }
+
+        #endregion
+
         public virtual void Enable()
         {
             enabled = true;
@@ -170,7 +223,7 @@ namespace Topacai.Player.Movement.Components
         }
         #endregion
 
-        protected bool CheckState(string stateName) => _stateManager.GetState(stateName);
+        
     }
 }
 
