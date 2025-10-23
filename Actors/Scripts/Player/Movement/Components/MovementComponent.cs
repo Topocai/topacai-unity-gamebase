@@ -54,11 +54,14 @@ namespace Topacai.Player.Movement.Components
             if (_Movements.TryGetValue(component.Movement, out MovementData data))
             {
                 data.Components.Add(component);
+                data.StateManager.RegisterState(component.name, component);
             } 
             else if (component.Movement != null)
             {
                 RegisterPlayerMovement(component.Movement);
+
                 _Movements[component.Movement].Components.Add(component);
+                _Movements[component.Movement].StateManager.RegisterState(component.name, component);
             }
             else
             {
@@ -111,9 +114,22 @@ namespace Topacai.Player.Movement.Components
         [SerializeField] protected PlayerMovement _movement;
         [SerializeField] protected string _componentStateName;
 
+        [SerializeField] protected string[] _incompatibleStates;
+
         /// PROPERTIES
         protected MovementStateManager _currentManager => _Movements[_movement].StateManager;
         protected bool CheckState(string stateName) => _currentManager.GetState(stateName);
+        protected bool InConflict(string[] states)
+        {
+            if (_incompatibleStates.Length == 0) return false;
+
+            foreach (string state in states)
+            {
+                if (CheckState(state))
+                    return true;
+            }
+            return false;
+        }
 
         public PlayerMovement Movement => _movement;
         public virtual bool IsEnabled => this.enabled;
