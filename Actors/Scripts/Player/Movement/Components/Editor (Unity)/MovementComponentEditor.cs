@@ -2,10 +2,8 @@
 
 using UnityEditor;
 using UnityEngine;
-
 using System.Collections.Generic;
 using System.Linq;
-
 using Topacai.Utils.Files;
 
 namespace Topacai.Player.Movement.Components.Editor
@@ -18,6 +16,11 @@ namespace Topacai.Player.Movement.Components.Editor
     /// </summary>
     public class MovementComponentEditor : UnityEditor.Editor
     {
+        /// <summary>
+        /// This code was modified by IA, it follows the main logic code from the previous commit, and the
+        /// new code is just to decorate the inspector, but it is the same logic
+        /// </summary>
+
         #region Static Registry
 
         private const string REGISTRY_RESOURCE_PATH = "MovementComponents";
@@ -26,8 +29,7 @@ namespace Topacai.Player.Movement.Components.Editor
         private static MovementStateRegistry _statesRegistry;
 
         /// <summary>
-        /// The registry for movement component states, if it doesn't exists
-        /// it will be created as an asset in resources folder (don't create on another path)
+        /// Lazy-loads or creates the global movement state registry asset in Resources.
         /// </summary>
         private static MovementStateRegistry StatesRegistry
         {
@@ -46,6 +48,7 @@ namespace Topacai.Player.Movement.Components.Editor
 
                         AssetDatabase.CreateAsset(data, $"{path}/{REGISTRY_RESOURCE_FILE_NAME}.asset");
                         AssetDatabase.SaveAssets();
+                        AssetDatabase.Refresh();
                     }
 
                     _statesRegistry = data;
@@ -55,68 +58,144 @@ namespace Topacai.Player.Movement.Components.Editor
             }
         }
 
-        private static IEnumerable<string> _RegisterStates => StatesRegistry.registeredStates;
+        private static IEnumerable<string> _RegisteredStates => StatesRegistry.registeredStates;
 
         #endregion
 
-        private string newStateR;
+        #region Foldout State
 
-        private Dictionary<string, bool> _currentStateFlags = new();
+        private bool _showRegistrySection = true;
+        private bool _showIncompatibleSection = true;
 
-        private void DrawStates(IEnumerable<string> states)
-        {
-            foreach(var state in states)
-            {
-                GUILayout.Label(state);
-                if (GUILayout.Button("Remove"))
-                {
-                    StatesRegistry.RemoveState(state);
-                }
-            }
-        }
+        #endregion
+
+        private string _newState = string.Empty;
+        private readonly Dictionary<string, bool> _currentStateFlags = new();
 
         public override void OnInspectorGUI()
         {
-            GUILayout.Space(7);
+            serializedObject.Update();
 
-            /// [ component state flags section ]
+            GUILayout.Space(5);
+            EditorGUILayout.LabelField("Movement Component Inspector", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox("Use this panel to manage global movement states and define incompatible states per component.", MessageType.Info);
 
-            GUILayout.Label("States Manager", EditorStyles.boldLabel);
+            DrawRegistrySection();
+            EditorGUILayout.Space(12);
+            DrawIncompatibleStatesSection();
 
-            DrawStates(_RegisterStates);
-
-            newStateR = GUILayout.TextField(newStateR);
-
-            if (GUILayout.Button("Register"))
-            {
-                StatesRegistry.AddState(newStateR);
-            }
-
-            GUILayout.Space(10);
-
-            // end - add a toggle view for this section
-
-            /// [ imcompatible states setter section ]
-
-            GUILayout.Label("Component incompatible states", EditorStyles.boldLabel);
-
-            // Provides states flags
-            var mComponent = (MovementComponent)target;
-            var incompatibleStates = mComponent.GetIncompatibleStates();
-
-            foreach (var name in _RegisterStates)
-            {
-                _currentStateFlags[name] = incompatibleStates.Contains(name);
-                _currentStateFlags[name] = GUILayout.Toggle(_currentStateFlags[name], name);
-            }
-
-            // Updates incompatible states list in component
-            var currentStateFlags = _currentStateFlags.Where(x => x.Value).Select(x => x.Key).ToArray();
-            mComponent.SetIncompatibleStates(currentStateFlags);
-
-            GUILayout.Space(20);
+            GUILayout.Space(15);
+            EditorGUILayout.LabelField("Component Settings", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox("Below are the default fields from the MovementComponent.", MessageType.None);
+            GUILayout.Space(5);
 
             base.OnInspectorGUI();
+        }
+
+        // ------------------------------
+        // [ GLOBAL REGISTRY MANAGEMENT ]
+        // ------------------------------
+        private void DrawRegistrySection()
+        {
+            EditorGUILayout.BeginVertical("box");
+            _showRegistrySection = EditorGUILayout.Foldout(_showRegistrySection, "Global States Registry", true, EditorStyles.foldoutHeader);
+
+            if (_showRegistrySection)
+            {
+                EditorGUI.indentLevel++;
+
+                EditorGUILayout.HelpBox("These states are shared globally across all MovementComponents. " +
+                                        "Adding or removing them will affect every component.", MessageType.Warning);
+
+                GUILayout.Space(5);
+                EditorGUILayout.LabelField("Registered States:", EditorStyles.boldLabel);
+
+                if (_RegisteredStates.Any())
+                {
+                    foreach (var state in _RegisteredStates.ToArray())
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField(state, GUILayout.MinWidth(100));
+
+                        GUI.backgroundColor = new Color(0.9f, 0.3f, 0.3f);
+                        if (GUILayout.Button("Remove", GUILayout.Width(70)))
+                        {
+                            StatesRegistry.RemoveState(state);
+                            EditorUtility.SetDirty(StatesRegistry);
+                            AssetDatabase.SaveAssets();
+                        }
+                        GUI.backgroundColor = Color.white;
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox("No states registered yet.", MessageType.Info);
+                }
+
+                GUILayout.Space(10);
+                EditorGUILayout.LabelField("Add New State", EditorStyles.boldLabel);
+
+                _newState = EditorGUILayout.TextField("State Name", _newState);
+
+                GUI.backgroundColor = new Color(0.4f, 0.9f, 0.5f);
+                if (GUILayout.Button("Register New State"))
+                {
+                    if (!string.IsNullOrEmpty(_newState))
+                    {
+                        StatesRegistry.AddState(_newState);
+                        EditorUtility.SetDirty(StatesRegistry);
+                        AssetDatabase.SaveAssets();
+                        _newState = string.Empty;
+                    }
+                    else
+                    {
+                        EditorUtility.DisplayDialog("Invalid State Name", "Please enter a valid state name.", "OK");
+                    }
+                }
+                GUI.backgroundColor = Color.white;
+
+                EditorGUI.indentLevel--;
+            }
+
+            EditorGUILayout.EndVertical();
+        }
+
+        // -------------------------------------
+        // [ INCOMPATIBLE STATES FOR COMPONENT ]
+        // -------------------------------------
+        private void DrawIncompatibleStatesSection()
+        {
+            EditorGUILayout.BeginVertical("box");
+            _showIncompatibleSection = EditorGUILayout.Foldout(_showIncompatibleSection, "Incompatible States", true, EditorStyles.foldoutHeader);
+
+            if (_showIncompatibleSection)
+            {
+                EditorGUI.indentLevel++;
+
+                var mComponent = (MovementComponent)target;
+                var incompatibleStates = mComponent.GetIncompatibleStates();
+
+                EditorGUILayout.HelpBox("Mark which global states are incompatible with this component. " +
+                                        "Multiple components may share or differ in their incompatibility rules.", MessageType.None);
+
+                GUILayout.Space(5);
+
+                foreach (var name in _RegisteredStates)
+                {
+                    bool currentValue = incompatibleStates.Contains(name);
+                    bool newValue = EditorGUILayout.ToggleLeft(name, currentValue);
+                    _currentStateFlags[name] = newValue;
+                }
+
+                // Apply changes if any toggles changed
+                var selectedStates = _currentStateFlags.Where(x => x.Value).Select(x => x.Key).ToArray();
+                mComponent.SetIncompatibleStates(selectedStates);
+
+                EditorGUI.indentLevel--;
+            }
+
+            EditorGUILayout.EndVertical();
         }
     }
 }
