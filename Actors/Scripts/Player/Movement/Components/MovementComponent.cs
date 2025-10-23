@@ -114,7 +114,10 @@ namespace Topacai.Player.Movement.Components
         [SerializeField] protected PlayerMovement _movement;
         [SerializeField] protected string _componentStateName;
 
-        [SerializeField] protected string[] _incompatibleStates;
+        [HideInInspector, SerializeField] protected string[] _incompatibleStates;
+
+        public void SetIncompatibleStates(string[] states) => _incompatibleStates = states;
+        public string[] GetIncompatibleStates() => _incompatibleStates;
 
         /// PROPERTIES
         protected MovementStateManager _currentManager => _Movements[_movement].StateManager;
