@@ -1,0 +1,20 @@
+{
+    "name": "Topacai.Player.Movement.Components.Wallrunning",
+    "rootNamespace": "Topacai.Player.Movement.Components.Wallrunning",
+    "references": [
+        "Topacai",
+        "Topacai.Player.Movement",
+        "Topacai.Player.Movement.Components",
+        "Unity.InputSystem",
+        "EditorAttributes"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
