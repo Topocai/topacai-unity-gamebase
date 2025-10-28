@@ -32,16 +32,16 @@ namespace Topacai.CustomPhysics
             _rb.useGravity = false;
         }
 
-        protected virtual void SetGravityScale(float v)
+        public virtual void SetGravityScale(float v)
         {
             _gravityScale = v;
         }
 
-        protected virtual void UseGravity(bool v) => _gravityOn = v;
+        public virtual void UseGravity(bool v) => _gravityOn = v;
 
-        protected virtual void UseCustomGravity(bool v) => _useCustomGravity = v;
+        public virtual void UseCustomGravity(bool v) => _useCustomGravity = v;
 
-        protected virtual void SetCustomGravity(Vector3 v) => _customGravity = v;
+        public virtual void SetCustomGravity(Vector3 v) => _customGravity = v;
 
         protected virtual void UpdateGravity()
         {
