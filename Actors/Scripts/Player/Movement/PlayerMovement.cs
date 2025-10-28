@@ -733,6 +733,8 @@ namespace Topacai.Player.Movement
 
             float mf = movementForce.magnitude;
 
+            base.UseGravity(!onSlope);
+
             OnBeforeMove?.Invoke(ref appliedForce, ref _moveDir);
 
             if (_InGround)
@@ -744,9 +746,6 @@ namespace Topacai.Player.Movement
             {
                 _rb.AddForce(appliedForce, ForceMode.Force);
             }
-
-
-            base.UseGravity(!onSlope);
 
 #if UNITY_EDITOR
             Debug.DrawLine(transform.position, transform.position + appliedForce.normalized * 5f, Color.yellow);
