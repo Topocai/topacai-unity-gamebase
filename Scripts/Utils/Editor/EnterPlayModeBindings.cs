@@ -24,12 +24,12 @@ namespace Topacai.Utils.Editor
             if (playModeState == PlayModeStateChange.EnteredPlayMode)
                 ShortcutManager.instance.activeProfileId = "Play";
             else if (playModeState == PlayModeStateChange.EnteredEditMode)
-                ShortcutManager.instance.activeProfileId = "Default";
+                ShortcutManager.instance.activeProfileId = "MyProfile";
         }
 
         static void Quitting()
         {
-            ShortcutManager.instance.activeProfileId = "Default";
+            ShortcutManager.instance.activeProfileId = "MyProfile";
         }
     }
 }
