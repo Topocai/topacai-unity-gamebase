@@ -123,6 +123,9 @@ namespace Topacai.Player.Movement.Components.Wallrunning
             if(!_isWallRunning) return;
 
             targetSpeed = runDirection.normalized * targetSpeed.magnitude;
+
+            targetSpeed *= 1.5f;
+            accelRate *= 2.33f;
         }
 
         protected override void OnBeforeMove(ref Vector3 finalForce, ref Vector3 moveDir)
@@ -140,7 +143,7 @@ namespace Topacai.Player.Movement.Components.Wallrunning
             _wallDelayTimer = 0.5f;
 
             float fixedTime = _fallCurve.Evaluate(_wallTime / _duration);
-            float downForce = fixedTime * 12f;
+            float downForce = fixedTime * 15f;
 
             Movement.Rigidbody.AddForce(Vector3.down * downForce);
 
