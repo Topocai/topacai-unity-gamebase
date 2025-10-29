@@ -149,13 +149,13 @@ namespace Topacai.Player.Movement.Components
 
         protected virtual void OnMoveBeforeWall(ref Vector3 moveDir, ref Vector3 flatVel, ref RaycastHit wallHitInfo) { }
 
-        private void OnMoveAfterAccelHandler(ref float accelRate)
+        private void OnMoveAfterAccelHandler(ref Vector3 targetSpeed, ref float accelRate)
         {
             if (!enabled) return;
-            OnMoveAfterAccel(ref accelRate);
+            OnMoveAfterAccel(ref targetSpeed, ref accelRate);
         }
 
-        protected virtual void OnMoveAfterAccel(ref float accelRate) { }
+        protected virtual void OnMoveAfterAccel(ref Vector3 targetSpeed, ref float accelRate) { }
 
         private void OnBeforeMoveHandler(ref Vector3 finalForce, ref Vector3 moveDir)
         {

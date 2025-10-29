@@ -13,7 +13,7 @@ namespace Topacai.Player.Movement
     public class PlayerMovement : CustomRigidbody
     {
         public delegate void BeforeWallDetect(ref Vector3 moveDir, ref Vector3 flatVel, ref RaycastHit wallHitInfo);
-        public delegate void AfterDefineAccel(ref float accelRate);
+        public delegate void AfterDefineAccel(ref Vector3 targetSpeed, ref float accelRate);
         public delegate void BeforeMove(ref Vector3 finalForce, ref Vector3 moveDir);
         public delegate void OnGroundChanged(RaycastHit groundData);
 
@@ -80,7 +80,7 @@ namespace Topacai.Player.Movement
         public float LastJumpApex { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public float InitialPlayerHeight { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public float MaxSpeed { get; protected set; }
-        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public Vector3 TargetSpeed { get; protected set; }
+        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public Vector3 TargetSpeed { get { return _targetSpeed; } protected set { _targetSpeed = value; } }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool ClimbingStair { get; protected set; }
 
         public Rigidbody Rigidbody => _rb;
@@ -92,6 +92,7 @@ namespace Topacai.Player.Movement
         public RaycastHit GroundHitData { get { return _groundHit; } }
         public PlayerBrain PlayerBrain { get { return _playerBrain; } }
 
+        protected Vector3 _targetSpeed;
         protected Vector3 _crouchPivotPos;
         protected Collider _lastGroundHit;
         protected RaycastHit _groundHit;
@@ -700,7 +701,7 @@ namespace Topacai.Player.Movement
             }
 
             // Event for movement components
-            OnMoveAfterAccel?.Invoke(ref accelRate);
+            OnMoveAfterAccel?.Invoke(ref _targetSpeed, ref accelRate);
 
             // The speed difference between the desired speed and the current speed is calculated without the Y component to avoid affect the vertical/fall speed
             Vector3 speedDif = TargetSpeed - (onSlope ? _rb.linearVelocity : flatVel);
