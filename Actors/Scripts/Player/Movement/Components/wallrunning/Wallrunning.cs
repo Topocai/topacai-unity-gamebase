@@ -118,6 +118,13 @@ namespace Topacai.Player.Movement.Components.Wallrunning
 
         float _wallTime = 0f;
 
+        protected override void OnMoveAfterAccel(ref Vector3 targetSpeed, ref float accelRate)
+        {
+            if(!_isWallRunning) return;
+
+            targetSpeed = runDirection.normalized * targetSpeed.magnitude;
+        }
+
         protected override void OnBeforeMove(ref Vector3 finalForce, ref Vector3 moveDir)
         {
             if (_autoDetect) DetectWall(ref moveDir);
@@ -130,18 +137,16 @@ namespace Topacai.Player.Movement.Components.Wallrunning
                 return;
             }
 
-            moveDir = runDirection;
-
             _wallDelayTimer = 0.5f;
 
             float fixedTime = _fallCurve.Evaluate(_wallTime / _duration);
-            float downForce = fixedTime * 8f;
+            float downForce = fixedTime * 12f;
 
             Movement.Rigidbody.AddForce(Vector3.down * downForce);
 
             _wallTime += Time.deltaTime;
 
-            if (fixedTime >= 1f)
+            if (fixedTime >= 1f || Vector3.Dot(moveDir, runDirection) < 0.5f)
             {
                 StopWallRunning();
                 return;
@@ -154,7 +159,17 @@ namespace Topacai.Player.Movement.Components.Wallrunning
                 Movement.Jump(true);
             }
 
-            //finalForce = runDirection * finalForce.magnitude;
+        }
+
+        public override void Disable()
+        {
+            base.Disable();
+            StopWallRunning();
+        }
+
+        public override bool IsUsing()
+        {
+            return _isWallRunning;
         }
 
     }
