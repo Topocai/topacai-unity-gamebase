@@ -21,6 +21,7 @@ namespace Topacai.CustomPhysics
         public static Vector3 Gravity = new Vector3(0, -9.81f, 0);
 
         public Vector3 CustomGravity => _customGravity;
+        public bool GravityOn => _gravityOn;
 
         protected Vector3 _inUseGravity = Vector3.zero;
         protected event OnApplyGravity _OnBeforeApplyGravity;
