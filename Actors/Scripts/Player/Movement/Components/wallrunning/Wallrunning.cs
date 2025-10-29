@@ -1,4 +1,3 @@
-using EditorAttributes;
 using UnityEditor.SearchService;
 using UnityEditorInternal;
 using UnityEngine;
@@ -11,11 +10,11 @@ namespace Topacai.Player.Movement.Components.Wallrunning
         [Tooltip("Enable auto detection of wall")]
         [SerializeField] private bool _autoDetect = true;
         [Tooltip("Tag to difference between runneable walls and unrunneable walls")]
-        [SerializeField, EnableField(nameof(_autoDetect))] private string _wallTag = "RunneableWall";
+        [SerializeField] private string _wallTag = "RunneableWall";
         [Tooltip("Layers to check for wall")]
-        [SerializeField, EnableField(nameof(_autoDetect))] private LayerMask _wallMask;
+        [SerializeField] private LayerMask _wallMask;
         [Tooltip("Distance to check for wall")]
-        [SerializeField, EnableField(nameof(_autoDetect))] private float _wallCheckDistance = 1f;
+        [SerializeField] private float _wallCheckDistance = 1f;
 
         [Space(10)]
         [Header("Wall Running Fall settings")]
@@ -31,7 +30,7 @@ namespace Topacai.Player.Movement.Components.Wallrunning
         [Tooltip("During wall running, acceleration rate will be multiplied by this value")]
         [SerializeField] private float _accelRateMultiplier = 2.33f;
 
-        [SerializeField, ReadOnly] private bool _isWallRunning = false;
+        [SerializeField] private bool _isWallRunning = false;
 
         /// <summary>
         /// Is the player currently running on the right side of the wall, false if on the left or not on a wall
