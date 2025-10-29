@@ -6,7 +6,8 @@
         "Topacai.Player.Movement",
         "Topacai.Player.Movement.Components",
         "Unity.InputSystem",
-        "EditorAttributes"
+        "EditorAttributes",
+        "Topacai.TDebug"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

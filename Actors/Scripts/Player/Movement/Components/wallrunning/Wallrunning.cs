@@ -2,6 +2,10 @@ using UnityEditor.SearchService;
 using UnityEditorInternal;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using Topacai.TDebug;
+#endif
+
 namespace Topacai.Player.Movement.Components.Wallrunning
 {
     public class Wallrunning : MovementComponent
@@ -24,11 +28,12 @@ namespace Topacai.Player.Movement.Components.Wallrunning
         [SerializeField] private AnimationCurve _fallCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
 
         [Space(10)]
-        [Header("Wall Running Run settings")]
+        [Header("Wall Running movement settings")]
         [Tooltip("During wall running, target speed will be multiplied by this value")]
         [SerializeField] private float _targetSpeedMultiplier = 1.5f;
         [Tooltip("During wall running, acceleration rate will be multiplied by this value")]
         [SerializeField] private float _accelRateMultiplier = 2.33f;
+        [SerializeField, Range(0, 90f)] private float _maxWallJumpAngle = 45f;
 
         [SerializeField] private bool _isWallRunning = false;
 
@@ -201,12 +206,16 @@ namespace Topacai.Player.Movement.Components.Wallrunning
                 return;
             }
 
+#if UNITY_EDITOR
+            Debugcanvas.Instance.AddTextToDebugLog("wallRunning", "", 0.1f);
+#endif
+
             Movement.UseGravity(!_isWallRunning);
 
             _wallDelayTimer = 0.5f;
 
             float fixedTime = _fallCurve.Evaluate(_wallTime / _duration);
-            float downForce = fixedTime * 15f;
+            float downForce = fixedTime * 20f;
 
             Movement.Rigidbody.AddForce(Vector3.down * downForce);
 
@@ -219,10 +228,30 @@ namespace Topacai.Player.Movement.Components.Wallrunning
             }
 
             bool wantJump = Movement.PlayerBrain.InputHandler.GetActionHandler(Inputs.ActionName.Jump).InstantPress;
+            /// Jumps adding a force to the direction of player clamped by angle with the wall
             if (wantJump)
             {
                 StopWallRunning();
                 Movement.Jump(true);
+
+                Vector3 oppositeDir = IsRightSide ? Vector3.Cross(runDirection, Vector3.up) : Vector3.Cross(Vector3.up, runDirection);
+
+                Debug.DrawRay(_wallHit.point, oppositeDir * 2f, Color.purple, 1.5f);
+
+                float dot = Vector3.Dot(oppositeDir.normalized, moveDir.normalized);
+                float angleDeg = Mathf.Acos(dot) * Mathf.Rad2Deg;
+        
+                Vector3 jumpDir = moveDir;
+
+                if (angleDeg > _maxWallJumpAngle)
+                {
+                    jumpDir = Quaternion.AngleAxis(IsRightSide ? _maxWallJumpAngle : -_maxWallJumpAngle, Vector3.up) * oppositeDir;
+                }
+
+                Debug.DrawRay(_wallHit.point, jumpDir * 3f, Color.yellow, 3f);
+                Debug.DrawRay(_wallHit.point, moveDir * 2f, Color.red, 3f);
+
+                Movement.Rigidbody.AddForce(jumpDir.normalized * Movement.FlatVel.magnitude * 0.33f, ForceMode.Impulse);
             }
 
         }
