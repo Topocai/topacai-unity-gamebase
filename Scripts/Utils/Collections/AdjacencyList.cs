@@ -13,7 +13,7 @@ namespace Topacai.Utils.Collections
         // Used for unique identification
         public string Name { get; set; } = "";
 
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
             return obj is Node other && Name == other.Name;
         }
@@ -95,7 +95,7 @@ namespace Topacai.Utils.Collections
         /// <param name="node">The node with a unique name to insert</param>
         /// <param name="connections"></param>
         /// <returns></returns>
-        public Node InsertVertex(Node node, List<Node>? connections = null)
+        public Node InsertVertex(Node node, List<Node> connections = null)
         {
             if (Matrix.ContainsKey(node))
             {

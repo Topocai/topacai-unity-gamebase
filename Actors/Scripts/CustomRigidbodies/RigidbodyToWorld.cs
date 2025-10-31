@@ -5,6 +5,9 @@ using UnityEngine;
 namespace Topacai.CustomPhysics
 {
     [RequireComponent(typeof(Rigidbody))]
+    /// <summary>
+    /// Experimental - just testing things
+    /// </summary>
     public class RigidbodyToWorld : CustomRigidbody
     {
         [SerializeField] private Transform world;
@@ -12,8 +15,9 @@ namespace Topacai.CustomPhysics
         Vector3 customWorldPosition;
         Vector3 directionToWorld;
 
-        private void Start()
+        protected override void Start()
         {
+            base.Start();
             _OnBeforeApplyGravity += CalculateNewGravity;
         }
 

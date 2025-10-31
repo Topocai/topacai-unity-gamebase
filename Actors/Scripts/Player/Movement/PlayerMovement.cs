@@ -60,6 +60,7 @@ namespace Topacai.Player.Movement
 
         [Header("Debug")]
         [SerializeField] protected bool GIZMOS = false;
+        [SerializeField] protected bool SHOW_SCREEN_LOGS = false;
         [SerializeField] protected bool ShowDebug = false;
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool IsJumping { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool IsJumpApex { get; protected set; }
@@ -80,10 +81,10 @@ namespace Topacai.Player.Movement
         public float LastJumpApex { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public float InitialPlayerHeight { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public float MaxSpeed { get; protected set; }
-        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public Vector3 TargetSpeed { get { return _targetSpeed; } protected set { _targetSpeed = value; } }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool ClimbingStair { get; protected set; }
 
         public Rigidbody Rigidbody => _rb;
+        public Vector3 TargetSpeed { get { return _targetSpeed; } protected set { _targetSpeed = value; } }
         public Vector3 FlatVel { get { return new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z); } }
         public Vector3 MoveDir { get { return _moveDir; } protected set { _moveDir = value; } }
         public Vector3 MoveDirNative { get { return GetMoveDirByCameraAndInput(); } }
@@ -380,7 +381,8 @@ namespace Topacai.Player.Movement
             if (!IsJumpPressed && CanJumpCut())
             {
 #if UNITY_EDITOR
-                Debugcanvas.Instance.AddTextToDebugLog("jumpcutting: ", "", 0.25f);
+                if (SHOW_SCREEN_LOGS)
+                    Debugcanvas.Instance.AddTextToDebugLog("jumpcutting: ", "", 0.25f);
 #endif
                 JumpCutting = true;
             }
@@ -667,6 +669,8 @@ namespace Topacai.Player.Movement
             }
             #endregion
 
+            OnMoveBeforeWall?.Invoke(ref _moveDir, ref flatVel, ref wallHitInfo);
+
             #region Acceleration And Speed
 
             // Gets the acceleration based in if the player is moving or changing direction (acceleration and desacceleration)
@@ -689,7 +693,8 @@ namespace Topacai.Player.Movement
             {
 
 #if UNITY_EDITOR
-                Debugcanvas.Instance.AddTextToDebugLog("jumping apex", " ", 0.1f);
+                if (SHOW_SCREEN_LOGS)
+                    Debugcanvas.Instance.AddTextToDebugLog("jumping apex", " ", 0.1f);
 #endif
                 TargetSpeed *= Data.JumpHandMaxSpeed;
                 accelRate *= Data.JumpHangAccelMult;
@@ -751,13 +756,16 @@ namespace Topacai.Player.Movement
 #if UNITY_EDITOR
             Debug.DrawLine(transform.position, transform.position + appliedForce.normalized * 5f, Color.yellow);
             Debug.DrawLine(transform.position, transform.position + MoveDir.normalized * 3f, Color.magenta);
-
-            Debugcanvas.Instance.AddTextToDebugLog("targetSpeed: ", TargetSpeed.ToString("0.0"));
-            Debugcanvas.Instance.AddTextToDebugLog("movedir2: ", _moveDir.ToString("0.0"));
-            Debugcanvas.Instance.AddTextToDebugLog("Conserve momentum: ", ConserveMomentum().ToString());
-            Debugcanvas.Instance.AddTextToDebugLog("Movement: ", movementForce.ToString("0.0"));
-            Debugcanvas.Instance.AddTextToDebugLog("speedDif: ", speedDif.ToString("0.0"));
-            Debugcanvas.Instance.AddTextToDebugLog("AccelRate: ", accelRate.ToString("0.0"));
+            if (SHOW_SCREEN_LOGS)
+            {
+                Debugcanvas.Instance.AddTextToDebugLog("Conserve momentum: ", ConserveMomentum().ToString(), 0.1f);
+                Debugcanvas.Instance.AddTextToDebugLog("MovementF: ", movementForce.magnitude.ToString("0.00"), 0.1f);
+                Debugcanvas.Instance.AddTextToDebugLog("FlatVel: ", FlatVel.magnitude.ToString("0.00"), 0.1f);
+                Debugcanvas.Instance.AddTextToDebugLog("targetSpeed: ", TargetSpeed.magnitude.ToString("0.00"), 0.1f);
+                Debugcanvas.Instance.AddTextToDebugLog("movedir: ", _moveDir.ToString("0.0"), 0.1f);
+                Debugcanvas.Instance.AddTextToDebugLog("speedDif: ", speedDif.magnitude.ToString("0.00"), 0.1f);
+                Debugcanvas.Instance.AddTextToDebugLog("AccelRate: ", accelRate.ToString("0.0"), 0.1f);
+            }
 #endif
         }
         #endregion
