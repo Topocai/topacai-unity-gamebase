@@ -33,14 +33,14 @@ namespace Topacai.Inputs
     public class SimpleActionHandler : IComparable
     {
         private InputAction _action;
-
+        public InputAction Action => _action;
         public string Name => _action.name;
 
         public bool IsPressing { get; private set; }
         public bool IsPressed { get; private set; }
         public bool InstantPress { get; private set; }
 
-        public bool All => IsPressing || IsPressed || InstantPress;
+        public bool All { get; private set; }
 
         public float PressThreshold { get; private set; }
 
@@ -60,6 +60,8 @@ namespace Topacai.Inputs
             if(!_isActive) return;
 
             InstantPress = _action.WasPressedThisFrame();
+
+            All = _action.IsPressed();
 
             if (_action.IsPressed())
             {
