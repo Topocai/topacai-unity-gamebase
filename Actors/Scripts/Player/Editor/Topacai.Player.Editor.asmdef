@@ -1,0 +1,16 @@
+{
+    "name": "TopacaTopacai.Player.Editor",
+    "rootNamespace": "Topacai.Player.Editor",
+    "references": [
+        "Topacai"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
