@@ -1,13 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using Topacai.Utils.PersistentData;
-using UnityEditor;
+
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
+#if UNITY_EDITOR
+
+using UnityEditor;
+using System.IO;
+using Topacai.Utils.Files;
+
+#endif
+
 namespace Topacai.Utils.SaveSystem
 {
+    [ExecuteAlways]
     public static class SaveSystemClass
     {
         public static event EventHandler OnSaveGameEvent;
@@ -62,6 +72,51 @@ namespace Topacai.Utils.SaveSystem
         }
 
         public static void SetProfile(int index) => SetProfile(_profiles[index % _profiles.Count]);
+
+#if UNITY_EDITOR
+        /// 
+        /// This code block makes sure that the selected profile persists between playmode, editmode and after recompilation
+        /// 
+
+        static SaveSystemClass()
+        {
+            EditorApplication.playModeStateChanged += OnStateModeChanged;
+            AssemblyReloadEvents.beforeAssemblyReload += SaveLastProfile;
+            AssemblyReloadEvents.afterAssemblyReload += LoadLastProfile;
+        }
+
+        [InitializeOnLoadMethod]
+        private static void RegisterStateModeChanged() => EditorApplication.playModeStateChanged += OnStateModeChanged;
+
+        private static void SaveLastProfile()
+        {
+            if (_currentProfile.ID != null)
+                FileManager.WriteFile(SavePath, "last_used_profile.sp", _currentProfile.ID);
+        }
+
+        private static void LoadLastProfile()
+        {
+            var lastProfile = File.Exists($"{SavePath}/last_used_profile.sp") ? File.ReadAllText($"{SavePath}/last_used_profile.sp") : "";
+            if (lastProfile != "")
+                SetProfile(_profiles.Find(x => x.ID == lastProfile));
+        }
+
+
+        private static void OnStateModeChanged(PlayModeStateChange playModeState)
+        {
+            switch(playModeState)
+            {
+                case PlayModeStateChange.EnteredEditMode:
+                case PlayModeStateChange.EnteredPlayMode:
+                    LoadLastProfile();
+                    break;
+                case PlayModeStateChange.ExitingEditMode:
+                case PlayModeStateChange.ExitingPlayMode:
+                    SaveLastProfile();
+                    break;
+            }
+        }
+#endif
 
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]
