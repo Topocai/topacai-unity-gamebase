@@ -1,5 +1,3 @@
-using UnityEditor.SearchService;
-using UnityEditorInternal;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -121,7 +119,7 @@ namespace Topacai.Player.Movement.Components.Wallrunning
                 Debug.DrawRay(Movement.Rigidbody.transform.position, crossRight.normalized * _wallCheckDistance, isHittingWall ? Color.red : Color.green);
             }
 #else
-             CheckWall(Vector3.Cross(Vector3.up, moveDir), out wallHit);
+             CheckWall(Vector3.Cross(Vector3.up, moveDir), out isHittingWall);
 #endif
 
             // Makes sure to not use the previous wall
