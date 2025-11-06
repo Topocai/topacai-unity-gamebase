@@ -54,8 +54,12 @@ namespace Topacai.Player.Movement
         [Header("Movement")]
         [Tooltip("How fast player will reach the max speed")]
         public float Acceleration = 6.6f;
-        [Tooltip("How fast player will stops and change direction")]
+        [Tooltip("How fast player will change direction or stop if StopAndDesaccel is true")]
         public float Deceleration = 8.9f;
+        [Tooltip("If this is true, the desacceleration will be applied when player stops or changing direction")]
+        public bool StopAndDesaccel = true;
+        [Tooltip("If StopAndDesaccel is disabled, this value will be used as desacceleration when player is not moving")]
+        [DisableField(nameof(StopAndDesaccel))] public float StopDesaccel = 8.9f;
 
         public float WalkSpeed = 4;
         public float RunSpeed = 8;
@@ -122,7 +126,12 @@ namespace Topacai.Player.Movement
 
         public float[] CalculateDynamicValues(float maxSpeed)
         {
-            return new float[] { Mathf.Clamp((50 * Acceleration) / maxSpeed, 0.01f, Acceleration), Mathf.Clamp((50 * Deceleration) / maxSpeed, 0.01f, Deceleration) };
+            return new float[] 
+            { 
+                Mathf.Clamp((50 * Acceleration) / maxSpeed, 0.01f, Acceleration),
+                Mathf.Clamp((50 * Deceleration) / maxSpeed, 0.01f, Deceleration),
+                Mathf.Clamp((50 * StopDesaccel) / maxSpeed, 0.01f, StopDesaccel)
+            };
         }
 
         public float[] CalculateJumpForce(float height, float timeToApex, float gravityY)

@@ -104,6 +104,7 @@ namespace Topacai.Player.Movement
 
         protected float _accelerationAmount;
         protected float _decelerationAmount;
+        protected float _stopDesaccelAmount;
         protected float _dynamicGravityScale = 1f;
         protected float _jumpForce;
 
@@ -594,6 +595,7 @@ namespace Topacai.Player.Movement
             var dynamicValues = Data.CalculateDynamicValues(MaxSpeed);
             _accelerationAmount = dynamicValues[0];
             _decelerationAmount = dynamicValues[1];
+            _stopDesaccelAmount = dynamicValues[2];
 
             #region Vectores
 
@@ -681,7 +683,13 @@ namespace Topacai.Player.Movement
             float accelRate;
             bool desaccel = Vector3.Dot(flatVel.normalized, _moveDir) < -0.75f || TargetSpeed.magnitude == 0f;
 
-            accelRate = desaccel ? _decelerationAmount : _accelerationAmount;
+            accelRate = desaccel ? 
+                (
+                    Data.StopAndDesaccel ? 
+                    _decelerationAmount : TargetSpeed.magnitude == 0f ? 
+                    _stopDesaccelAmount : _decelerationAmount
+                ) : 
+                _accelerationAmount;
 
             if (!_InGround && Data.AirMovement)
             {
