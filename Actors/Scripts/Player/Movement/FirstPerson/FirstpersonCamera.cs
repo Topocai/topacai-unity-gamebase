@@ -9,16 +9,16 @@ namespace Topacai.Player.Movement.Firstperson.Camera
     {
         [SerializeField] private PlayerBrain _playerBrain;
 
-        public Vector3 CameraDir;
-        public Vector3 CameraDirFlat;
+        [HideInInspector] public Vector3 CameraDir;
+        [HideInInspector] public Vector3 CameraDirFlat;
         public Transform CameraTransform => _playerBrain.PlayerReferences.FirstPersonConfig.FP_Camera;
         private Transform PlayerOrientation => _playerBrain.PlayerReferences.PlayerOrientation;
         private Transform CameraHolder => _playerBrain.PlayerReferences.FirstPersonConfig.FP_CameraHolder;
         private (float, float) Sensivity => _playerBrain.PlayerConfig.GetSensivity(_playerBrain.InputHandler.CurrentDevice);
         private Vector2 _input => _playerBrain.InputHandler.CameraDir;
 
-        private float _cameraX;
-        private float _cameraY;
+        private float _cameraX = 0;
+        private float _cameraY = 0;
         private float _lastFrame;
 
         private float _sensMultiplier = 1f;
@@ -89,6 +89,16 @@ namespace Topacai.Player.Movement.Firstperson.Camera
             // Avoid movement variation between frames, framerate and time scale
             float deltaTime = Time.unscaledDeltaTime;
             float timeRatio = _lastFrame / deltaTime;
+
+#if UNITY_EDITOR
+            // When we use the frame debugger for some reason this values turns into
+            // NaN values
+            if (float.IsNaN(_cameraX) || float.IsNaN(_cameraY))
+            {
+                _cameraX = 0;
+                _cameraY = 0;
+            }
+#endif
 
             _cameraX += _input.x * Sensivity.Item1 * timeRatio * _sensMultiplier;
             _cameraY -= _input.y * Sensivity.Item2 * timeRatio * _sensMultiplier;
