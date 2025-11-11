@@ -762,7 +762,8 @@ namespace Topacai.Player.Movement
             }
 
 #if UNITY_EDITOR
-            Debug.DrawLine(transform.position, transform.position + appliedForce.normalized * 5f, Color.yellow);
+            Debug.DrawLine(transform.position, transform.position + FlatVel.normalized * 5f, Color.orangeRed);
+            Debug.DrawLine(transform.position, transform.position + appliedForce.normalized * 4f, Color.yellow);
             Debug.DrawLine(transform.position, transform.position + MoveDir.normalized * 3f, Color.magenta);
             if (SHOW_SCREEN_LOGS)
             {
