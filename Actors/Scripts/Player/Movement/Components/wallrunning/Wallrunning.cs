@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections;
+
 
 #if UNITY_EDITOR
 using Topacai.TDebug;
@@ -17,6 +19,8 @@ namespace Topacai.Player.Movement.Components.Wallrunning
         [SerializeField] private LayerMask _wallMask;
         [Tooltip("Distance to check for wall")]
         [SerializeField] private float _wallCheckDistance = 1f;
+        [Tooltip("Minimum distance to ground to attach on wall")]
+        [SerializeField] private float _distanceToGround = 1.5f;
 
         [Space(10)]
         [Header("Wall Running Fall settings")]
@@ -32,6 +36,15 @@ namespace Topacai.Player.Movement.Components.Wallrunning
         [Tooltip("During wall running, acceleration rate will be multiplied by this value")]
         [SerializeField] private float _accelRateMultiplier = 2.33f;
         [SerializeField, Range(0, 90f)] private float _maxWallJumpAngle = 45f;
+        [Tooltip("Stick distance to wall while wall running (how far to wall the player will be)")]
+        [SerializeField] private float _stickDistance = 1f;
+
+#if UNITY_EDITOR
+        [Space(10)]
+        [Header("Debug")]
+        [SerializeField] private bool SHOW_LOGS = false;
+        [SerializeField] private bool SHOW_GIZMOS = false;
+#endif
 
         [SerializeField] private bool _isWallRunning = false;
 
@@ -102,25 +115,48 @@ namespace Topacai.Player.Movement.Components.Wallrunning
                 return;
             }
 
-            // Checks for left and then for right side
-            var crossLeft = Vector3.Cross(moveDir, Vector3.up);
-            bool isHittingWall = CheckWall(crossLeft);
-
-            _isRightSide = !isHittingWall;
+            // Checks for left and then for right side - only when player is not on ground
+            bool isHittingWall = false;
+            bool rightSide = false;
+            if (Movement.LastGroundTime < 0)
+            {
+                bool groundDistance = Physics.Raycast(transform.position, Vector3.down, _distanceToGround, Movement.DataAsset.GroundLayer);
 #if UNITY_EDITOR
-            Debug.DrawRay(Movement.Rigidbody.transform.position, crossLeft.normalized * _wallCheckDistance, isHittingWall ? Color.red : Color.green);
+                if (SHOW_GIZMOS)
+                    Debug.DrawRay(transform.position, Vector3.down * _distanceToGround, groundDistance ? Color.red : Color.green);
 #endif
 
-            if (!isHittingWall)
+                if (groundDistance)
+                {
+                    if (_isWallRunning)
+                    {
+                        StopWallRunning();
+                    }
+                    return;
+                }
+
+                var crossLeft = Vector3.Cross(moveDir, Vector3.up);
+                isHittingWall = CheckWall(crossLeft);
+
+                rightSide = !isHittingWall;
 #if UNITY_EDITOR
-            {
-                var crossRight = Vector3.Cross(Vector3.up, moveDir);
-                isHittingWall = CheckWall(crossRight);
-                Debug.DrawRay(Movement.Rigidbody.transform.position, crossRight.normalized * _wallCheckDistance, isHittingWall ? Color.red : Color.green);
-            }
+                if (SHOW_GIZMOS)
+                    Debug.DrawRay(Movement.Rigidbody.transform.position, crossLeft.normalized * _wallCheckDistance, isHittingWall ? Color.red : Color.green);
+#endif
+
+                if (!isHittingWall)
+#if UNITY_EDITOR
+                {
+                    var crossRight = Vector3.Cross(Vector3.up, moveDir);
+                    isHittingWall = CheckWall(crossRight);
+                    if (SHOW_GIZMOS)
+                        Debug.DrawRay(Movement.Rigidbody.transform.position, crossRight.normalized * _wallCheckDistance, isHittingWall ? Color.red : Color.green);
+                }
 #else
              CheckWall(Vector3.Cross(Vector3.up, moveDir), out isHittingWall);
 #endif
+            }
+
 
             // Makes sure to not use the previous wall
             if (!_isWallRunning && _wallHit.collider == _lastWallWalked)
@@ -144,10 +180,11 @@ namespace Topacai.Player.Movement.Components.Wallrunning
             {
                 Vector3 playerWallRunDir = Vector3.ProjectOnPlane(moveDir, _wallHit.normal);
 #if UNITY_EDITOR
-                Debug.DrawRay(_wallHit.transform.position, playerWallRunDir.normalized, Color.blue, 1f);
+                if (SHOW_GIZMOS)
+                    Debug.DrawRay(_wallHit.transform.position, playerWallRunDir.normalized, Color.blue, 1f);
 #endif
-
-                StartWallRunning(playerWallRunDir, _duration);
+                
+                StartWallRunning(playerWallRunDir, _duration, rightSide);
             }
 
         }
@@ -165,6 +202,8 @@ namespace Topacai.Player.Movement.Components.Wallrunning
             _duration = duration;
             _isRightSide = rightSide;
             runDirection = dir;
+
+            Movement.Rigidbody.linearVelocity = dir.normalized * Mathf.Clamp(Movement.FlatVel.magnitude, 0, Movement.MaxSpeed * _targetSpeedMultiplier);
         }
 
         /// <summary>
@@ -198,14 +237,29 @@ namespace Topacai.Player.Movement.Components.Wallrunning
 
             if (_autoDetect && !inConflict) DetectWall(ref moveDir);   
 
-            if (!_isWallRunning || inConflict)
+            if (!_isWallRunning || inConflict || Movement.LastGroundTime >= 0)
             {
                 StopWallRunning();
                 return;
             }
 
+            /// Keep the player at a fixed distance from the wall
+            /// defined by _stickDistance
+            float distanceToWall = (_wallHit.point - Movement.transform.position).magnitude;
+            if (distanceToWall > _stickDistance)
+            {
+                Vector3 toWallDir = !IsRightSide ? Vector3.Cross(runDirection, Vector3.up) : Vector3.Cross(Vector3.up, runDirection);
+                Movement.Rigidbody.position = Vector3.Lerp(Movement.Rigidbody.position, Movement.Rigidbody.position + toWallDir.normalized * _stickDistance, 0.01f);
 #if UNITY_EDITOR
-            Debugcanvas.Instance.AddTextToDebugLog("wallRunning", "", 0.1f);
+                if(SHOW_LOGS)
+                    Debugcanvas.Instance.AddTextToDebugLog("wall closing", "", 0.1f);
+#endif
+            }
+
+
+#if UNITY_EDITOR
+            if (SHOW_LOGS)
+                Debugcanvas.Instance.AddTextToDebugLog("wallRunning", _isRightSide ? "Right" : "Left", 0.1f);
 #endif
 
             Movement.UseGravity(!_isWallRunning);
@@ -213,7 +267,7 @@ namespace Topacai.Player.Movement.Components.Wallrunning
             _wallDelayTimer = 0.5f;
 
             float fixedTime = _fallCurve.Evaluate(_wallTime / _duration);
-            float downForce = fixedTime * 20f;
+            float downForce = fixedTime * 5f;
 
             Movement.Rigidbody.AddForce(Vector3.down * downForce);
 
@@ -238,7 +292,7 @@ namespace Topacai.Player.Movement.Components.Wallrunning
 
                 float dot = Vector3.Dot(oppositeDir.normalized, moveDir.normalized);
                 float angleDeg = Mathf.Acos(dot) * Mathf.Rad2Deg;
-        
+
                 Vector3 jumpDir = moveDir;
 
                 if (angleDeg > _maxWallJumpAngle)
@@ -246,9 +300,13 @@ namespace Topacai.Player.Movement.Components.Wallrunning
                     jumpDir = Quaternion.AngleAxis(IsRightSide ? _maxWallJumpAngle : -_maxWallJumpAngle, Vector3.up) * oppositeDir;
                 }
 
-                Debug.DrawRay(_wallHit.point, jumpDir * 3f, Color.yellow, 3f);
-                Debug.DrawRay(_wallHit.point, moveDir * 2f, Color.red, 3f);
-
+#if UNITY_EDITOR
+                if (SHOW_GIZMOS)
+                {
+                    Debug.DrawRay(_wallHit.point, jumpDir * 3f, Color.yellow, 3f);
+                    Debug.DrawRay(_wallHit.point, moveDir * 2f, Color.red, 3f);
+                }                    
+#endif
                 Movement.Rigidbody.AddForce(jumpDir.normalized * Movement.FlatVel.magnitude * 0.33f, ForceMode.Impulse);
             }
 
