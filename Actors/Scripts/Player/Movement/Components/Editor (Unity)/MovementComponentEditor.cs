@@ -188,9 +188,18 @@ namespace Topacai.Player.Movement.Components.Editor
                     _currentStateFlags[name] = newValue;
                 }
 
-                // Apply changes if any toggles changed
+                // Apply changes if any toggles changed serializing it
                 var selectedStates = _currentStateFlags.Where(x => x.Value).Select(x => x.Key).ToArray();
-                mComponent.SetIncompatibleStates(selectedStates);
+                SerializedProperty incompatibleStatesProp = serializedObject.FindProperty("_incompatibleStates");
+
+                incompatibleStatesProp.ClearArray();
+                for (int i = 0; i < selectedStates.Length; i++)
+                {
+                    incompatibleStatesProp.InsertArrayElementAtIndex(i);
+                    incompatibleStatesProp.GetArrayElementAtIndex(i).stringValue = selectedStates[i];
+                }
+
+                serializedObject.ApplyModifiedProperties();
 
                 EditorGUI.indentLevel--;
             }
