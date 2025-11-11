@@ -186,6 +186,10 @@ namespace Topacai.Player.Movement.Components.Wallrunning
                 
                 StartWallRunning(playerWallRunDir, _duration, rightSide);
             }
+            else if (!isHittingWall && _isWallRunning)
+            {
+                StopWallRunning();
+            }
 
         }
 
