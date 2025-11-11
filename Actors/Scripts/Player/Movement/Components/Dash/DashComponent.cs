@@ -45,6 +45,9 @@ namespace Topacai.Player.Movement.Components
         {
             LastDashUsage -= Time.deltaTime;
 
+            if (InConflict(_incompatibleStates))
+                SetDashing(false);
+
             if (IsDashing)
             {
                 Vector3 velToComprobate = _movement.FlatVel;
