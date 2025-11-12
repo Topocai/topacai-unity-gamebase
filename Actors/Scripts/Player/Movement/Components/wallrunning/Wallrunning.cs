@@ -35,6 +35,8 @@ namespace Topacai.Player.Movement.Components.Wallrunning
         [SerializeField] private float _targetSpeedMultiplier = 1.5f;
         [Tooltip("During wall running, acceleration rate will be multiplied by this value")]
         [SerializeField] private float _accelRateMultiplier = 2.33f;
+        [Tooltip("Buffer time before player is considered on a wall and still could jump")]
+        [SerializeField, Range(0, 1f)] private float _coyoteJumpTime = 0.15f;
         [SerializeField, Range(0, 90f)] private float _maxWallJumpAngle = 45f;
         [Tooltip("Stick distance to wall while wall running (how far to wall the player will be)")]
         [SerializeField] private float _stickDistance = 1f;
@@ -73,9 +75,48 @@ namespace Topacai.Player.Movement.Components.Wallrunning
         private Collider _lastWallWalked = null;
         private Vector3 runDirection = Vector3.zero;
 
+        private float _lastTimeOnWall = 0f;
+
         private void Update()
         {
             _wallDelayTimer -= Time.deltaTime;
+            if (!_isWallRunning) _lastTimeOnWall -= Time.deltaTime;
+
+#if UNITY_EDITOR
+            if (_lastTimeOnWall >= 0 && SHOW_LOGS)
+                Debugcanvas.Instance.AddTextToDebugLog("wallrunning", $"jump {_lastTimeOnWall.ToString("0.00")}", 0.05f);
+#endif
+
+            bool wantJump = Movement.PlayerBrain.InputHandler.GetActionHandler(Inputs.ActionName.Jump).InstantPress;
+            /// Jumps adding a force to the direction of player clamped by angle with the wall
+            if (wantJump && _lastTimeOnWall >= 0 && Movement.LastGroundTime < 0)
+            {
+                StopWallRunning(0f);
+                Movement.Jump(true);
+
+                Vector3 oppositeDir = IsRightSide ? Vector3.Cross(runDirection, Vector3.up) : Vector3.Cross(Vector3.up, runDirection);
+
+                Debug.DrawRay(_wallHit.point, oppositeDir * 2f, Color.purple, 1.5f);
+
+                float dot = Vector3.Dot(oppositeDir.normalized, Movement.MoveDir.normalized);
+                float angleDeg = Mathf.Acos(dot) * Mathf.Rad2Deg;
+
+                Vector3 jumpDir = Movement.MoveDir;
+
+                if (angleDeg > _maxWallJumpAngle)
+                {
+                    jumpDir = Quaternion.AngleAxis(IsRightSide ? _maxWallJumpAngle : -_maxWallJumpAngle, Vector3.up) * oppositeDir;
+                }
+
+#if UNITY_EDITOR
+                if (SHOW_GIZMOS)
+                {
+                    Debug.DrawRay(_wallHit.point, jumpDir * 3f, Color.yellow, 3f);
+                    Debug.DrawRay(_wallHit.point, Movement.MoveDir * 2f, Color.red, 3f);
+                }
+#endif
+                Movement.Rigidbody.AddForce(jumpDir.normalized * Movement.FlatVel.magnitude * 0.33f, ForceMode.Impulse);
+            }
         }
 
         private bool CheckWall(Vector3 dir)
@@ -130,7 +171,7 @@ namespace Topacai.Player.Movement.Components.Wallrunning
                 {
                     if (_isWallRunning)
                     {
-                        StopWallRunning();
+                        StopWallRunning(-1f);
                     }
                     return;
                 }
@@ -188,7 +229,7 @@ namespace Topacai.Player.Movement.Components.Wallrunning
             }
             else if (!isHittingWall && _isWallRunning)
             {
-                StopWallRunning();
+                StopWallRunning(_coyoteJumpTime);
             }
 
         }
@@ -207,15 +248,20 @@ namespace Topacai.Player.Movement.Components.Wallrunning
             _isRightSide = rightSide;
             runDirection = dir;
 
+            _lastTimeOnWall = 0f;
+
             Movement.Rigidbody.linearVelocity = dir.normalized * Mathf.Clamp(Movement.FlatVel.magnitude, 0, Movement.MaxSpeed * _targetSpeedMultiplier);
         }
 
         /// <summary>
         /// Stops the wall running
         /// </summary>
-        public void StopWallRunning()
+        public void StopWallRunning(float lastTimeBuffer = 0f)
         {
+            if (!_isWallRunning) return;
+
             _wallTime = 0;
+            _lastTimeOnWall = lastTimeBuffer;
             Movement.UseGravity(Movement.GravityOn && true);
             _isWallRunning = false;
         }
@@ -239,7 +285,7 @@ namespace Topacai.Player.Movement.Components.Wallrunning
         {
             bool inConflict = InConflict(_incompatibleStates);
 
-            if (_autoDetect && !inConflict) DetectWall(ref moveDir);   
+            if (_autoDetect && !inConflict) DetectWall(ref moveDir);
 
             if (!_isWallRunning || inConflict || Movement.LastGroundTime >= 0)
             {
@@ -282,38 +328,6 @@ namespace Topacai.Player.Movement.Components.Wallrunning
                 StopWallRunning();
                 return;
             }
-
-            bool wantJump = Movement.PlayerBrain.InputHandler.GetActionHandler(Inputs.ActionName.Jump).InstantPress;
-            /// Jumps adding a force to the direction of player clamped by angle with the wall
-            if (wantJump)
-            {
-                StopWallRunning();
-                Movement.Jump(true);
-
-                Vector3 oppositeDir = IsRightSide ? Vector3.Cross(runDirection, Vector3.up) : Vector3.Cross(Vector3.up, runDirection);
-
-                Debug.DrawRay(_wallHit.point, oppositeDir * 2f, Color.purple, 1.5f);
-
-                float dot = Vector3.Dot(oppositeDir.normalized, moveDir.normalized);
-                float angleDeg = Mathf.Acos(dot) * Mathf.Rad2Deg;
-
-                Vector3 jumpDir = moveDir;
-
-                if (angleDeg > _maxWallJumpAngle)
-                {
-                    jumpDir = Quaternion.AngleAxis(IsRightSide ? _maxWallJumpAngle : -_maxWallJumpAngle, Vector3.up) * oppositeDir;
-                }
-
-#if UNITY_EDITOR
-                if (SHOW_GIZMOS)
-                {
-                    Debug.DrawRay(_wallHit.point, jumpDir * 3f, Color.yellow, 3f);
-                    Debug.DrawRay(_wallHit.point, moveDir * 2f, Color.red, 3f);
-                }                    
-#endif
-                Movement.Rigidbody.AddForce(jumpDir.normalized * Movement.FlatVel.magnitude * 0.33f, ForceMode.Impulse);
-            }
-
         }
 
         public override void Disable()
