@@ -191,7 +191,7 @@ namespace Topacai.Inputs
 
         [SerializeField] private float pressingThreshold = 0.099f;
 
-        private void Start()
+        private void Awake()
         {
             if (PlayerInput == null)
                 PlayerInput = GetComponent<PlayerInput>();
