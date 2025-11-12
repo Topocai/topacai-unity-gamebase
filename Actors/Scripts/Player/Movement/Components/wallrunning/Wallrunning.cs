@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-
+using UnityEngine.Events;
 
 #if UNITY_EDITOR
 using Topacai.TDebug;
@@ -8,8 +8,12 @@ using Topacai.TDebug;
 
 namespace Topacai.Player.Movement.Components.Wallrunning
 {
+    public class OnWallRunEventArgs : System.EventArgs { public Wallrunning Component; public bool Starting; public bool Jump; }
+
     public class Wallrunning : MovementComponent
     {
+        public UnityEvent<OnWallRunEventArgs> OnWallRunAction = new();
+
         [Header("Wall Running wall detection")]
         [Tooltip("Enable auto detection of wall")]
         [SerializeField] private bool _autoDetect = true;
@@ -116,6 +120,13 @@ namespace Topacai.Player.Movement.Components.Wallrunning
                 }
 #endif
                 Movement.Rigidbody.AddForce(jumpDir.normalized * Movement.FlatVel.magnitude * 0.33f, ForceMode.Impulse);
+
+                OnWallRunAction?.Invoke(new OnWallRunEventArgs()
+                {
+                    Component = this,
+                    Starting = false,
+                    Jump = true
+                });
             }
         }
 
@@ -251,6 +262,13 @@ namespace Topacai.Player.Movement.Components.Wallrunning
             _lastTimeOnWall = 0f;
 
             Movement.Rigidbody.linearVelocity = dir.normalized * Mathf.Clamp(Movement.FlatVel.magnitude, 0, Movement.MaxSpeed * _targetSpeedMultiplier);
+
+            OnWallRunAction?.Invoke(new OnWallRunEventArgs()
+            {
+                Component = this,
+                Starting = true,
+                Jump = false
+            });
         }
 
         /// <summary>
@@ -264,6 +282,13 @@ namespace Topacai.Player.Movement.Components.Wallrunning
             _lastTimeOnWall = lastTimeBuffer;
             Movement.UseGravity(Movement.GravityOn && true);
             _isWallRunning = false;
+
+            OnWallRunAction?.Invoke(new OnWallRunEventArgs()
+            {
+                Component = this,
+                Starting = false,
+                Jump = false
+            });
         }
 
         protected override void OnMoveAfterAccel(ref Vector3 targetSpeed, ref float accelRate)
