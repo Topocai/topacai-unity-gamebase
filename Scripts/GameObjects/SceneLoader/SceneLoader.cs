@@ -46,6 +46,25 @@ namespace Topacai.Static.GameObjects.Scenes
         private PlayerBrain _Player => PlayerBrain.SINGLEPLAYER_MODE ? PlayerBrain.SP_Player : _player;
         public void SetPlayerBrain(PlayerBrain player) => _player = player;
 
+        private bool _inRange = false;
+
+#if UNITY_EDITOR
+
+        private Color _rangeColor = Color.blue;
+
+        private void SwitchRangeColor()
+        {
+            _rangeColor = _rangeColor == Color.red ? Color.blue : Color.red;
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = _rangeColor;
+            if (activationType == ActivationType.Range)
+                Gizmos.DrawWireSphere(transform.position, activationRange);
+        }
+#endif
+
         private void Awake()
         {
             SceneManager.sceneLoaded += OnMainSceneLoaded;
@@ -109,16 +128,32 @@ namespace Topacai.Static.GameObjects.Scenes
         {
             if (_Player == null || activationType != ActivationType.Range) return;
 
+            float distance = Vector3.Distance(_Player.transform.position, transform.position);
 
-            if (Vector3.Distance(_Player.transform.position, transform.position) < activationRange)
+
+            if (distance < activationRange && !_inRange)
             {
                 if (_switchGroupsFlag) SwitchGroups(true);
                 else EnableGroup(scenes_A);
+
+                _inRange = true;
+
+#if UNITY_EDITOR
+                SwitchRangeColor();
+                Invoke(nameof(SwitchRangeColor), 0.5f);
+#endif
             }
-            else
+            else if (distance > activationRange && _inRange)
             {
                 if (_switchGroupsFlag) SwitchGroups(false);
                 else DisableGroup(scenes_A);
+
+                _inRange = false;
+
+#if UNITY_EDITOR
+                SwitchRangeColor();
+                Invoke(nameof(SwitchRangeColor), 0.5f);
+#endif
             }
         }
 
