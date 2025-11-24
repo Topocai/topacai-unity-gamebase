@@ -1,8 +1,5 @@
-using EditorAttributes;
-
 using System;
 using System.Collections;
-using System.Collections.Generic;
 
 using Topacai.Utils.GameObjects;
 
@@ -10,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
-namespace Topacai.Managers.GameManager
+namespace Topacai.Managers
 {
     public partial class GameManager : Singleton<GameManager>
     {
@@ -32,17 +29,6 @@ namespace Topacai.Managers.GameManager
 
         public static UnityEvent<object, OnSceneArgs> OnUnloadingScene = new();
         public static UnityEvent<OnSceneArgs> OnSceneUnloaded = new();
-
-#if UNITY_EDITOR
-        public void DebugLog(string message) => Debug.Log(message);
-        public void ShowLogOnScreen(object sender, string msg, float duration= 0.1f) => Topacai.TDebug.Debugcanvas.Instance.AddTextToDebugLog(sender!=null ? $"{sender.ToString()}" : "GM Log", msg, duration);
-#endif
-
-        private void Start()
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
 
         private IEnumerator WaitForSceneLoad(string sceneName, AsyncOperation op, Action<string, OnSceneArgs> action, OnSceneArgs args = null)
         {
@@ -158,4 +144,3 @@ namespace Topacai.Managers.GameManager
         }
     }
 }
-
