@@ -1,0 +1,144 @@
+using EditorAttributes;
+using Topacai.Managers;
+using Topacai.Player;
+using Unity.VisualScripting;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+namespace Topacai.Static.GameObjects.Scenes
+{
+    public class SceneLoader : MonoBehaviour
+    {
+        private enum ActivationType
+        {
+            Range,
+            Collision,
+            OnLoadMainScene
+        }
+
+        [Header("Main Config")]
+#if UNITY_EDITOR
+        [SceneName]
+#endif
+        [SerializeField, EnableField(nameof(activationType), ActivationType.OnLoadMainScene)] private string _mainScene;
+#if UNITY_EDITOR
+        [SceneName]
+#endif
+        [SerializeField] private string[] scenes_A;
+#if UNITY_EDITOR
+        [SceneName]
+#endif
+        [SerializeField, EnableField(nameof(_switchGroupsFlag))] private string[] scenes_B;
+        [Space(2)]
+        [SerializeField] private ActivationType activationType;
+        [SerializeField] private bool _switchGroupsFlag;
+        [Space(5)]
+        [SerializeField] private PlayerBrain _player;
+
+        [Header("Collision - gates config")]
+        [SerializeField, EnableField(nameof(activationType), ActivationType.Collision)] private SceneLoaderGate _enterGate;
+        [SerializeField, EnableField(nameof(activationType), ActivationType.Collision)] private SceneLoaderGate _exitGate;
+
+        [Header("Range config")]
+        [SerializeField, EnableField(nameof(activationType), ActivationType.Range)] private float activationRange = 10f;
+        
+        private PlayerBrain _Player => PlayerBrain.SINGLEPLAYER_MODE ? PlayerBrain.SP_Player : _player;
+        public void SetPlayerBrain(PlayerBrain player) => _player = player;
+
+        private void Awake()
+        {
+            SceneManager.sceneLoaded += OnMainSceneLoaded;
+            SceneManager.sceneUnloaded += OnMainSceneUnloaded;
+
+            _enterGate?.OnPlayerEnter.AddListener(OnPlayerEnterGate);
+            _exitGate?.OnPlayerEnter.AddListener(OnPlayerExitGate);
+        }
+
+        private void EnableGroup(string[] scenes)
+        {
+            if (scenes.Length == 0) return;
+
+            GameManager.Instance.LoadSetOfScenes(this, scenes);
+        }
+
+        private void DisableGroup(string[] scenes)
+        {
+            if (scenes.Length == 0) return;
+
+            GameManager.Instance.UnloadSetOfScenes(this, scenes);
+        }
+
+        private void SwitchGroups(bool groupA)
+        {
+            if (groupA)
+            {
+                EnableGroup(scenes_A);
+                DisableGroup(scenes_B);
+            }
+            else
+            {
+                EnableGroup(scenes_B);
+                DisableGroup(scenes_A);
+            }
+        }
+
+        private void OnMainSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            if (activationType != ActivationType.OnLoadMainScene) return;
+            if (scene.name != _mainScene) return;
+
+            if (_switchGroupsFlag)
+                SwitchGroups(true);
+            else
+                EnableGroup(scenes_A);
+        }
+
+        private void OnMainSceneUnloaded(Scene scene)
+        {
+            if (activationType != ActivationType.OnLoadMainScene) return;
+            if (scene.name != _mainScene) return;
+
+            if (_switchGroupsFlag)
+                SwitchGroups(false);
+            else
+                DisableGroup(scenes_A);
+        }
+
+        private void Update()
+        {
+            if (_Player == null || activationType != ActivationType.Range) return;
+
+
+            if (Vector3.Distance(_Player.transform.position, transform.position) < activationRange)
+            {
+                if (_switchGroupsFlag) SwitchGroups(true);
+                else EnableGroup(scenes_A);
+            }
+            else
+            {
+                if (_switchGroupsFlag) SwitchGroups(false);
+                else DisableGroup(scenes_A);
+            }
+        }
+
+        private void OnPlayerEnterGate(Collider other)
+        {
+            if (activationType == ActivationType.Collision)
+            {
+                if (_switchGroupsFlag) SwitchGroups(true);
+                else EnableGroup(scenes_A);
+            }
+        }
+
+        private void OnPlayerExitGate(Collider other)
+        {
+            if (activationType == ActivationType.Collision)
+            {
+                if (_switchGroupsFlag) SwitchGroups(false);
+                else DisableGroup(scenes_A);
+            }
+        }
+    }
+}
+
