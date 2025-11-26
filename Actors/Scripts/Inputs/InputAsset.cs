@@ -237,11 +237,11 @@ namespace Topacai.Inputs
                 },
                 {
                     ""name"": """",
-                    ""id"": ""16a626e2-1600-4875-b895-2477a3d8a0c9"",
-                    ""path"": ""<Keyboard>/escape"",
+                    ""id"": ""7c83f181-1372-4ec0-b58b-8fe6af31663d"",
+                    ""path"": ""<Keyboard>/p"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""GenericPCScheme"",
+                    ""groups"": """",
                     ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false

@@ -167,8 +167,6 @@ namespace Topacai.Inputs
         [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool CrouchPressed;
         [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool InstantCrouch;
 
-        public static bool PausePressed;
-
         #region Instance - Multiplayer fields 
 
         [HideInInspector] public OnSchemeChangedEvent OnSchemeChanged = new OnSchemeChangedEvent();
@@ -187,7 +185,7 @@ namespace Topacai.Inputs
 
         private InputAction _Move;
         private InputAction _Camera;
-        private InputAction _Pause;
+        public static InputAction _Pause { get; private set; }
 
         [SerializeField] private float pressingThreshold = 0.099f;
 
@@ -198,7 +196,8 @@ namespace Topacai.Inputs
 
             _Move = PlayerInput.actions["Move"];
             _Camera = PlayerInput.actions["Camera"];
-            _Pause = PlayerInput.actions["Pause"];
+
+            _Pause = _Pause ?? PlayerInput.actions["Pause"];
 
             var move = new SimpleActionHandler(PlayerInput.actions["Move"], pressingThreshold);
             var run = new SimpleActionHandler(PlayerInput.actions["Run"], pressingThreshold);
@@ -268,7 +267,6 @@ namespace Topacai.Inputs
 
             MoveDir = _Move.ReadValue<Vector2>();
             CameraDir = _Camera.ReadValue<Vector2>();
-            PausePressed = _Pause.WasPressedThisFrame();
 
             foreach (var actionHandler in _actionHandlers)
             {
