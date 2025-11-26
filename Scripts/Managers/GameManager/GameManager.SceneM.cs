@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
-namespace Topacai.Managers
+namespace Topacai.Managers.GM
 {
     public partial class GameManager : Singleton<GameManager>
     {

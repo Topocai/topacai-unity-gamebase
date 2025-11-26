@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
-namespace Topacai.Managers
+namespace Topacai.Managers.GM
 {
     public partial class GameManager : Singleton<GameManager>
     {
@@ -20,10 +20,31 @@ namespace Topacai.Managers
         public void ShowLogOnScreen(object sender, string msg, float duration= 0.1f) => Topacai.TDebug.Debugcanvas.Instance.AddTextToDebugLog(sender!=null ? $"{sender.ToString()}" : "GM Log", msg, duration);
 #endif
 
+        public static bool IsCursorLocked => Cursor.lockState == CursorLockMode.Locked;
+
         private void Start()
+        {
+            DisableCursor();
+        }
+
+        public static void EnableCursor()
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+
+        public static void DisableCursor()
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+        }
+
+        public static void SetCursor(bool free)
+        {
+            if (free)
+                EnableCursor();
+            else
+                DisableCursor();
         }
 
     }
