@@ -45,11 +45,7 @@ namespace Topacai.Utils.GameMenu
 
         public UIMenu()
         {
-            if (_menuType == MenuType.TreeView)
-            {
-                
-            }
-            else
+            if (_menuType == MenuType.OneView)
             {
                 CurrentNode = _mainView;
             }
@@ -78,13 +74,15 @@ namespace Topacai.Utils.GameMenu
         {
             if (node == null) return;
 
-            if (!back && (ViewStack.Count == 0 || ViewStack.Peek() != CurrentNode))
+            if (_menuType == MenuType.TreeView)
             {
-                ViewStack.Push(CurrentNode);
+                if (!back && (ViewStack.Count == 0 || ViewStack.Peek() != CurrentNode))
+                {
+                    ViewStack.Push(CurrentNode);
+                }
             }
 
             CurrentNode = node;
-
             node.View.Page.OnEnterCall(null);
         }
 
@@ -122,6 +120,42 @@ namespace Topacai.Utils.GameMenu
                 }   
             }
             NavigateTo(b, true);
+        }
+
+        /// <summary>
+        /// Iterates through the transform and builds a tree of IPageViewers
+        /// that are founded starting from the transform to all their children
+        /// using the transform hierarchy as a tree
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public static MenuNode GetTreeFromTransform(Transform t, UIMenu.MenuNode parent = null)
+        {
+            if (t.TryGetComponent(out IPageViewer viewer))
+            {
+                var node = new UIMenu.MenuNode()
+                {
+                    View = viewer,
+                    Parent = parent
+                };
+
+                if (t.childCount > 0)
+                {
+                    UIMenu.MenuNode[] childs = new UIMenu.MenuNode[t.childCount];
+
+                    for (int i = 0; i < t.childCount; i++)
+                    {
+                        childs[i] = GetTreeFromTransform(t.GetChild(i), node);
+                    }
+
+                    node.Children = childs;
+                }
+
+                return node;
+            }
+
+            return null;
         }
     }
 }
