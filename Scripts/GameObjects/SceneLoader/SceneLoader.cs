@@ -1,7 +1,10 @@
 using EditorAttributes;
-using Topacai.Managers;
+
+using Topacai.Managers.GM;
 using Topacai.Player;
+
 using Unity.VisualScripting;
+
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
