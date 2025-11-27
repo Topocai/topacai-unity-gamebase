@@ -13,11 +13,9 @@ namespace Topacai.Utils.MenuSystem
         public void OnEnterCall(Action callback);
     }
 
-    public interface IPageViewer
+    public interface IPageController
     {
         public IPage Page { get; }
-        public UIDocument Document { get; }
-        public void SetRoot(VisualElement root);
         public void Back(Action callback);
         public void Back(Action callback, IPage page);
     }

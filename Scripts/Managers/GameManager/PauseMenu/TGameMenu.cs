@@ -50,7 +50,7 @@ namespace Topacai.Managers.GM.PauseMenu
             _menu.SetNode(UIMenu.GetTreeFromTransform(_gameMenuTransform.GetChild(0)));
             _overlay.SetNode(UIMenu.GetTreeFromTransform(_overlayTransform));
 
-            _menu.SetRoot(_overlay.CurrentNode.View.Document, MENU_CONTAINER);
+            _menu.SetRoot(_overlay.MenuDocument, MENU_CONTAINER);
 
             _backInput.Enable();
             _backInput.performed += _ => BackListener();
@@ -74,7 +74,7 @@ namespace Topacai.Managers.GM.PauseMenu
 
         public void CheckForPersistentButtons()
         {
-            var b = _overlay?.CurrentNode?.View?.Document?.rootVisualElement?.Query<Button>().ToList();
+            var b = _overlay?.MenuDocument?.rootVisualElement?.Query<Button>().ToList();
 
             if (b != null)
             {
@@ -90,7 +90,7 @@ namespace Topacai.Managers.GM.PauseMenu
 
         public void CheckForViewButtons()
         {
-            var b = _menu?.CurrentNode?.View?.Document?.rootVisualElement?.Query<Button>().ToList();
+            var b = _menu?.MenuDocument?.rootVisualElement?.Query<Button>().ToList();
 
             if (b != null)
             {

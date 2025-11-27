@@ -26,7 +26,7 @@ namespace Topacai.Utils.MenuSystem
 
         public class MenuNode
         {
-            public IPageViewer View { get; set; }
+            public IPageController View { get; set; }
             public MenuNode Parent { get; set; }
             public MenuNode[] Children { get; set; }
         }
@@ -43,6 +43,10 @@ namespace Topacai.Utils.MenuSystem
         [Header("UIMenu Settings")]
         [SerializeField] protected MenuType _menuType;
         [SerializeField] protected MenuNode _mainView;
+
+        [SerializeField] protected UIDocument _menuDocument;
+
+        public UIDocument MenuDocument => _menuDocument;
 
         protected UIDocument _rootDocument;
         protected string _rootElementId;
@@ -62,6 +66,17 @@ namespace Topacai.Utils.MenuSystem
             }
         }
 
+        public UIMenu(UIDocument menuD)
+        {
+            if (_menuType == MenuType.OneView)
+            {
+                CurrentNode = _mainView;
+                CurrentNode?.View?.Page?.OnEnterCall(null);
+                OnMenuChanged?.Invoke();
+            }
+            _menuDocument = menuD;
+        }
+
         #region Public Methods
 
         public void Refresh()
@@ -73,7 +88,7 @@ namespace Topacai.Utils.MenuSystem
                 var h = _rootDocument.rootVisualElement.Q<VisualElement>(_rootElementId);
 
                 if (h!=null)
-                    h.Add(CurrentNode.View.Document.rootVisualElement);
+                    h.Add(MenuDocument.rootVisualElement);
             }
         }
 
@@ -87,6 +102,7 @@ namespace Topacai.Utils.MenuSystem
         {
             CurrentNode = node;
             CurrentNode?.View?.Page?.OnEnterCall(null);
+            ShowPage(CurrentNode.View.Page);
             ViewStack.Clear();
         }
 
@@ -143,6 +159,11 @@ namespace Topacai.Utils.MenuSystem
             }
         }
 
+        public virtual void ShowPage(IPage p)
+        {
+            MenuDocument.visualTreeAsset = p.PageDocument;
+        }
+
         public virtual void NavigateTo(MenuNode node, bool back = false)
         {
             if (node == null) return;
@@ -156,7 +177,7 @@ namespace Topacai.Utils.MenuSystem
             }
 
             CurrentNode = node;
-            node.View.Page.OnEnterCall(null);
+            node.View.Page.OnEnterCall(() => ShowPage(node.View.Page));
 
             OnMenuChanged?.Invoke();
         }
@@ -216,7 +237,7 @@ namespace Topacai.Utils.MenuSystem
         /// <returns></returns>
         public static MenuNode GetTreeFromTransform(Transform t, UIMenu.MenuNode parent = null)
         {
-            if (t.TryGetComponent(out IPageViewer viewer))
+            if (t.TryGetComponent(out IPageController viewer))
             {
                 if (t.TryGetComponent(out UIMenuHandler uiMenuHandler))
                 {

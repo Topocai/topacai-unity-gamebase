@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 namespace Topacai.Utils.MenuSystem
 {
     [RequireComponent(typeof(UIDocument))]
-    public class SimpleViewer : MonoBehaviour, IPageViewer, IPage
+    public class SimpleViewer : MonoBehaviour, IPageController, IPage
     {
         #region Fields
 
@@ -29,21 +29,8 @@ namespace Topacai.Utils.MenuSystem
 
         public virtual string Id => _pageName;
         public virtual IPage Page => this;
-        public virtual UIDocument Document
-        {
-            get
-            {
-                if (_documentComponent == null)
-                {
-                    _documentComponent = GetComponent<UIDocument>();
-                }
-
-                return _documentComponent;
-            }
-        }
         public virtual VisualTreeAsset PageDocument => _pageDocument;
         public virtual bool IsLoading => _isLoading;
-        public void SetRoot(VisualElement r) => _rootElement = r;
 
         #endregion
 
@@ -60,7 +47,6 @@ namespace Topacai.Utils.MenuSystem
         {
             if (_isBackeable)
             {
-                Document.enabled = false;
                 callback?.Invoke();
             }
         }
@@ -69,23 +55,17 @@ namespace Topacai.Utils.MenuSystem
         {
             if (_isBackeable) 
             {
-                Document.enabled = false;
                 callback?.Invoke();
             } 
         }
 
         public virtual void OnEnterCall(Action callback)
         {
-            Document.visualTreeAsset = PageDocument;
-
-            Document.enabled = true;
-
             callback?.Invoke();
         }
 
         public virtual void OnExitCall(Action callback)
         {
-            Document.enabled = false;
             callback?.Invoke();
         }
 
