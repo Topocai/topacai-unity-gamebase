@@ -18,7 +18,14 @@ namespace Topacai.Utils.Editor
         {
             var status = EditorPrefs.GetInt("kAutoRefresh");
 
-            EditorPrefs.SetInt("kAutoRefresh", status == 1 ? 0 : 1);
+            bool enabled = status == 1;
+
+            EditorPrefs.SetInt("kAutoRefresh", enabled ? 0 : 1);
+
+            if (enabled)
+                EditorApplication.LockReloadAssemblies();
+            else
+                EditorApplication.UnlockReloadAssemblies();
         }
 
         [MenuItem("TopacaiTools/Editor/Auto Refresh", true)]
@@ -37,15 +44,14 @@ namespace Topacai.Utils.Editor
             Debug.Log("Request script reload.");
 
             EditorApplication.UnlockReloadAssemblies();
-            AssetDatabase.Refresh();
-            EditorUtility.RequestScriptReload();
-        }
 
-        [InitializeOnLoadMethod]
-        private static void Initialize()
-        {
-            AssetDatabase.SaveAssets();
-            EditorApplication.LockReloadAssemblies();
+            AssetDatabase.Refresh();
+
+            EditorApplication.delayCall += () =>
+            {
+                Debug.Log("Reloading assemblies...");
+                EditorUtility.RequestScriptReload();
+            };
         }
     }
 }
