@@ -9,6 +9,7 @@ using Topacai.Utils.GameMenu;
 using Topacai.Managers.GM.PauseMenu;
 
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 namespace Topacai.Managers.GM
 {
@@ -22,6 +23,8 @@ namespace Topacai.Managers.GM
 
         [Header("Pause settings")]
         [SerializeField] private bool _usePauseMenu = false;
+        [SerializeField] private readonly string _pauseResumeButton = "gamepause-resume-button";
+        [SerializeField] private readonly string _pauseExitButton = "gamepause-exit-button";
         private TGameMenu _pauseMenu;
 
         public void PauseGame(object sender, bool pause)
@@ -53,11 +56,23 @@ namespace Topacai.Managers.GM
             {
                 _pauseMenu = gameMenu;
                 gameMenu.Init();
+
+                gameMenu.OnAnyButtonClicked.AddListener(MenuButtonListener);
             }
             else
             {
                 Debug.LogWarning("Pause menu not found");
             }
+        }
+
+        private void MenuButtonListener(ClickEvent args)
+        {
+            var b = args.target as Button;
+
+            if (b == null) return;
+
+            if (b.name == _pauseResumeButton) PauseGame(null, false);
+            else if (b.name == _pauseExitButton) ExitGame();
         }
     }
 }

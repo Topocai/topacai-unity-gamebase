@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Topacai.Inputs;
 using Topacai.Utils.GameObjects;
-
+using Topacai.Utils.SaveSystem;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -47,6 +47,12 @@ namespace Topacai.Managers.GM
                 EnableCursor();
             else
                 DisableCursor();
+        }
+
+        public void ExitGame()
+        {
+            SaveSystemClass.CallSaveGameEvent();
+            Application.Quit();
         }
 
     }
