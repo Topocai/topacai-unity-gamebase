@@ -1,16 +1,22 @@
 using EditorAttributes;
+
 using NUnit.Framework;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 namespace Topacai.Utils.GameMenu
 {
     public interface IPageViewer
     {
         public IPage Page { get; }
+        public UIDocument Document { get; }
         public void Back(Action callback);
         public void Back(Action callback, IPage page);
     }
@@ -31,6 +37,8 @@ namespace Topacai.Utils.GameMenu
             public MenuNode[] Children { get; set; }
         }
 
+        public UnityEvent OnMenuChanged = new();
+
         [SerializeField] private MenuType _menuType;
         [SerializeField] private MenuNode _mainView;
 
@@ -48,6 +56,7 @@ namespace Topacai.Utils.GameMenu
             if (_menuType == MenuType.OneView)
             {
                 CurrentNode = _mainView;
+                OnMenuChanged?.Invoke();
             }
         }
 
@@ -84,6 +93,8 @@ namespace Topacai.Utils.GameMenu
 
             CurrentNode = node;
             node.View.Page.OnEnterCall(null);
+
+            OnMenuChanged?.Invoke();
         }
 
         private void ExitView()

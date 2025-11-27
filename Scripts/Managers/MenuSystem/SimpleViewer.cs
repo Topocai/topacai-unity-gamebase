@@ -12,13 +12,13 @@ namespace Topacai.Utils.GameMenu
 
         protected UIDocument _documentComponent;
 
-        public IPage Page => this;
-
         [SerializeField] protected bool _isLoading;
-        public bool IsLoading => _isLoading;
-
         [SerializeField] protected VisualTreeAsset _pageDocument;
+
+        public IPage Page => this;
+        public UIDocument Document => _documentComponent;
         public VisualTreeAsset PageDocument => _pageDocument;
+        public bool IsLoading => _isLoading;
 
         protected virtual void Start()
         {
