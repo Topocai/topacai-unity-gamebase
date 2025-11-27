@@ -129,9 +129,15 @@ namespace Topacai.Utils.MenuSystem
             // and pass the logic as a callback to the view
             // in order to avoid execute the back or exit if the view doesn't allow it
 
+            PageCallbackArgs args = new PageCallbackArgs()
+            {
+                Menu = this
+            };
+
             if (_menuType == MenuType.OneView)
             {
-                CurrentNode.View.Page.OnExitCall(ExitMenu);
+                args.Callback = ExitMenu;
+                CurrentNode.View.Page.OnExitCall(args);
                 return;
             }
 
@@ -139,11 +145,13 @@ namespace Topacai.Utils.MenuSystem
 
             if (back == null)
             {
-                CurrentNode.View.Page.OnExitCall(ExitMenu);
+                args.Callback = ExitMenu;
+                CurrentNode.View.Page.OnExitCall(args);
                 return;
             }
 
-            CurrentNode.View.Back(Back, back.View.Page);
+            args.Callback = Back;
+            CurrentNode.View.Back(args, back.View.Page);
         }
 
         public virtual void GoChildren(string id)
@@ -164,7 +172,7 @@ namespace Topacai.Utils.MenuSystem
             MenuDocument.visualTreeAsset = p.PageDocument;
         }
 
-        public virtual void NavigateTo(MenuNode node, bool back = false)
+        public virtual void NavigateTo(MenuNode node, bool back = false, PageCallbackArgs args = null)
         {
             if (node == null) return;
 
@@ -177,7 +185,10 @@ namespace Topacai.Utils.MenuSystem
             }
 
             CurrentNode = node;
-            node.View.Page.OnEnterCall(() => ShowPage(node.View.Page));
+
+            var a = args ?? new PageCallbackArgs();
+            a.Callback = (_) => ShowPage(node.View.Page);
+            node.View.Page.OnEnterCall(a);
 
             OnMenuChanged?.Invoke();
         }
@@ -186,7 +197,7 @@ namespace Topacai.Utils.MenuSystem
 
         #region Private/Protected Methods
 
-        protected virtual void ExitMenu()
+        protected virtual void ExitMenu(PageCallbackArgs args = null)
         {
             if (_menuType == MenuType.TreeView)
             {
@@ -208,7 +219,7 @@ namespace Topacai.Utils.MenuSystem
             OnMenuExit?.Invoke();
         }
 
-        protected virtual void Back()
+        protected virtual void Back(PageCallbackArgs args = null)
         {
             var b = ViewStack.Pop();
 

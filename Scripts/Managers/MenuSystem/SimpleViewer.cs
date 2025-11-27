@@ -4,7 +4,6 @@ using UnityEngine.UIElements;
 
 namespace Topacai.Utils.MenuSystem
 {
-    [RequireComponent(typeof(UIDocument))]
     public class SimpleViewer : MonoBehaviour, IPageController, IPage
     {
         #region Fields
@@ -41,32 +40,41 @@ namespace Topacai.Utils.MenuSystem
             _documentComponent = _documentComponent ?? GetComponent<UIDocument>();
         }
 
+        private void CallbackArgs(PageCallbackArgs c)
+        {
+            c ??= new PageCallbackArgs();
+
+            c.Page = this;
+            c.PageController = this;
+            c?.Callback?.Invoke(c);
+        }
+
         #region Interface methods implementation
 
-        public virtual void Back(Action callback)
+        public virtual void Back(PageCallbackArgs callback)
         {
             if (_isBackeable)
             {
-                callback?.Invoke();
+                CallbackArgs(callback);
             }
         }
 
-        public virtual void Back(Action callback, IPage page)
+        public virtual void Back(PageCallbackArgs callback, IPage page)
         {
             if (_isBackeable) 
             {
-                callback?.Invoke();
+                CallbackArgs(callback);
             } 
         }
 
-        public virtual void OnEnterCall(Action callback)
+        public virtual void OnEnterCall(PageCallbackArgs callback)
         {
-            callback?.Invoke();
+            CallbackArgs(callback);
         }
 
-        public virtual void OnExitCall(Action callback)
+        public virtual void OnExitCall(PageCallbackArgs callback)
         {
-            callback?.Invoke();
+            CallbackArgs(callback);
         }
 
         #endregion
