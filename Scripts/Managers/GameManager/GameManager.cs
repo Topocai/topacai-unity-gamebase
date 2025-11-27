@@ -25,8 +25,9 @@ namespace Topacai.Managers.GM
         private void Start()
         {
             DisableCursor();
-
             InputHandler._Pause.started += (_) => PauseGame(null, !IsPaused);
+
+            InitializePauseManager();
         }
 
         public static void EnableCursor()

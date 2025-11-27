@@ -16,6 +16,7 @@ namespace Topacai.Managers.GM
     public partial class GameManager : Singleton<GameManager>
     {
         public static UnityEvent<object, bool> OnGamePaused = new();
+        public UnityEvent<ClickEvent> OnPauseMenuButtonClicked = new();
 
         private static bool _isPaused;
 
@@ -23,8 +24,10 @@ namespace Topacai.Managers.GM
 
         [Header("Pause settings")]
         [SerializeField] private bool _usePauseMenu = false;
-        [SerializeField] private readonly string _pauseResumeButton = "gamepause-resume-button";
-        [SerializeField] private readonly string _pauseExitButton = "gamepause-exit-button";
+        [SerializeField] private bool _pauseOnStart = false;
+
+        private readonly string _pauseResumeButton = "gamepause-resume-button";
+        private readonly string _pauseExitButton = "gamepause-exit-button";
         private TGameMenu _pauseMenu;
 
         public void PauseGame(object sender, bool pause)
@@ -41,14 +44,20 @@ namespace Topacai.Managers.GM
 
             if (_usePauseMenu)
             {
-                InitializePauseMenu();
+                InitializePauseMenu(false);
 
                 _pauseMenu.enabled = pause;
                 SetCursor(pause);
             }
         }
 
-        private void InitializePauseMenu()
+        private void InitializePauseManager()
+        {
+            InitializePauseMenu();
+            PauseGame(this, _pauseOnStart);
+        }
+
+        private void InitializePauseMenu(bool hide = true)
         {
             if (_pauseMenu != null) return;
 
@@ -58,6 +67,8 @@ namespace Topacai.Managers.GM
                 gameMenu.Init();
 
                 gameMenu.OnAnyButtonClicked.AddListener(MenuButtonListener);
+
+                gameMenu.enabled = !hide;
             }
             else
             {
@@ -67,6 +78,8 @@ namespace Topacai.Managers.GM
 
         private void MenuButtonListener(ClickEvent args)
         {
+            OnPauseMenuButtonClicked?.Invoke(args);
+
             var b = args.target as Button;
 
             if (b == null) return;
