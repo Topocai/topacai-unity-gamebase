@@ -53,12 +53,16 @@ namespace Topacai.Managers.GM.PauseMenu
 
         public void CheckForButtons()
         {
-            var b = _menu.CurrentNode?.View.Document.rootVisualElement?.Query<Button>().ToList();
+            var b = _menu?.CurrentNode?.View?.Document?.rootVisualElement?.Query<Button>().ToList();
 
-            if (_buttons != null)
+            if (b != null)
             {
                 foreach (var button in b)
                     button.RegisterCallback<ClickEvent>(OnButtonClicked);
+
+                if (_buttons?.Count > 0)
+                    foreach (var button in _buttons)
+                        button.UnregisterCallback<ClickEvent>(OnButtonClicked);
                 _buttons = b;
             }
         }
