@@ -16,7 +16,18 @@ namespace Topacai.Utils.GameMenu
         [SerializeField] protected VisualTreeAsset _pageDocument;
 
         public IPage Page => this;
-        public UIDocument Document => _documentComponent;
+        public UIDocument Document
+        {
+            get
+            {
+                if (_documentComponent == null)
+                {
+                    _documentComponent = GetComponent<UIDocument>();
+                }
+
+                return _documentComponent;
+            }
+        }
         public VisualTreeAsset PageDocument => _pageDocument;
         public bool IsLoading => _isLoading;
 
