@@ -3,7 +3,7 @@ using EditorAttributes;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-
+using Topacai.Inputs;
 using Topacai.Utils.GameObjects;
 
 using UnityEngine;
@@ -25,6 +25,8 @@ namespace Topacai.Managers.GM
         private void Start()
         {
             DisableCursor();
+
+            InputHandler._Pause.started += (_) => PauseGame(null, !IsPaused);
         }
 
         public static void EnableCursor()
