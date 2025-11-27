@@ -77,8 +77,8 @@ namespace Topacai.TDebug
             }
 
             _document = gameObject.AddComponent<UIDocument>();
-            _document.panelSettings = _panelSettingsAsset;
-            _document.visualTreeAsset = _debugDocumentAsset;
+            _document.panelSettings ??= _panelSettingsAsset;
+            _document.visualTreeAsset ??= _debugDocumentAsset;
 
             _logsContainer = _document.rootVisualElement.Q<VisualElement>(LOGS_CONTAINER_NAME);
         }
