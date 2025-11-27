@@ -44,6 +44,9 @@ namespace Topacai.Utils.MenuSystem
         [SerializeField] protected MenuType _menuType;
         [SerializeField] protected MenuNode _mainView;
 
+        protected UIDocument _rootDocument;
+        protected string _rootElementId;
+
         public MenuNode CurrentNode { get; private set; }
         public Stack<MenuNode> ViewStack { get; private set; } = new();
 
@@ -54,18 +57,55 @@ namespace Topacai.Utils.MenuSystem
             if (_menuType == MenuType.OneView)
             {
                 CurrentNode = _mainView;
+                CurrentNode?.View?.Page?.OnEnterCall(null);
                 OnMenuChanged?.Invoke();
             }
         }
 
         #region Public Methods
 
+        public void Refresh()
+        {
+            CurrentNode?.View?.Page?.OnEnterCall(null);
+
+            if (_rootDocument != null)
+            {
+                var h = _rootDocument.rootVisualElement.Q<VisualElement>(_rootElementId);
+
+                if (h!=null)
+                    h.Add(CurrentNode.View.Document.rootVisualElement);
+            }
+        }
+
+        public void SetRoot(UIDocument document, string id)
+        {
+            _rootDocument = document;
+            _rootElementId = id;
+        }
+
         public virtual void SetNode(MenuNode node)
         {
             CurrentNode = node;
+            CurrentNode?.View?.Page?.OnEnterCall(null);
             ViewStack.Clear();
         }
 
+        public virtual MenuNode GetRootTree()
+        {
+            if (_menuType == MenuType.OneView)
+            {
+                return CurrentNode;
+            }
+
+            var n = CurrentNode;
+            while (n.Parent != null)
+            {
+                n = n.Parent;
+            }
+
+            return n;
+        }
+             
         public virtual void BackExitAction()
         {
             // BackExitAction listen to back petition, checks if the current view 
@@ -88,6 +128,19 @@ namespace Topacai.Utils.MenuSystem
             }
 
             CurrentNode.View.Back(Back, back.View.Page);
+        }
+
+        public virtual void GoChildren(string id)
+        {
+            var node = CurrentNode.Children.FirstOrDefault(x => x.View.Page.Id == id);
+            if (node != null)
+            {
+                NavigateTo(node);
+            }
+            else
+            {
+                Debug.LogWarning($"Can't find node with id: {id}");
+            }
         }
 
         public virtual void NavigateTo(MenuNode node, bool back = false)
@@ -156,6 +209,7 @@ namespace Topacai.Utils.MenuSystem
         /// Iterates through the transform and builds a tree of IPageViewers
         /// that are founded starting from the transform to all their children
         /// using the transform hierarchy as a tree
+        /// MENUS HANDLERS ARE IGNORED
         /// </summary>
         /// <param name="t"></param>
         /// <param name="parent"></param>
@@ -164,6 +218,11 @@ namespace Topacai.Utils.MenuSystem
         {
             if (t.TryGetComponent(out IPageViewer viewer))
             {
+                if (t.TryGetComponent(out UIMenuHandler uiMenuHandler))
+                {
+                    return null;
+                }
+
                 var node = new UIMenu.MenuNode()
                 {
                     View = viewer,

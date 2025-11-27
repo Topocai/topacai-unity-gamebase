@@ -26,8 +26,11 @@ namespace Topacai.Managers.GM
         [SerializeField] private bool _usePauseMenu = false;
         [SerializeField] private bool _pauseOnStart = false;
 
-        private readonly string _pauseResumeButton = "gamepause-resume-button";
-        private readonly string _pauseExitButton = "gamepause-exit-button";
+        private const string PAUSE_RESUME_BUTTON = "gamepause-resume-button";
+        private const string PAUSE_EXIT_BUTTON = "gamepause-exit-button";
+        private const string PAUSE_CONFIG_BUTTON = "gamepause-config-button";
+
+        private const string PAUSE_CONFIG_WINDOW_NAME = "PauseConfigMenu";
         private TGameMenu _pauseMenu;
 
         public void PauseGame(object sender, bool pause)
@@ -66,7 +69,8 @@ namespace Topacai.Managers.GM
                 _pauseMenu = gameMenu;
                 gameMenu.Init();
 
-                gameMenu.OnAnyButtonClicked.AddListener(MenuButtonListener);
+                gameMenu.OnAnyViewButton.AddListener(MenuButtonListener);
+                gameMenu.OnAnyPersistentButton.AddListener(MenuButtonListener);
 
                 gameMenu.enabled = !hide;
             }
@@ -84,8 +88,18 @@ namespace Topacai.Managers.GM
 
             if (b == null) return;
 
-            if (b.name == _pauseResumeButton) PauseGame(null, false);
-            else if (b.name == _pauseExitButton) ExitGame();
+            switch (b.name)
+            {
+                case PAUSE_CONFIG_BUTTON:
+                    _pauseMenu.MainMenu.GoChildren(PAUSE_CONFIG_WINDOW_NAME);
+                    return;
+                case PAUSE_RESUME_BUTTON:
+                    PauseGame(null, false);
+                    break;
+                case PAUSE_EXIT_BUTTON:
+                    ExitGame();
+                    break;
+            }
         }
     }
 }

@@ -11,18 +11,25 @@ using UnityEngine.UIElements;
 
 namespace Topacai.Managers.GM.PauseMenu
 {
-    public class TGameMenu : MonoBehaviour
+    public class TGameMenu : UIMenuHandler
     {
-        public UnityEvent<ClickEvent> OnAnyButtonClicked = new();
+        public UnityEvent<ClickEvent> OnAnyViewButton = new();
+        public UnityEvent<ClickEvent> OnAnyPersistentButton = new();
 
-        [SerializeField] private UIMenu _menu = new();
+        [SerializeField] protected UIMenu _overlay = new();
         [SerializeField] private InputAction _backInput;
 
         [SerializeField] private Transform _gameMenuTransform;
+        [SerializeField] private Transform _overlayTransform;
 
-        private List<Button> _buttons = new();
+        protected List<Button> _actualViewButtons = new();
+        protected List<Button> _persistentButtons = new();
 
-        public UIMenu Menu => _menu;
+        protected const string MENU_CONTAINER = "menu-container";
+
+        public override UIMenu MainMenu => _menu;
+
+        public UIMenu Overlay => _overlay;
 
         public void Init()
         {
@@ -32,59 +39,97 @@ namespace Topacai.Managers.GM.PauseMenu
                 return;
             }
 
-            _menu.SetNode(UIMenu.GetTreeFromTransform(_gameMenuTransform));
+            if (_overlayTransform == null)
+            {
+                Debug.LogWarning("Overlay transform is null");
+                return;
+            }
+
+            _menu = _gameMenuTransform.GetComponent<UIMenuHandler>().MainMenu;
+
+            _menu.SetNode(UIMenu.GetTreeFromTransform(_gameMenuTransform.GetChild(0)));
+            _overlay.SetNode(UIMenu.GetTreeFromTransform(_overlayTransform));
+
+            _menu.SetRoot(_overlay.CurrentNode.View.Document, MENU_CONTAINER);
 
             _backInput.Enable();
             _backInput.performed += _ => BackListener();
 
-            CheckForButtons();
+            CheckForViewButtons();
+            CheckForPersistentButtons();
 
-            _menu.OnMenuChanged.AddListener(CheckForButtons);
+            _menu.OnMenuChanged.AddListener(CheckForViewButtons);
+
+            _overlay.OnMenuChanged.AddListener(CheckForPersistentButtons);
         }
 
         public void BackListener()
         {
-            foreach (var button in _buttons)
+            foreach (var button in _actualViewButtons)
             {
-                button.UnregisterCallback<ClickEvent>(OnButtonClicked);
+                button.UnregisterCallback<ClickEvent>(OnViewButtonClicked);
             }
             _menu.BackExitAction();
         }
 
-        public void CheckForButtons()
+        public void CheckForPersistentButtons()
+        {
+            var b = _overlay?.CurrentNode?.View?.Document?.rootVisualElement?.Query<Button>().ToList();
+
+            if (b != null)
+            {
+                foreach (var button in b)
+                    button.RegisterCallback<ClickEvent>(OnViewButtonClicked);
+
+                if (_persistentButtons?.Count > 0)
+                    foreach (var button in _persistentButtons)
+                        button.UnregisterCallback<ClickEvent>(OnViewButtonClicked);
+                _persistentButtons = b;
+            }
+        }
+
+        public void CheckForViewButtons()
         {
             var b = _menu?.CurrentNode?.View?.Document?.rootVisualElement?.Query<Button>().ToList();
 
             if (b != null)
             {
                 foreach (var button in b)
-                    button.RegisterCallback<ClickEvent>(OnButtonClicked);
+                    button.RegisterCallback<ClickEvent>(OnPersistentButtonClicked);
 
-                if (_buttons?.Count > 0)
-                    foreach (var button in _buttons)
-                        button.UnregisterCallback<ClickEvent>(OnButtonClicked);
-                _buttons = b;
+                if (_actualViewButtons?.Count > 0)
+                    foreach (var button in _actualViewButtons)
+                        button.UnregisterCallback<ClickEvent>(OnPersistentButtonClicked);
+                _actualViewButtons = b;
             }
         }
 
         private void OnEnable()
         {
             _backInput.Enable();
-            _gameMenuTransform.gameObject.SetActive(true);
+            _overlayTransform.gameObject.SetActive(true);
 
-            CheckForButtons();
+            CheckForViewButtons();
+            CheckForPersistentButtons();
+
+            _menu.Refresh();
         }
 
         private void OnDisable()
         {
             _backInput.Disable();
 
-            _gameMenuTransform.gameObject.SetActive(false);
+            _overlayTransform.gameObject.SetActive(false);
         }
 
-        private void OnButtonClicked(ClickEvent args)
+        private void OnPersistentButtonClicked(ClickEvent args)
         {
-            OnAnyButtonClicked?.Invoke(args);
+            OnAnyPersistentButton?.Invoke(args);
+        }
+
+        private void OnViewButtonClicked(ClickEvent args)
+        {
+            OnAnyViewButton?.Invoke(args);
         }
     }
 }

@@ -15,13 +15,19 @@ namespace Topacai.Utils.MenuSystem
         [Tooltip("Allow 'exit' from view")]
         [SerializeField] protected bool _isExitable;
         [Tooltip("Page document to show on view")]
+        [SerializeField] protected bool _keepParent = true;
+        [Header("Page settings")]
         [SerializeField] protected VisualTreeAsset _pageDocument;
+        [SerializeField] protected string _pageName;
+
+        protected VisualElement _rootElement = null;
 
         protected UIDocument _documentComponent;
         protected bool _isLoading = false;
 
         #region Interface fields/properties implementation
 
+        public virtual string Id => _pageName;
         public virtual IPage Page => this;
         public virtual UIDocument Document
         {
@@ -37,6 +43,7 @@ namespace Topacai.Utils.MenuSystem
         }
         public virtual VisualTreeAsset PageDocument => _pageDocument;
         public virtual bool IsLoading => _isLoading;
+        public void SetRoot(VisualElement r) => _rootElement = r;
 
         #endregion
 
@@ -53,7 +60,7 @@ namespace Topacai.Utils.MenuSystem
         {
             if (_isBackeable)
             {
-                _documentComponent.enabled = false;
+                Document.enabled = false;
                 callback?.Invoke();
             }
         }
@@ -62,22 +69,23 @@ namespace Topacai.Utils.MenuSystem
         {
             if (_isBackeable) 
             {
-                _documentComponent.enabled = false;
+                Document.enabled = false;
                 callback?.Invoke();
             } 
         }
 
         public virtual void OnEnterCall(Action callback)
         {
-            _documentComponent.visualTreeAsset = PageDocument;
+            Document.visualTreeAsset = PageDocument;
 
-            _documentComponent.enabled = true;
+            Document.enabled = true;
+
             callback?.Invoke();
         }
 
         public virtual void OnExitCall(Action callback)
         {
-            _documentComponent.enabled = false;
+            Document.enabled = false;
             callback?.Invoke();
         }
 
