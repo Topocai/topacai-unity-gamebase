@@ -77,22 +77,27 @@ namespace Topacai.Utils.MenuSystem
             _menuDocument = menuD;
         }
 
-        #region Public Methods
-
-        public void Refresh()
+        protected virtual void SetDocumentOnRoot()
         {
-            CurrentNode?.View?.Page?.OnEnterCall(null);
-
             if (_rootDocument != null)
             {
                 var h = _rootDocument.rootVisualElement.Q<VisualElement>(_rootElementId);
 
-                if (h!=null)
+                if (h != null)
                     h.Add(MenuDocument.rootVisualElement);
             }
         }
 
-        public void SetRoot(UIDocument document, string id)
+        #region Public Methods
+
+        public virtual void Refresh()
+        {
+            CurrentNode?.View?.Page?.OnEnterCall(null);
+
+            SetDocumentOnRoot();
+        }
+
+        public virtual void SetRoot(UIDocument document, string id)
         {
             _rootDocument = document;
             _rootElementId = id;
@@ -170,6 +175,8 @@ namespace Topacai.Utils.MenuSystem
         public virtual void ShowPage(IPage p)
         {
             MenuDocument.visualTreeAsset = p.PageDocument;
+
+            SetDocumentOnRoot();
         }
 
         public virtual void NavigateTo(MenuNode node, bool back = false, PageCallbackArgs args = null)
