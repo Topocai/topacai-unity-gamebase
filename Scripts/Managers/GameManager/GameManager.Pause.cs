@@ -5,7 +5,7 @@ using Topacai.Utils.GameObjects;
 using UnityEngine;
 using UnityEngine.Events;
 
-using Topacai.Utils.GameMenu;
+using Topacai.Utils.MenuSystem;
 using Topacai.Managers.GM.PauseMenu;
 
 using UnityEngine.InputSystem;

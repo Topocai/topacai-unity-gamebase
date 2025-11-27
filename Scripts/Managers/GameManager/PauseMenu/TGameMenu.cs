@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-using Topacai.Utils.GameMenu;
+using Topacai.Utils.MenuSystem;
 
 using UnityEngine;
 using UnityEngine.Events;

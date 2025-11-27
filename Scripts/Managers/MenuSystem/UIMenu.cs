@@ -11,19 +11,13 @@ using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
-namespace Topacai.Utils.GameMenu
+namespace Topacai.Utils.MenuSystem
 {
-    public interface IPageViewer
-    {
-        public IPage Page { get; }
-        public UIDocument Document { get; }
-        public void Back(Action callback);
-        public void Back(Action callback, IPage page);
-    }
-
     [System.Serializable]
     public class UIMenu
     {
+        #region Types declaration
+
         public enum MenuType
         {
             OneView,
@@ -37,19 +31,23 @@ namespace Topacai.Utils.GameMenu
             public MenuNode[] Children { get; set; }
         }
 
-        public UnityEvent OnMenuChanged = new();
+        #endregion
 
-        [SerializeField] private MenuType _menuType;
-        [SerializeField] private MenuNode _mainView;
+        #region Fields
+
+        [Header("Events")]
+        public UnityEvent OnMenuChanged = new();
+        public UnityEvent OnMenuExit = new();
+
+        [Space(10)]
+        [Header("UIMenu Settings")]
+        [SerializeField] protected MenuType _menuType;
+        [SerializeField] protected MenuNode _mainView;
 
         public MenuNode CurrentNode { get; private set; }
         public Stack<MenuNode> ViewStack { get; private set; } = new();
 
-        public void SetNode(MenuNode node)
-        {
-            CurrentNode = node;
-            ViewStack.Clear();
-        }
+        #endregion
 
         public UIMenu()
         {
@@ -60,11 +58,24 @@ namespace Topacai.Utils.GameMenu
             }
         }
 
-        public void BackExitAction()
+        #region Public Methods
+
+        public virtual void SetNode(MenuNode node)
         {
+            CurrentNode = node;
+            ViewStack.Clear();
+        }
+
+        public virtual void BackExitAction()
+        {
+            // BackExitAction listen to back petition, checks if the current view 
+            // should be closed or executed as back action
+            // and pass the logic as a callback to the view
+            // in order to avoid execute the back or exit if the view doesn't allow it
+
             if (_menuType == MenuType.OneView)
             {
-                CurrentNode.View.Page.OnExitCall(ExitView);
+                CurrentNode.View.Page.OnExitCall(ExitMenu);
                 return;
             }
 
@@ -72,14 +83,14 @@ namespace Topacai.Utils.GameMenu
 
             if (back == null)
             {
-                CurrentNode.View.Page.OnExitCall(ExitView);
+                CurrentNode.View.Page.OnExitCall(ExitMenu);
                 return;
             }
 
             CurrentNode.View.Back(Back, back.View.Page);
         }
 
-        public void NavigateTo(MenuNode node, bool back = false)
+        public virtual void NavigateTo(MenuNode node, bool back = false)
         {
             if (node == null) return;
 
@@ -97,7 +108,11 @@ namespace Topacai.Utils.GameMenu
             OnMenuChanged?.Invoke();
         }
 
-        private void ExitView()
+        #endregion
+
+        #region Private/Protected Methods
+
+        protected virtual void ExitMenu()
         {
             if (_menuType == MenuType.TreeView)
             {
@@ -115,9 +130,11 @@ namespace Topacai.Utils.GameMenu
             {
                 NavigateTo(_mainView);
             }
+
+            OnMenuExit?.Invoke();
         }
 
-        private void Back()
+        protected virtual void Back()
         {
             var b = ViewStack.Pop();
 
@@ -128,10 +145,12 @@ namespace Topacai.Utils.GameMenu
                 {
                     Debug.LogWarning("Can't find back node");
                     return;
-                }   
+                }
             }
             NavigateTo(b, true);
         }
+
+        #endregion
 
         /// <summary>
         /// Iterates through the transform and builds a tree of IPageViewers

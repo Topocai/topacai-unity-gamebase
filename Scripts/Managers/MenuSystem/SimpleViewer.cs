@@ -2,21 +2,28 @@ using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Topacai.Utils.GameMenu
+namespace Topacai.Utils.MenuSystem
 {
     [RequireComponent(typeof(UIDocument))]
     public class SimpleViewer : MonoBehaviour, IPageViewer, IPage
     {
+        #region Fields
+
+        [Header("View settings")]
+        [Tooltip("Allow back action from this view")]
         [SerializeField] protected bool _isBackeable;
+        [Tooltip("Allow 'exit' from view")]
         [SerializeField] protected bool _isExitable;
-
-        protected UIDocument _documentComponent;
-
-        [SerializeField] protected bool _isLoading;
+        [Tooltip("Page document to show on view")]
         [SerializeField] protected VisualTreeAsset _pageDocument;
 
-        public IPage Page => this;
-        public UIDocument Document
+        protected UIDocument _documentComponent;
+        protected bool _isLoading = false;
+
+        #region Interface fields/properties implementation
+
+        public virtual IPage Page => this;
+        public virtual UIDocument Document
         {
             get
             {
@@ -28,13 +35,19 @@ namespace Topacai.Utils.GameMenu
                 return _documentComponent;
             }
         }
-        public VisualTreeAsset PageDocument => _pageDocument;
-        public bool IsLoading => _isLoading;
+        public virtual VisualTreeAsset PageDocument => _pageDocument;
+        public virtual bool IsLoading => _isLoading;
+
+        #endregion
+
+        #endregion
 
         protected virtual void Start()
         {
-            _documentComponent = GetComponent<UIDocument>();
+            _documentComponent = _documentComponent ?? GetComponent<UIDocument>();
         }
+
+        #region Interface methods implementation
 
         public virtual void Back(Action callback)
         {
@@ -67,6 +80,8 @@ namespace Topacai.Utils.GameMenu
             _documentComponent.enabled = false;
             callback?.Invoke();
         }
+
+        #endregion
     }
 }
 
