@@ -1,34 +1,31 @@
 using EditorAttributes;
 using Topacai.Inputs;
+using Topacai.Player.Movement.Components.Grip;
 using Topacai.TDebug;
+using Topacai.Utils.GameObjects.AttachableSO;
 using UnityEngine;
 
 namespace Topacai.Player.Movement.Components
 {
     public class GrippingComponent : MovementComponent
     {
-        [Header("Movement Settings")]
-        [SerializeField] private AnimationCurve gripVelCurve;
-        [SerializeField] private float timeToMaxSpeed;
-        [SerializeField] private float speed;
-        [SerializeField] private float minSpeed;
-        [Space(5)]
-        [SerializeField] private float moveModifier = 0.2f;
-        [SerializeField] private float gripDrag;
-        [Space(10)]
-        [SerializeField] private ForceMode forceMode = ForceMode.VelocityChange;
-        [SerializeField] private bool stopWhenCloseToGrip;
-        [SerializeField] private bool stopOnObstacles;
-        [SerializeField, EnableField(nameof(stopOnObstacles))] private bool useComponentPositionForObstacles;
+        [SerializeField] private GrippingValuesSO _defaultGripAsset;
 
-        [Header("Collision Settings")]
-        [SerializeField] private LayerMask _layerMask;
+        private GrippingValuesSO _grippeableAsset;
 
-        [Header("Player Settings")]
-        [SerializeField, EnableField(nameof(stopWhenCloseToGrip))] private float distanteToStop;
-        [SerializeField] private float gripDistance;
-        [SerializeField] private float maxVerticalSpeed;
-        [SerializeField] private float timeToRecoverMovement;
+        public GrippingValuesSO CurrentGripAsset
+        {
+            get
+            {
+                if (_grippeableAsset != null)
+                    return _grippeableAsset;
+                else return _defaultGripAsset;
+            }
+            set
+            {
+                _grippeableAsset = value;
+            }
+        }
 
         [Header("Visuals Settings")]
         [SerializeField] private LineRenderer _lineRenderer;
@@ -94,34 +91,34 @@ namespace Topacai.Player.Movement.Components
             {
                 _lastGrippingTime = 0f;
 
-                _currentSpeed += Time.fixedDeltaTime / timeToMaxSpeed;
+                _currentSpeed += Time.fixedDeltaTime / CurrentGripAsset.TimeToMaxSpeed;
                 _currentSpeed = Mathf.Clamp01(_currentSpeed);
 
-                float fixedCurve = gripVelCurve.Evaluate(_currentSpeed);
-                float currentSpeed = Mathf.Lerp(minSpeed, speed, fixedCurve);
+                float fixedCurve = CurrentGripAsset.GripVelCurve.Evaluate(_currentSpeed);
+                float currentSpeed = Mathf.Lerp(CurrentGripAsset.MinSpeed, CurrentGripAsset.Speed, fixedCurve);
 
                 // Adds an offset from hit point of grip relative to player input direction
-                _gripPos = _gripHitPos + new Vector3(_movement.MoveDir.x, 0, _movement.MoveDir.z).normalized * moveModifier;
+                _gripPos = _gripHitPos + new Vector3(_movement.MoveDir.x, 0, _movement.MoveDir.z).normalized * CurrentGripAsset.MoveModifier;
                 Vector3 dir = _gripPos - _movement.transform.position;
 
-                _movement.Rigidbody.AddForce(dir.normalized * currentSpeed, forceMode);
+                _movement.Rigidbody.AddForce(dir.normalized * currentSpeed, CurrentGripAsset.ForceMode);
 
                 float distance = Vector3.Distance(_gripHitPos, _movement.transform.position);
 
                 /// Checks for flags to stop grip
 
                 // Check for distance between player and grip point and stops if is close
-                if (stopWhenCloseToGrip && distance < distanteToStop)
+                if (CurrentGripAsset.StopWhenCloseToGrip && distance < CurrentGripAsset.DistanteToStop)
                 {
                     StopGrip();
                 }
 
                 // Check for obstacles between player and grip point by using raycast
-                Vector3 _obstaclePos = useComponentPositionForObstacles ? transform.position : Movement.transform.position;
+                Vector3 _obstaclePos = CurrentGripAsset.UseComponentPositionForObstacles ? transform.position : Movement.transform.position;
                 Vector3 _obstacleDir = _obstaclePos - _gripHitPos;
 
 
-                if (stopOnObstacles && Physics.Raycast(_gripHitPos, _obstacleDir.normalized, out obstacleHit, _obstacleDir.magnitude, Movement.Data.WallLayer))
+                if (CurrentGripAsset.StopOnObstacles && Physics.Raycast(_gripHitPos, _obstacleDir.normalized, out obstacleHit, _obstacleDir.magnitude, Movement.Data.WallLayer))
                 {
 #if UNITY_EDITOR
                     if (_showGizmos)
@@ -152,7 +149,7 @@ namespace Topacai.Player.Movement.Components
                     return;
                 }
 
-                if (!IsGripping && _lastGrippingTime < -timeToRecoverMovement && _movement.Data.AirMovement != _originalCanMoveAir)
+                if (!IsGripping && _lastGrippingTime < -CurrentGripAsset.TimeToRecoverMovement && _movement.Data.AirMovement != _originalCanMoveAir)
                 {
                     _movement.Data.AirMovement = _originalCanMoveAir;
                 }
@@ -179,7 +176,7 @@ namespace Topacai.Player.Movement.Components
                 {
 
                     RayGrip();
-                    StartGrip();
+                    StartGrip(CurrentGripAsset);
                 }
             }
             else
@@ -193,27 +190,39 @@ namespace Topacai.Player.Movement.Components
 
         #region Gripping Methods
 
-        public void RayGrip() => RayGrip(gripDistance);
+        public void RayGrip() => RayGrip(CurrentGripAsset.GripDistance);
         public void RayGrip(float distance)
         {
             Transform cameraTransform = Camera.main.transform;
-            if (Physics.Raycast(cameraTransform.position, cameraTransform.forward.normalized, out _hit, distance, _layerMask))
+            if (Physics.Raycast(cameraTransform.position, cameraTransform.forward.normalized, out _hit, distance, CurrentGripAsset.LayerMask))
             {
                 _gripHitPos = _hit.collider.transform.position;
+
+                if (_hit.collider.transform.TryGetScriptableObject<GrippingValuesSO>(out var asset)) 
+                {
+                    CurrentGripAsset = asset;
+                }
+
             }
             else _gripHitPos = default;
         }
 
         public void SetGripPos(Vector3 pos) => _gripHitPos = pos;
 
-        public void StartGrip()
+        public void StartGrip(GrippingValuesSO gripAsset = null)
         {
             if (_gripHitPos == default || LastGripUsage > 0) return;
+
+            if (gripAsset != null)
+            {
+                _grippeableAsset = gripAsset;
+            }
+
             _currentSpeed = 0f;
             IsGripping = true;
 
             _originalMaxFallSpeed = _movement.DefaultData.MaxFallSpeed;
-            _movement.Data.MaxFallSpeed = maxVerticalSpeed;
+            _movement.Data.MaxFallSpeed = CurrentGripAsset.MaxVerticalSpeed;
             //_originalDrag = _movement.DefaultData.AirDrag;
             //_movement.DefaultData.AirDrag = gripDrag;
             if (_lineRenderer != null)
@@ -228,6 +237,8 @@ namespace Topacai.Player.Movement.Components
         {
             _movement.Data.MaxFallSpeed = _originalMaxFallSpeed;
             // _movement.DefaultData.AirDrag = _originalDrag;
+
+            _grippeableAsset = null;
 
             _gripHitPos = default;
             IsGripping = false;
