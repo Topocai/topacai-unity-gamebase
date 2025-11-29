@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Topacai.Player.Movement.Components.Editor
 {
-    [CreateAssetMenu(fileName = "MovementStateRegistry", menuName = "ScriptableObjects/Movement/StatesRegistry")]
+    [CreateAssetMenu(fileName = "MovementStateRegistry", menuName = "ScriptableObjects/PlayerMovement/Components/StatesRegistry")]
     /// <summary>
     /// A scriptable object to manage the states of the movement component and made them persistent across recompile and sessions
     /// This is used only during development/unity editor

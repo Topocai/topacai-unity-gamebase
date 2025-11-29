@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Topacai.Player.Movement.Firstperson.Components.CameraEffects
 {
-    [CreateAssetMenu(fileName = "ViewVobbing Asset", menuName = "ScriptableObjects/FPMovement/CameraEffects/ViewVobbingAsset")]
+    [CreateAssetMenu(fileName = "ViewVobbing Asset", menuName = "ScriptableObjects/PlayerMovement/FP/Components/ViewVobbingAsset")]
     public class ViewVobbingAsset : ScriptableObject
     {
         public float startShakeThreshold = 0.34f;
