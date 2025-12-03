@@ -1,16 +1,22 @@
+> Documentation during development
+
 This class handles the logic to serealize and deserealize the desired data through file system operations organizating it using profile structures, it operates as a static class.
 
->[!note] SetPaths(string savePath, string profilesFileName)
->The data managet could be configured using SetPaths to set the names of the files
+> [!note] SetPaths(string savePath, string profilesFileName)
+> The data managet could be configured using SetPaths to set the names of the files
 
 the manager uses type-safe on serialization and deserealization of the data.
+
 ## Profile management
+
 The profile data is stored as structs named `UserProfile`, each profile creates their own folder using their ID as name and are stored in a list in a serialized file on save path.
 
 the profiles are recovered and saved on static field `_profiles` as a `List` using `RecoverProfiles()` and exposed with `GetProfiles()` (that also recovers before return a value)
 
 You can use `SaveProfile(UserProfile p)` to serialize the profile and save it on the profiles list, and use `CreateProfile(string name, int timePlayed)` to create and save one.
+
 ### Profile structure
+
 The structure of an `UserProfile` contains:
 
 | Field        | Type     | Purpose                                |
@@ -18,10 +24,13 @@ The structure of an `UserProfile` contains:
 | `ID`         | `string` | Unique GUID identifier (never changes) |
 | `Name`       | `string` | User-facing profile name               |
 | `TimePlayed` | `float`  | Total gameplay time in seconds         |
+
 it implements `IComparable` to compare between profiles by checking their IDs.
+
 > `UserProfiles` are marked as `Serializable` with all fields also exposed to the Unity editor.
 
 Example:
+
 ```json
 [
   {
@@ -36,7 +45,9 @@ Example:
   }
 ]
 ```
+
 ## Data management
+
 The data manager provides different methods to save data using type-safe operations and profiles to build the path where they will be saved.
 
 ```
@@ -45,7 +56,7 @@ Application.dataPath/
     ├── profiles.json                  (all profiles list)
     ├── last_used_profile.sp          (editor-only: last selected profile)
     │
-    ├── {Profile-GUID-1}/              
+    ├── {Profile-GUID-1}/
     │   ├── custom_data.json          (custom profile data)
     │   └── Levels/                   (configurable via LevelsPath)
     │       ├── Scene1/
@@ -53,7 +64,7 @@ Application.dataPath/
     │       └── Scene2/
     │           └── Enemies.json
     │
-    └── {Profile-GUID-2}/              
+    └── {Profile-GUID-2}/
         └── ...
 ```
 
@@ -63,10 +74,13 @@ the manager receives the data that will be saved as generic T, then it's saved o
 | ------------ | -------- | ------------------------------- |
 | `ObjectType` | `string` | The fullname of the object type |
 | `Data`       | `Object` | The object to be serealized     |
+
 Every time you use method to get or save data thought the manager, they are checked for its type with `IsSameDataType` which checks for the saved `ObjectType` on `SavedData`
 
 ## Examples of use:
+
 Create a profile and save data to it
+
 ```cs
 // CreateProfile creates and automatically saves the profile
 UserProfile p = SaveDataManager.CreateProfile("My Profile");

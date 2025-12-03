@@ -1,3 +1,5 @@
+> Documentation during development
+
 Class that inherits from ScriptableObject and provides logic to save all the SO data into JSON when `OnSaveGameEvent` is emitted by [[SaveSystemClass]].
 
 Any `ScriptableObject` that inherits from this class and are inside the `Resources` folder (and any subfolder) will conserve their data between game sessions.
