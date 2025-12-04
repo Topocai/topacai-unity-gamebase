@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-
+using Topacai.Managers.GM;
 using Topacai.Utils.SaveSystem;
 
 using UnityEditor;
@@ -34,6 +34,8 @@ namespace Topacai.Utils.GameObjects.Persistent
 
         public static void SetDataInCategory(string category, string id, IPersistentDataObject data) => PersistentDataByCategory[category][id] = data;
 
+        #region Event Subscriptions
+
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]
 #else
@@ -41,12 +43,76 @@ namespace Topacai.Utils.GameObjects.Persistent
 #endif
         private static void SuscribeToProfileEvent() => SaveSystemClass.OnProfileChanged.AddListener(OnProfileChanged);
 
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+#else
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+#endif
+        private static void SuscribeToSceneLoaded() => GameManager.OnSceneLoaded.AddListener(OnNewSceneLoaded);
+
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+#else
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+#endif
+        private static void SuscribeToSceneUnload() => GameManager.OnUnloadingScene.AddListener(OnSceneUnloading);
+
+        #endregion
+
         private static void OnProfileChanged(UserProfile profile)
         {
             Debug.Log("[PersistentObjects] Profile changed detected, recovering all objects");
 
             PersistentDataByCategory.Clear();
             RecoverAllObjects();
+        }
+
+        /// <summary>
+        /// Same as RecoverAllObjects but filter the objects checked by the new scene loaded
+        /// </summary>
+        /// <param name="args"></param>
+        private static void OnNewSceneLoaded(GameManager.OnSceneArgs args)
+        {
+            PersistentObjectMonobehaviour[] objects = GameObject.FindObjectsByType<PersistentObjectMonobehaviour>(FindObjectsSortMode.None);
+
+            objects = objects.Where(x => x.gameObject.scene.name == args.TargetScene.name).ToArray();
+
+            Debug.Log("Recovering new scene objects");
+
+            foreach (var persistentObject in objects)
+            {
+                if (!PersistentDataByCategory.ContainsKey(persistentObject.Category))
+                    PersistentDataByCategory.Add(persistentObject.Category, new());
+            }
+
+            var categoryKeys = PersistentDataByCategory.Keys.ToList();
+
+            foreach (var category in categoryKeys)
+            {
+                RecoverCategory(category);
+            }
+        }
+
+        private static void OnSceneUnloading(object sender, GameManager.OnSceneArgs args)
+        {
+            PersistentObjectMonobehaviour[] objects = GameObject.FindObjectsByType<PersistentObjectMonobehaviour>(FindObjectsSortMode.None);
+
+            objects = objects.Where(x => x.gameObject.scene.name == args.TargetScene.name).ToArray();
+
+            Debug.Log("Saving scene objects");
+
+            foreach (var persistentObject in objects)
+            {
+                if (!PersistentDataByCategory.ContainsKey(persistentObject.Category))
+                    PersistentDataByCategory.Add(persistentObject.Category, new());
+            }
+
+            var categoryKeys = PersistentDataByCategory.Keys.ToList();
+
+            foreach (var category in categoryKeys)
+            {
+                SaveCategoryObjects(category);
+            }
         }
 
         /// <summary>
