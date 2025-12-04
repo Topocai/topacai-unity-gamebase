@@ -57,6 +57,22 @@ namespace Topacai.Utils.GameObjects.Persistent
 #endif
         private static void SuscribeToSceneUnload() => GameManager.OnUnloadingScene.AddListener(OnSceneUnloading);
 
+        // SCENE SWITCHING
+
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+#else
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+#endif
+        private static void SuscribeToSceneSwitched() => GameManager.OnSceneSwitched.AddListener((_) => { PersistentDataByCategory.Clear(); RecoverAllObjects();  });
+
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+#else
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+#endif
+        private static void SuscribeToSceneSwitching() => GameManager.OnSwitchingScene.AddListener((_, _) => SaveAllObjects());
+
         #endregion
 
         private static void OnProfileChanged(UserProfile profile)
@@ -75,17 +91,17 @@ namespace Topacai.Utils.GameObjects.Persistent
         {
             PersistentObjectMonobehaviour[] objects = GameObject.FindObjectsByType<PersistentObjectMonobehaviour>(FindObjectsSortMode.None);
 
-            objects = objects.Where(x => x.gameObject.scene.name == args.TargetScene.name).ToArray();
+            var filterObjects = objects.Where(x => x.gameObject.scene.name == args.TargetScene.name);
 
             Debug.Log("Recovering new scene objects");
 
-            foreach (var persistentObject in objects)
+            foreach (var persistentObject in filterObjects)
             {
                 if (!PersistentDataByCategory.ContainsKey(persistentObject.Category))
                     PersistentDataByCategory.Add(persistentObject.Category, new());
             }
 
-            var categoryKeys = PersistentDataByCategory.Keys.ToList();
+            var categoryKeys = filterObjects.Select(x => x.Category).Distinct();
 
             foreach (var category in categoryKeys)
             {
@@ -97,17 +113,15 @@ namespace Topacai.Utils.GameObjects.Persistent
         {
             PersistentObjectMonobehaviour[] objects = GameObject.FindObjectsByType<PersistentObjectMonobehaviour>(FindObjectsSortMode.None);
 
-            objects = objects.Where(x => x.gameObject.scene.name == args.TargetScene.name).ToArray();
+            var filterObjects = objects.Where(x => x.gameObject.scene.name == args.TargetScene.name);
 
-            Debug.Log("Saving scene objects");
-
-            foreach (var persistentObject in objects)
+            foreach (var persistentObject in filterObjects)
             {
                 if (!PersistentDataByCategory.ContainsKey(persistentObject.Category))
                     PersistentDataByCategory.Add(persistentObject.Category, new());
             }
 
-            var categoryKeys = PersistentDataByCategory.Keys.ToList();
+            var categoryKeys = filterObjects.Select(x => x.Category).Distinct();
 
             foreach (var category in categoryKeys)
             {
