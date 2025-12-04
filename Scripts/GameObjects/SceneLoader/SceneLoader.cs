@@ -20,6 +20,13 @@ namespace Topacai.Static.GameObjects.Scenes
             OnLoadMainScene
         }
 
+        private enum SelectType
+        {
+            SwitchGroupA,
+            SwitchGroups,
+            GoToScene
+        }
+
         [Header("Main Config")]
 #if UNITY_EDITOR
         [SceneName]
@@ -28,14 +35,19 @@ namespace Topacai.Static.GameObjects.Scenes
 #if UNITY_EDITOR
         [SceneName]
 #endif
-        [SerializeField] private string[] scenes_A;
+        [SerializeField, EnableField(nameof(_selectType), SelectType.GoToScene)] private string _goToScene;
 #if UNITY_EDITOR
         [SceneName]
 #endif
-        [SerializeField, EnableField(nameof(_switchGroupsFlag))] private string[] scenes_B;
+        [SerializeField, DisableField(nameof(_selectType), SelectType.GoToScene)] private string[] scenes_A;
+#if UNITY_EDITOR
+        [SceneName]
+#endif
+        [SerializeField, EnableField(nameof(_selectType), SelectType.SwitchGroups)] private string[] scenes_B;
         [Space(2)]
         [SerializeField] private ActivationType activationType;
-        [SerializeField] private bool _switchGroupsFlag;
+        [Tooltip("What type of gate is in use. \n'SwitchGroupsA' uses only group A, the group is enabled/disabled\n'SwitchGroups' uses both groups A and B, the groups are enabled/disabled\n'GoToScene' switch current scene to the selected one")]
+        [SerializeField] private SelectType _selectType;
         [Space(5)]
         [SerializeField] private PlayerBrain _player;
 
@@ -50,6 +62,12 @@ namespace Topacai.Static.GameObjects.Scenes
         public void SetPlayerBrain(PlayerBrain player) => _player = player;
 
         private bool _inRange = false;
+
+        private System.Action CurrentAction => _selectType == SelectType.SwitchGroups ? 
+            SwitchingAction : _selectType == SelectType.GoToScene ?
+            GoToSceneAction : UseGroupAAction;
+
+        private bool _isGroupAEnabled => scenes_A.Length > 0 && SceneManager.GetSceneByName(scenes_A[0]).isLoaded;
 
 #if UNITY_EDITOR
 
@@ -75,6 +93,26 @@ namespace Topacai.Static.GameObjects.Scenes
 
             _enterGate?.OnPlayerEnter.AddListener(OnPlayerEnterGate);
             _exitGate?.OnPlayerEnter.AddListener(OnPlayerExitGate);
+        }
+
+        private void SwitchingAction()
+        {
+            SwitchGroups(_isGroupAEnabled);
+        }
+
+        private void UseGroupAAction()
+        {
+            if (scenes_A.Length < 0) return;
+
+            if (_isGroupAEnabled)
+                DisableGroup(scenes_A);
+            else
+                EnableGroup(scenes_A);
+        }
+
+        private void GoToSceneAction()
+        {
+            GameManager.Instance.LoadScene(this, _goToScene, LoadSceneMode.Single);
         }
 
         private void EnableGroup(string[] scenes)
@@ -110,10 +148,7 @@ namespace Topacai.Static.GameObjects.Scenes
             if (activationType != ActivationType.OnLoadMainScene) return;
             if (scene.name != _mainScene) return;
 
-            if (_switchGroupsFlag)
-                SwitchGroups(true);
-            else
-                EnableGroup(scenes_A);
+            CurrentAction?.Invoke();
         }
 
         private void OnMainSceneUnloaded(Scene scene)
@@ -121,10 +156,7 @@ namespace Topacai.Static.GameObjects.Scenes
             if (activationType != ActivationType.OnLoadMainScene) return;
             if (scene.name != _mainScene) return;
 
-            if (_switchGroupsFlag)
-                SwitchGroups(false);
-            else
-                DisableGroup(scenes_A);
+            CurrentAction?.Invoke();
         }
 
         private void Update()
@@ -136,8 +168,7 @@ namespace Topacai.Static.GameObjects.Scenes
 
             if (distance < activationRange && !_inRange)
             {
-                if (_switchGroupsFlag) SwitchGroups(true);
-                else EnableGroup(scenes_A);
+                CurrentAction?.Invoke();
 
                 _inRange = true;
 
@@ -148,8 +179,7 @@ namespace Topacai.Static.GameObjects.Scenes
             }
             else if (distance > activationRange && _inRange)
             {
-                if (_switchGroupsFlag) SwitchGroups(false);
-                else DisableGroup(scenes_A);
+                CurrentAction?.Invoke();
 
                 _inRange = false;
 
@@ -164,8 +194,7 @@ namespace Topacai.Static.GameObjects.Scenes
         {
             if (activationType == ActivationType.Collision)
             {
-                if (_switchGroupsFlag) SwitchGroups(true);
-                else EnableGroup(scenes_A);
+                CurrentAction?.Invoke();
             }
         }
 
@@ -173,8 +202,7 @@ namespace Topacai.Static.GameObjects.Scenes
         {
             if (activationType == ActivationType.Collision)
             {
-                if (_switchGroupsFlag) SwitchGroups(false);
-                else DisableGroup(scenes_A);
+                CurrentAction?.Invoke();
             }
         }
     }
