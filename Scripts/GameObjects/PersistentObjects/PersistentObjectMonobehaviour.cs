@@ -28,6 +28,8 @@ namespace Topacai.Utils.GameObjects.Persistent
 
         [field: SerializeField, HideInInspector] protected bool isInitialized = false;
 
+        private bool _isSuscribedToDataRecoveredEvent = false;
+
 #if UNITY_EDITOR
 
         [HideInInspector] public bool DisplayOriginalTransform = false;
@@ -75,7 +77,15 @@ namespace Topacai.Utils.GameObjects.Persistent
 
         private void SetLevelNameAsCategory()
         {
-            _category = SceneManager.GetActiveScene().name;
+            _category = gameObject.scene.name;
+        }
+
+        private void SetSuscribeToData(bool value)
+        {
+            if (value && !_isSuscribedToDataRecoveredEvent) PersistentObjectsSystem.OnDataRecoveredEvent.AddListener(OnDataRecovered);
+            else if (!value && _isSuscribedToDataRecoveredEvent) PersistentObjectsSystem.OnDataRecoveredEvent.RemoveListener(OnDataRecovered);
+
+            _isSuscribedToDataRecoveredEvent = value;
         }
 
         /// <summary>
@@ -88,7 +98,9 @@ namespace Topacai.Utils.GameObjects.Persistent
 
             if (string.IsNullOrEmpty(_category)) SetLevelNameAsCategory();
 
-            PersistentObjectsSystem.OnDataRecoveredEvent.AddListener(OnDataRecovered);
+            if (PersistentData == null) PersistentData = new PersistentObjectData();
+
+            SetSuscribeToData(true);
 
             if (!PersistentObjectsSystem.CategoryExists(_category))
             {
@@ -185,9 +197,12 @@ namespace Topacai.Utils.GameObjects.Persistent
             transform.eulerAngles = originalRotation;
             transform.localScale = originalScale;
 
-            PersistentData.Position = (SerializeableVector3)transform.position;
-            PersistentData.Rotation = (SerializeableVector3)transform.eulerAngles;
-            PersistentData.Scale = (SerializeableVector3)transform.localScale;
+            if (PersistentData != null)
+            {
+                PersistentData.Position = (SerializeableVector3)transform.position;
+                PersistentData.Rotation = (SerializeableVector3)transform.eulerAngles;
+                PersistentData.Scale = (SerializeableVector3)transform.localScale;
+            }
 
             SaveObjectData();
         }
@@ -199,12 +214,12 @@ namespace Topacai.Utils.GameObjects.Persistent
         protected override void OnEnable()
         {
             base.OnEnable();
-            PersistentObjectsSystem.OnDataRecoveredEvent.AddListener(OnDataRecovered);
+            SetSuscribeToData(true);
         }
 
         protected virtual void OnDisable()
         {
-            PersistentObjectsSystem.OnDataRecoveredEvent.RemoveListener(OnDataRecovered);
+            SetSuscribeToData(false);
         }
 
         protected virtual void OnDataRecovered(string category)
