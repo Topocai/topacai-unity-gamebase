@@ -16,7 +16,20 @@ namespace Topacai.Utils.Editor
     public class InterfaceReference<T> where T : class
     {
         [SerializeField] private Object _component;
-        public T Value => _component as T;
+
+        private T customVal = null;
+        public T Value
+        {
+            get
+            {
+                return customVal ?? _component as T;
+            }
+
+            set
+            {
+                customVal = value;
+            }
+        }
         public Object Component => _component;
     }
 #if UNITY_EDITOR

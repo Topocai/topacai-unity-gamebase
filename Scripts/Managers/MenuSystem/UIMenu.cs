@@ -43,7 +43,18 @@ namespace Topacai.Utils.MenuSystem
         [Header("UIMenu Settings")]
         [SerializeField] protected MenuType _menuType;
         [SerializeField] protected InterfaceReference<IPage> _mainPageReference;
-        protected IPage _mainPage => _mainPageReference?.Value ?? null;
+        protected IPage _mainPage
+        {
+            get
+            {
+                return _mainPageReference?.Value ?? null;
+            }
+
+            set
+            {
+                _mainPageReference.Value = value;
+            }
+        }
         protected MenuNode _mainNode;
 
         [SerializeField] protected UIDocument _menuDocument;
@@ -67,9 +78,7 @@ namespace Topacai.Utils.MenuSystem
             if (_menuType == MenuType.OneView && _mainPage != null)
             {
                 _mainNode = new MenuNode() { Page = _mainPage };
-                CurrentNode = _mainNode;
-                CurrentNode?.Page?.OnEnterCall(null);
-                OnMenuChanged?.Invoke();
+                SetupMainView();
             }
         }
 
@@ -77,9 +86,7 @@ namespace Topacai.Utils.MenuSystem
         {
             if (_menuType == MenuType.OneView)
             {
-                CurrentNode = _mainNode;
-                CurrentNode?.Page?.OnEnterCall(null);
-                OnMenuChanged?.Invoke();
+                SetupMainView();
             }
             _menuDocument = menuD;
         }
@@ -100,6 +107,7 @@ namespace Topacai.Utils.MenuSystem
         public virtual void Refresh()
         {
             CurrentNode?.Page.OnEnterCall(null);
+            ShowPage(CurrentNode.Page);
 
             SetDocumentOnRoot();
         }
@@ -108,6 +116,16 @@ namespace Topacai.Utils.MenuSystem
         {
             _rootDocument = document;
             _rootElementId = id;
+        }
+
+        public virtual void SetMainView(IPage page)
+        {
+            if (_menuType == MenuType.OneView && page != null)
+            {
+                _mainPage = page;
+                _mainNode = new MenuNode() { Page = page };
+                SetupMainView();
+            }
         }
 
         public virtual void SetNode(MenuNode node)
@@ -234,6 +252,14 @@ namespace Topacai.Utils.MenuSystem
         #endregion
 
         #region Private/Protected Methods
+
+        protected virtual void SetupMainView()
+        {
+            CurrentNode = _mainNode;
+            CurrentNode?.Page?.OnEnterCall(null);
+            ShowPage(CurrentNode.Page);
+            OnMenuChanged?.Invoke();
+        }
 
         protected virtual void ExitMenu(PageCallbackArgs args = null)
         {
