@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace Topacai.Utils.MenuSystem
 {
-    public class SimpleViewer : MonoBehaviour, IPageController, IPage
+    public class SimplePage : MonoBehaviour, IPage
     {
         #region Fields
 
@@ -26,10 +26,13 @@ namespace Topacai.Utils.MenuSystem
 
         #region Interface fields/properties implementation
 
+        public virtual event EventHandler OnPageUpdated;
+
         public virtual string Id => _pageName;
         public virtual IPage Page => this;
         public virtual VisualTreeAsset PageDocument => _pageDocument;
         public virtual bool IsLoading => _isLoading;
+        public virtual bool IsAvaible { get; protected set; }
 
         #endregion
 
@@ -45,7 +48,6 @@ namespace Topacai.Utils.MenuSystem
             c ??= new PageCallbackArgs();
 
             c.Page = this;
-            c.PageController = this;
             c?.Callback?.Invoke(c);
         }
 
@@ -69,11 +71,13 @@ namespace Topacai.Utils.MenuSystem
 
         public virtual void OnEnterCall(PageCallbackArgs callback)
         {
+            IsAvaible = true;
             CallbackArgs(callback);
         }
 
         public virtual void OnExitCall(PageCallbackArgs callback)
         {
+            IsAvaible = false;
             CallbackArgs(callback);
         }
 
