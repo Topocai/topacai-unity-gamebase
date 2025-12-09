@@ -199,7 +199,7 @@ namespace Topacai.Player.Movement.Components
             _movement.OnBeforeMove += OnBeforeMoveHandler;
             _movement.OnMoveBeforeWall += OnMoveBeforeWallHandler;
             _movement.OnMoveAfterAccel += OnMoveAfterAccelHandler;
-            _movement.OnGroundChangedEvent += OnGroundChangedHandler;
+            _movement.OnGroundNewData += OnGroundChangedHandler;
 
             if (string.IsNullOrEmpty(_componentStateName))
                 _componentStateName = this.ToString();
@@ -212,7 +212,7 @@ namespace Topacai.Player.Movement.Components
             _movement.OnBeforeMove -= OnBeforeMoveHandler;
             _movement.OnMoveBeforeWall -= OnMoveBeforeWallHandler;
             _movement.OnMoveAfterAccel -= OnMoveAfterAccelHandler;
-            _movement.OnGroundChangedEvent -= OnGroundChangedHandler;
+            _movement.OnGroundNewData -= OnGroundChangedHandler;
         }
 
         #endregion
