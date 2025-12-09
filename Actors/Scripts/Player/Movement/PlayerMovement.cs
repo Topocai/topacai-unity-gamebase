@@ -20,7 +20,10 @@ namespace Topacai.Player.Movement
         public event BeforeWallDetect OnMoveBeforeWall;
         public event AfterDefineAccel OnMoveAfterAccel;
         public event BeforeMove OnBeforeMove;
-        public event OnGroundChanged OnGroundChangedEvent;
+        public event OnGroundChanged OnGroundNewData;
+
+        public event EventHandler<bool> OnGroundNewState;
+        public event EventHandler<float> OnTargetSpeedChanged;
 
         [Header("Data")]
         [SerializeField] private PlayerBrain _playerBrain;
@@ -80,8 +83,21 @@ namespace Topacai.Player.Movement
         /*[field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))]*/
         public float LastJumpApex { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public float InitialPlayerHeight { get; protected set; }
-        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public float MaxSpeed { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool ClimbingStair { get; protected set; }
+
+        public float MaxSpeed
+        {
+            get
+            {
+                return _currentMaxSpeed;
+            }
+            protected set
+            {
+                if (value != _currentMaxSpeed)
+                    OnTargetSpeedChanged?.Invoke(this, value);
+                _currentMaxSpeed = value;
+            }
+        }
 
         public Rigidbody Rigidbody => _rb;
         public Vector3 TargetSpeed { get { return _targetSpeed; } protected set { _targetSpeed = value; } }
@@ -93,9 +109,24 @@ namespace Topacai.Player.Movement
         public RaycastHit GroundHitData { get { return _groundHit; } }
         public PlayerBrain PlayerBrain { get { return _playerBrain; } }
 
+        private Collider _lgh;
+        private float _currentMaxSpeed;
+
         protected Vector3 _targetSpeed;
         protected Vector3 _crouchPivotPos;
-        protected Collider _lastGroundHit;
+        protected Collider _lastGroundHit
+        {
+            get
+            {
+                return _lgh;
+            }
+            set
+            {
+                if (_lgh != value)
+                    OnGroundNewState?.Invoke(this, value != null);
+                _lgh = value;
+            }
+        }
         protected RaycastHit _groundHit;
         protected Vector3 _moveDir;
         protected Collider _lastStep = default;
@@ -270,7 +301,7 @@ namespace Topacai.Player.Movement
                 // Checks if the ground is the same that the last one
                 if (_lastGroundHit != _groundHit.collider)
                 {
-                    OnGroundChangedEvent?.Invoke(_groundHit);
+                    OnGroundNewData?.Invoke(_groundHit);
 
                     _lastGroundHit = _groundHit.collider;
 
