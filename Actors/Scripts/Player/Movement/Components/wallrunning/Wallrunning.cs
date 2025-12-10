@@ -132,7 +132,7 @@ namespace Topacai.Player.Movement.Components.Wallrunning
 
         private bool CheckWall(Vector3 dir)
         {
-            if (!Physics.Raycast(Movement.Rigidbody.transform.position, dir, out _wallHit, _wallCheckDistance, _wallMask)) return false;
+            if (!Physics.Raycast(transform.position, dir, out _wallHit, _wallCheckDistance, _wallMask)) return false;
 
             return _wallHit.collider?.tag == _wallTag;
         }
@@ -193,7 +193,7 @@ namespace Topacai.Player.Movement.Components.Wallrunning
                 rightSide = !isHittingWall;
 #if UNITY_EDITOR
                 if (SHOW_GIZMOS)
-                    Debug.DrawRay(Movement.Rigidbody.transform.position, crossLeft.normalized * _wallCheckDistance, isHittingWall ? Color.red : Color.green);
+                    Debug.DrawRay(transform.position, crossLeft.normalized * _wallCheckDistance, isHittingWall ? Color.red : Color.green);
 #endif
 
                 if (!isHittingWall)
@@ -202,7 +202,7 @@ namespace Topacai.Player.Movement.Components.Wallrunning
                     var crossRight = Vector3.Cross(Vector3.up, moveDir);
                     isHittingWall = CheckWall(crossRight);
                     if (SHOW_GIZMOS)
-                        Debug.DrawRay(Movement.Rigidbody.transform.position, crossRight.normalized * _wallCheckDistance, isHittingWall ? Color.red : Color.green);
+                        Debug.DrawRay(transform.position, crossRight.normalized * _wallCheckDistance, isHittingWall ? Color.red : Color.green);
                 }
 #else
              CheckWall(Vector3.Cross(Vector3.up, moveDir), out isHittingWall);
@@ -302,7 +302,7 @@ namespace Topacai.Player.Movement.Components.Wallrunning
         }
 
         /// <summary>
-        /// Controls the movement while wall running and allow the player to jump
+        /// Controls the movement while wall running
         /// </summary>
         /// <param name="finalForce"></param>
         /// <param name="moveDir"></param>
