@@ -18,6 +18,8 @@ namespace Topacai.Utils.SaveSystem
 
         public static string GetProfilePath(UserProfile profile) => Application.dataPath + _savePath + $"/{profile.ID}";
 
+        public static string ProfilesListPath => $"{Application.dataPath}/{_savePath}/{_profilesFileName}";
+
         /// <summary>
         /// Create paths for file and subfolder given a filename and a user profile
         /// and checks if them already exists
@@ -77,12 +79,12 @@ namespace Topacai.Utils.SaveSystem
         /// </summary>
         public static void RecoverProfiles()
         {
-            if (!File.Exists(Application.dataPath + _savePath + _profilesFileName))
+            if (!File.Exists(ProfilesListPath))
             {
                 return;
             }
 
-            _profiles = JsonConvert.DeserializeObject<List<UserProfile>>(File.ReadAllText(Application.dataPath + _savePath + _profilesFileName));
+            _profiles = JsonConvert.DeserializeObject<List<UserProfile>>(File.ReadAllText(ProfilesListPath));
         }
 
         public static List<UserProfile> GetProfiles()
@@ -111,7 +113,7 @@ namespace Topacai.Utils.SaveSystem
             }
 
             var json = JsonConvert.SerializeObject(_profiles, Formatting.Indented);
-            File.WriteAllText(Application.dataPath + _savePath + _profilesFileName, json);
+            File.WriteAllText(ProfilesListPath, json);
         }
 
         /// <summary>

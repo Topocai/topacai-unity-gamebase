@@ -30,10 +30,13 @@ namespace Topacai.Utils.SaveSystem
         public static string LevelsPath { get; private set; } = "/Levels";
         public static void SetPaths(string savePath, string profileFileName, string levelsPath) { SavePath = savePath; ProfilesFileName = profileFileName; LevelsPath = levelsPath; }
 
+        public static string SaveFullPath => $"{Application.dataPath}/{SavePath}";
+
         private static List<UserProfile> _profiles => SaveDataManager.GetProfiles();
         
         private static UserProfile _currentProfile;
         public static UserProfile GetCurrentProfile() => _currentProfile;
+        public static ref UserProfile GetCurrentProfileRef() => ref _currentProfile;
 
         public static void CallSaveGameEvent(object sender = null, System.EventArgs e = null)
         {
@@ -91,12 +94,12 @@ namespace Topacai.Utils.SaveSystem
         private static void SaveLastProfile()
         {
             if (_currentProfile.ID != null)
-                FileManager.WriteFile(SavePath, "last_used_profile.sp", _currentProfile.ID);
+                FileManager.WriteFile(SaveFullPath, "last_used_profile.sp", _currentProfile.ID);
         }
 
         private static void LoadLastProfile()
         {
-            var lastProfile = File.Exists($"{SavePath}/last_used_profile.sp") ? File.ReadAllText($"{SavePath}/last_used_profile.sp") : "";
+            var lastProfile = File.Exists($"{SaveFullPath}/last_used_profile.sp") ? File.ReadAllText($"{SaveFullPath}/last_used_profile.sp") : "";
             if (lastProfile != "")
                 SetProfile(_profiles.Find(x => x.ID == lastProfile));
         }
