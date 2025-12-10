@@ -34,6 +34,13 @@ namespace Topacai.Player.Movement.Components
         private Coroutine _stopCoroutine;
         private bool needToApplyForce;
 
+        public void ResetUse()
+        {
+            GroundBeforeDash = true;
+            LastDashUsage = 0f;
+            CooldownTimer = Cooldown;
+        }
+
         #region Callbacks
         private void Start()
         {
