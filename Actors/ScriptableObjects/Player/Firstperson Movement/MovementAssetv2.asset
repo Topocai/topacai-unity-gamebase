@@ -26,43 +26,45 @@ MonoBehaviour:
   MaxFallSpeed: 120
   GroundDrag: 0.2
   AirDrag: 0
-  FallDrag: 0
-  GroundGravityScale: 0.3
-  FallingGravityMult: 5
-  JumpingGravityMult: 3
-  JumpCutGravityMult: 12
+  FallDrag: 0.15
+  GroundGravityScale: 1
+  FallingGravityMult: 2
+  JumpingGravityMult: 1.4
+  JumpCutGravityMult: 3
   WallMinAngleToMove: 25
-  JumpHeight: 7
-  JumpTimeToApex: 1.33
-  WhenCancelJumping: 0.08
+  JumpHeight: 3
+  JumpTimeToApex: 0.7
+  WhenCancelJumping: 0.319
   JumpHangAccelMult: 1.1
   JumpHandMaxSpeed: 1.33
-  Acceleration: 6
-  Deceleration: 7
-  WalkSpeed: 4
+  Acceleration: 6.38
+  Deceleration: 4
+  StopAndDesaccel: 1
+  StopDesaccel: 8.9
+  WalkSpeed: 9.89
   RunSpeed: 8.3
   AirAccelMult: 1
   AirDecelMult: 0.33
   AirMaxSpeedMult: 1
-  MinSlopeAngle: 12
-  MaxSlopeAngle: 46
+  MinSlopeAngle: 5
+  MaxSlopeAngle: 50
   SlopeSpeedMultiplier: 1.7
   SlopeDownForce: 18
-  StepClampVel: 14.77
-  StepUpForce: 4.36
+  StepClampVel: 18
+  StepUpForce: 10
   StepDistance: 0.45
   StepDepth: 0.5
   OnSlopeStepDistanceMultiplier: 1.2
-  StepDownDistance: -0.04
+  StepDownDistance: 0.09
   StepDownGroundBuffer: 0.1
-  StepDownForce: 32
+  StepDownForce: 25
   StepDownMinDistance: 0.1
-  StepDownOffset: 0.22
-  StepMinAngle: 80
+  StepDownOffset: 0.19
+  StepMinAngle: 85
   StepDotThreshold: 0.65
   StepBufferTime: 0
   CoyoteTime: 0.15
-  JumpBufferInput: 0.2
+  JumpBufferInput: 0.184
   JumpApexBuffer: 0.13
   CanMove: 1
   FreezeMove: 0
