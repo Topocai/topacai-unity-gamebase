@@ -16,19 +16,40 @@ namespace Topacai.Player.Movement.Firstperson.Interact
         [SerializeField] private float _distance = 3f;
         [SerializeField] private LayerMask _interactuableLayerMask;
 
-        private Transform _cameraTransform => _playerBrain.PlayerReferences.FirstPersonConfig.FP_Camera;
+        private FirstPersonReferences _playerReferences;
+        private FirstPersonReferences PlayerReferences
+        {
+            get 
+            {
+                if (_playerReferences == null)
+                {
+                    _playerReferences = _playerBrain.PlayerReferences.GetModule<FirstPersonReferences>();
+                }
+                return _playerReferences;
+            }
+            set => _playerReferences = value;
+        }
+
+        private Transform _cameraTransform => PlayerReferences.FP_Camera;
 
         RaycastHit hit;
 
         public PlayerBrain PlayerBrain => _playerBrain;
 
-        void Start()
+        private void Awake()
         {
+            _playerBrain = _playerBrain ?? GetComponent<PlayerBrain>();
+
             if (_playerBrain == null)
             {
-                _playerBrain = GetComponent<PlayerBrain>();
+                Debug.LogError("PlayerBrain is null");
+                enabled = false;
+                return;
             }
+        }
 
+        void Start()
+        {
             if (playerInteractingSystem == null)
             {
                 playerInteractingSystem = GetComponent<InteractingSystem>();
@@ -43,6 +64,13 @@ namespace Topacai.Player.Movement.Firstperson.Interact
 
         private void FixedUpdate()
         {
+            if (_cameraTransform == null || _cameraTransform == null)
+            {
+                Debug.LogError("Camera references is null");
+                enabled = false;
+                return;
+            }
+
             if (Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out hit, _distance, _interactuableLayerMask))
             {
                 if (hit.collider.TryGetComponent(out IInteractuable interactuable))

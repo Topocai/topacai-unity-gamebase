@@ -315,7 +315,7 @@ GameObject:
   - component: {fileID: 2577340929172454956}
   m_Layer: 0
   m_Name: Player v_firstperson
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -456,17 +456,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1423a22d7bfbed8409087f46171e2eed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <PlayerReferences>k__BackingField:
-    rb: {fileID: 8292286287853943238}
-    playerOrientation: {fileID: 2385655470761369254}
-    firstPersonReferences:
-      cameraHolder: {fileID: 5275599765821146820}
-      FP_camera: {fileID: 1844920786845300941}
-  <PlayerConfig>k__BackingField:
-    sensivity_horizontal: 5
-    sensivity_vertical: 5
-    j_sensivity_horizontal: 0.8
-    j_sensivity_vertical: 0.8
   _inputAsset: {fileID: -944628639613478452, guid: fd325c44d059ab4478adc578ef9bc34f, type: 3}
   _playerInputs: {fileID: 2577340929172454956}
 --- !u!114 &412186270826742940
@@ -484,6 +473,15 @@ MonoBehaviour:
   _playerBrain: {fileID: 8036125784681422184}
   CameraDir: {x: 0, y: 0, z: 0}
   CameraDirFlat: {x: 0, y: 0, z: 0}
+  _references:
+    cameraHolder: {fileID: 5275599765821146820}
+    FP_camera: {fileID: 1844920786845300941}
+    playerOrientation: {fileID: 2385655470761369254}
+    _config:
+      sensivity_horizontal: 2
+      sensivity_vertical: 2
+      j_sensivity_horizontal: 25
+      j_sensivity_vertical: 25
   SHOW_CAMERA_DIR: 0
   SHOW_CAMERA_DIR_FLAT: 0
 --- !u!114 &1344306169245150601
@@ -503,6 +501,8 @@ MonoBehaviour:
   _useCustomGravity: 0
   _customGravity: {x: 0, y: -9.81, z: 0}
   _playerBrain: {fileID: 8036125784681422184}
+  _playerConfig:
+    rb: {fileID: 8292286287853943238}
   _defaultData: {fileID: 11400000, guid: cd9d5626a36f01e46957fad92854af5a, type: 2}
   <Data>k__BackingField: {fileID: 0}
   _groundT: {fileID: 911841005251527460}
@@ -516,6 +516,7 @@ MonoBehaviour:
   _stepHeight: {fileID: 6990196419943841137}
   _stepBoxSize: 0.2
   GIZMOS: 1
+  SHOW_SCREEN_LOGS: 0
   ShowDebug: 0
   <IsJumping>k__BackingField: 0
   <IsJumpApex>k__BackingField: 0
@@ -527,10 +528,8 @@ MonoBehaviour:
   <IsJumpPressed>k__BackingField: 0
   <GroundIsTerrain>k__BackingField: 0
   <InitialPlayerHeight>k__BackingField: 0
-  <MaxSpeed>k__BackingField: 0
-  <TargetSpeed>k__BackingField: {x: 0, y: 0, z: 0}
   <ClimbingStair>k__BackingField: 0
-  _cameraController: {fileID: 0}
+  _cameraController: {fileID: 412186270826742940}
 --- !u!114 &5742053166635316694
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -543,6 +542,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d63ff7474c70b864b9f49c7ecbd5d289, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerInteractingSystem: {fileID: 0}
   _playerBrain: {fileID: 8036125784681422184}
   _distance: 3
   _interactuableLayerMask:

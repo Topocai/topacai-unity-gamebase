@@ -9,69 +9,31 @@ using UnityEngine.InputSystem;
 
 namespace Topacai.Player
 {
+    public interface IPlayerModule
+    {
+        public object Controller { get; }
+    }
     [System.Serializable]
     public class PlayerReferences
     {
-        [System.Serializable]
-        public struct FirstPersonReferences
+        private Dictionary<System.Type, object> _modules = new ();
+        public bool RegisterModule<T>(T module) where T : class, IPlayerModule
         {
-            [SerializeField] private Transform cameraHolder;
-            [SerializeField] private Transform FP_camera;
-
-            public Transform FP_CameraHolder { get => cameraHolder; set => cameraHolder = value; }
-            public Transform FP_Camera { get => FP_camera; set => FP_camera = value; }
-        }
-
-        [SerializeField] private Rigidbody rb;
-        [SerializeField] private Transform playerOrientation;
-        [SerializeField] private FirstPersonReferences firstPersonReferences;
-
-        public Rigidbody Rigidbody { get => rb; set => rb = value; }
-        public Transform PlayerOrientation { get => playerOrientation; set => playerOrientation = value; }
-        
-        public FirstPersonReferences FirstPersonConfig { get => firstPersonReferences; set => firstPersonReferences = value; }
-    }
-
-    [System.Serializable]
-    public class PlayerConfig
-    {
-        #region Sensivity
-        [SerializeField] private float sensivity_horizontal = 5f;
-        [SerializeField] private float sensivity_vertical = 5f;
-
-        [SerializeField] private float j_sensivity_horizontal = 50f;
-        [SerializeField] private float j_sensivity_vertical = 50f;
-
-        public void SetSensivity(Inputs.DeviceType device, float horizontal, float vertical)
-        {
-            switch (device)
+            if (GetModule<T>() != null)
             {
-                case Inputs.DeviceType.Keyboard:
-                    sensivity_horizontal = horizontal;
-                    sensivity_vertical = vertical;
-                    break;
-                case Inputs.DeviceType.Controller:
-                    j_sensivity_horizontal = horizontal;
-                    j_sensivity_vertical = vertical;
-                    break;
-                default:
-                    break;
+                Debug.LogError("Already exists a component of this type");
+                return false;
             }
+
+            _modules.Add(typeof(T), module);
+            return true;
         }
 
-        public (float, float) GetSensivity(Inputs.DeviceType device)
+        public T GetModule<T>() where T : class, IPlayerModule
         {
-            switch (device)
-            {
-                case Inputs.DeviceType.Keyboard:
-                    return (sensivity_horizontal, sensivity_vertical);
-                case Inputs.DeviceType.Controller:
-                    return (j_sensivity_horizontal, j_sensivity_vertical);
-                default:
-                    return (sensivity_horizontal, sensivity_vertical);
-            }
+            _modules.TryGetValue(typeof(T), out var module);
+            return (T)module;
         }
-        #endregion
     }
 
     public class PlayerBrain : MonoBehaviour
@@ -100,7 +62,6 @@ namespace Topacai.Player
         public static List<PlayerBrain> Players { get; private set; }
 
         [field: SerializeField] public PlayerReferences PlayerReferences { get; private set; }
-        [field: SerializeField] public PlayerConfig PlayerConfig { get; private set; }
 
         [SerializeField] private InputActionAsset _inputAsset;
         [SerializeField] private InputHandler _playerInputs;
@@ -187,39 +148,6 @@ namespace Topacai.Player
         }
 
         public static GameObject CreatePlayerPrefab(GameObject playerPrefab,Transform pos) => CreatePlayerPrefab(playerPrefab, pos.position);
-
-        #endregion
-
-        #region Public Utility Methods
-
-        public void TeleportPlayerTo(Transform pos) => TeleportPlayerTo(pos.position);
-
-        public void TeleportPlayerTo(Vector3 pos)
-        {
-            PlayerReferences.Rigidbody.position = pos;
-            transform.position = pos;
-        }
-
-        public void TeleportPlayerToUsingPivot(Vector3 pos, Vector3 pivot)
-        {
-            Vector3 offset = transform.TransformPoint(pivot) - transform.position;
-            TeleportPlayerTo(pos - offset);
-        }
-
-        public void TeleportPlayerRelativeTo(Transform pos, Vector3? origin) => TeleportPlayerRelativeTo(pos.position, origin);
-
-        public void TeleportPlayerRelativeTo(Transform pos) => TeleportPlayerRelativeTo(pos.position, transform.position);
-
-        public void TeleportPlayerRelativeTo(Transform pos, Transform origin) => TeleportPlayerRelativeTo(pos.position, origin.position);
-
-        public void TeleportPlayerRelativeTo(Vector3 pos, Vector3? origin)
-        {
-            if (origin == null)
-                origin = transform.position;
-
-            PlayerReferences.Rigidbody.position = (Vector3)origin + pos;
-            transform.position = (Vector3)origin + pos;
-        }
 
         #endregion
 

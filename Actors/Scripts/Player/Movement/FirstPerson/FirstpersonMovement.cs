@@ -1,4 +1,4 @@
-using Topacai.Player.Movement.Firstperson.Camera;
+using Topacai.Player.Movement.Firstperson;
 using Topacai.TDebug;
 using UnityEngine;
 
@@ -12,9 +12,13 @@ namespace Topacai.Player.Movement.Firstperson
         {
             base.Start();
 
+            _cameraController = _cameraController ?? GetComponent<FirstpersonCamera>() ?? PlayerBrain.PlayerReferences.GetModule<FirstPersonReferences>().CameraController;
+
             if (_cameraController == null) 
             {
-                _cameraController = GetComponent<FirstpersonCamera>();
+                Debug.LogWarning("[FirstpersonMovement] CameraController is null");
+                enabled = false;
+                return;
             }
         }
 

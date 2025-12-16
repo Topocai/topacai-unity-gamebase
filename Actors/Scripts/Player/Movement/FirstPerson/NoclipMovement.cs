@@ -1,7 +1,7 @@
 using System;
 using Topacai.Inputs;
 using Topacai.Player.Movement;
-using Topacai.Player.Movement.Firstperson.Camera;
+using Topacai.Player.Movement.Firstperson;
 using UnityEngine;
 using UnityEngine.InputSystem;
 

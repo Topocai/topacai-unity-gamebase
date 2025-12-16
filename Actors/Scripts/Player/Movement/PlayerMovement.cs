@@ -25,8 +25,11 @@ namespace Topacai.Player.Movement
         public event EventHandler<bool> OnGroundNewState;
         public event EventHandler<float> OnTargetSpeedChanged;
 
-        [Header("Data")]
+        [Header("References")]
         [SerializeField] private PlayerBrain _playerBrain;
+        [SerializeField] protected PlayerMovementReferences _playerConfig;
+
+        [Header("Data")]
         [Tooltip("Sets here the data asset that the movement will use, this will be copied during runtime in order to keep runtime changes during gameplay, also used this to revert any runtime change in data")]
         [SerializeField] protected MovementSO _defaultData;
 
@@ -108,6 +111,7 @@ namespace Topacai.Player.Movement
         public MovementSO DefaultData { get { return _defaultData; } }
         public RaycastHit GroundHitData { get { return _groundHit; } }
         public PlayerBrain PlayerBrain { get { return _playerBrain; } }
+        public PlayerMovementReferences MovementReferences { get { return _playerConfig; } }
 
         private Collider _lgh;
         private float _currentMaxSpeed;
@@ -161,13 +165,22 @@ namespace Topacai.Player.Movement
         {
             base.Start();
 
+            _playerBrain = _playerBrain ?? GetComponent<PlayerBrain>();
+
             if (_playerBrain == null)
             {
-                _playerBrain = GetComponent<PlayerBrain>();
+                Debug.LogWarning("[Movement] Movement should belongs to a PlayerBrain");
+                this.enabled = false;
+                return;
             }
 
-            if (_playerBrain != null && _rb != null)
-                _playerBrain.PlayerReferences.Rigidbody = _rb;
+            if (_rb != null)
+            {
+                _playerConfig.Rigidbody = _rb;
+            }
+
+            _playerConfig.MovementController = this;
+            _playerBrain.PlayerReferences.RegisterModule(_playerConfig);
 
             MaxSpeed = Data.WalkSpeed;
 

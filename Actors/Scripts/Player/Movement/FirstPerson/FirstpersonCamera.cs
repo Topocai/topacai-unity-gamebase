@@ -3,18 +3,21 @@ using System.Collections.Generic;
 using Topacai.Inputs;
 using UnityEngine;
 
-namespace Topacai.Player.Movement.Firstperson.Camera
+namespace Topacai.Player.Movement.Firstperson
 {
     public class FirstpersonCamera : MonoBehaviour
     {
-        [SerializeField] private PlayerBrain _playerBrain;
+        [SerializeField] protected PlayerBrain _playerBrain;
 
         [HideInInspector] public Vector3 CameraDir;
         [HideInInspector] public Vector3 CameraDirFlat;
-        public Transform CameraTransform => _playerBrain.PlayerReferences.FirstPersonConfig.FP_Camera;
-        private Transform PlayerOrientation => _playerBrain.PlayerReferences.PlayerOrientation;
-        private Transform CameraHolder => _playerBrain.PlayerReferences.FirstPersonConfig.FP_CameraHolder;
-        private (float, float) Sensivity => _playerBrain.PlayerConfig.GetSensivity(_playerBrain.InputHandler.CurrentDevice);
+
+        [SerializeField] protected FirstPersonReferences _references;
+
+        public Transform CameraTransform => _references.FP_Camera;
+        private Transform PlayerOrientation => _references.PlayerOrientation;
+        private Transform CameraHolder => _references.FP_CameraHolder;
+        private (float, float) Sensivity => _references.Config.GetSensivity(_playerBrain.InputHandler.CurrentDevice);
         private Vector2 _input => _playerBrain.InputHandler.CameraDir;
 
         private float _cameraX = 0;
@@ -43,6 +46,28 @@ namespace Topacai.Player.Movement.Firstperson.Camera
             }
         }
 #endif
+
+        private void Awake()
+        {
+            _playerBrain = _playerBrain ?? GetComponent<PlayerBrain>();
+
+            if (_playerBrain == null)
+            {
+                Debug.LogWarning("[FPCamera] FP Movement should belongs to a PlayerBrain");
+                this.enabled = false;
+                return;
+            }
+
+            _references.CameraController = this;
+            _playerBrain.PlayerReferences.RegisterModule(_references);
+
+            if (CameraTransform == null || PlayerOrientation == null || CameraHolder == null)
+            {
+                Debug.LogWarning("[FPCamera] Missing references");
+                this.enabled = false;
+                return;
+            }
+        }
         void Start()
         {
             CameraDir = Vector3.zero;
