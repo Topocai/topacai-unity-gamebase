@@ -16,7 +16,7 @@ namespace Topacai.Player
     [System.Serializable]
     public class PlayerReferences
     {
-        private Dictionary<System.Type, object> _modules = new ();
+        private Dictionary<System.Type, object> _modules = new();
         public bool RegisterModule<T>(T module) where T : class, IPlayerModule
         {
             if (GetModule<T>() != null)
@@ -40,7 +40,7 @@ namespace Topacai.Player
     {
         public const bool SINGLEPLAYER_MODE = true;
 
-        private static PlayerBrain sp_Player;
+        protected static PlayerBrain sp_Player;
 
         public static PlayerBrain SP_Player
         {
@@ -53,18 +53,18 @@ namespace Topacai.Player
                 return sp_Player;
             }
 
-            private set
+            protected set
             {
                 sp_Player = value;
             }
         }
 
-        public static List<PlayerBrain> Players { get; private set; }
+        public static List<PlayerBrain> Players { get; protected set; }
 
-        [field: SerializeField] public PlayerReferences PlayerReferences { get; private set; }
+        [field: SerializeField] public PlayerReferences PlayerReferences { get; protected set; }
 
-        [SerializeField] private InputActionAsset _inputAsset;
-        [SerializeField] private InputHandler _playerInputs;
+        [SerializeField] protected InputActionAsset _inputAsset;
+        [SerializeField] protected InputHandler _playerInputs;
 
         public InputHandler InputHandler
         {
@@ -79,7 +79,7 @@ namespace Topacai.Player
             }
         }
 
-        private void CreateInputs()
+        protected virtual void CreateInputs()
         {
             if (_playerInputs != null || _inputAsset == null) return;
 
@@ -88,17 +88,17 @@ namespace Topacai.Player
             playerInput.actions = _inputAsset;
 
             gameObject.AddComponent<InputHandler>();
-            
+
         }
 
-        private void Awake()
+        protected virtual void Awake()
         {
             if (SINGLEPLAYER_MODE)
             {
                 if (SP_Player != null && SP_Player != this)
                 {
                     Destroy(this);
-                } 
+                }
                 else
                 {
                     SP_Player = this;
@@ -106,12 +106,12 @@ namespace Topacai.Player
             }
         }
 
-        protected void Initialize()
+        protected virtual void Initialize()
         {
             CreateInputs();
         }
 
-        private void Start()
+        protected virtual void Start()
         {
             CreateInputs();
         }
@@ -132,7 +132,8 @@ namespace Topacai.Player
                 {
                     playerBrain.CreateInputs();
                 }
-            } else
+            }
+            else
             {
                 throw new System.Exception("Player prefab must have a PlayerBrain component");
             }
@@ -147,7 +148,7 @@ namespace Topacai.Player
             return instance;
         }
 
-        public static GameObject CreatePlayerPrefab(GameObject playerPrefab,Transform pos) => CreatePlayerPrefab(playerPrefab, pos.position);
+        public static GameObject CreatePlayerPrefab(GameObject playerPrefab, Transform pos) => CreatePlayerPrefab(playerPrefab, pos.position);
 
         #endregion
 
