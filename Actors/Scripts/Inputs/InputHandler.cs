@@ -57,7 +57,7 @@ namespace Topacai.Inputs
 
         public void Update(float deltaTime)
         {
-            if(!_isActive) return;
+            if (!_isActive) return;
 
             InstantPress = _action.WasPressedThisFrame();
 
@@ -89,7 +89,7 @@ namespace Topacai.Inputs
             }
         }
 
-        public void Disable() 
+        public void Disable()
         {
             _action.Disable();
             IsPressing = false;
@@ -147,7 +147,7 @@ namespace Topacai.Inputs
         public static Vector2 SP_MoveDir;
         public static Vector2 SP_CameraDir;
 
-        private static HashSet<SimpleActionHandler> sp_actionHandlers = new();
+        protected static HashSet<SimpleActionHandler> sp_actionHandlers = new();
 
         #endregion
 
@@ -183,13 +183,13 @@ namespace Topacai.Inputs
 
         #endregion
 
-        private InputAction _Move;
-        private InputAction _Camera;
-        public static InputAction _Pause { get; private set; }
+        protected InputAction _Move;
+        protected InputAction _Camera;
+        public static InputAction _Pause { get; protected set; }
 
-        [SerializeField] private float pressingThreshold = 0.099f;
+        [SerializeField] protected float pressingThreshold = 0.099f;
 
-        private void Awake()
+        protected virtual void Awake()
         {
             if (PlayerInput == null)
                 PlayerInput = GetComponent<PlayerInput>();
@@ -216,7 +216,7 @@ namespace Topacai.Inputs
             SP_PlayerInput = PlayerInput;
         }
 
-        private void OnSchemeChangedHandler(string scheme)
+        protected virtual void OnSchemeChangedHandler(string scheme)
         {
             CurrentScheme = scheme;
 
@@ -237,7 +237,7 @@ namespace Topacai.Inputs
             SP_CurrentScheme = scheme;
         }
 
-        private void OnDisable()
+        protected virtual void OnDisable()
         {
             foreach (var handler in _actionHandlers)
             {
@@ -245,9 +245,9 @@ namespace Topacai.Inputs
             }
         }
 
-        private void OnEnable()
+        protected virtual void OnEnable()
         {
-            if (Application.isPlaying) 
+            if (Application.isPlaying)
             {
                 foreach (var handler in _actionHandlers)
                 {
@@ -256,7 +256,7 @@ namespace Topacai.Inputs
             }
         }
 
-        private void Update()
+        protected virtual void Update()
         {
             string currentScheme = PlayerInput.currentControlScheme;
 
