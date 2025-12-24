@@ -139,6 +139,9 @@ namespace Topacai.Inputs
 
         public static OnSchemeChangedEvent SP_OnSchemeChanged = new OnSchemeChangedEvent();
 
+        /// <summary>
+        /// SP_PlayerInput is a reference to PlayerInput, so any modification to SP_PlayerInput will affect PlayerInput and vice versa
+        /// </summary>
         public static PlayerInput SP_PlayerInput;
 
         public static string SP_CurrentScheme;
@@ -147,6 +150,10 @@ namespace Topacai.Inputs
         public static Vector2 SP_MoveDir;
         public static Vector2 SP_CameraDir;
 
+        /// <summary>
+        /// sp_actionHandlers is a reference to _actionHandlers, so any modification to sp_actionHandlers will affect _actionHandlers
+        /// and vice versa
+        /// </summary>
         protected static HashSet<SimpleActionHandler> sp_actionHandlers = new();
 
         #endregion
@@ -179,7 +186,7 @@ namespace Topacai.Inputs
         [HideInInspector] public Vector2 MoveDir;
         [HideInInspector] public Vector2 CameraDir;
 
-        private HashSet<SimpleActionHandler> _actionHandlers = new();
+        protected HashSet<SimpleActionHandler> _actionHandlers = new();
 
         #endregion
 
@@ -210,6 +217,11 @@ namespace Topacai.Inputs
             _actionHandlers.Add(interact);
             _actionHandlers.Add(jump);
             _actionHandlers.Add(crouch);
+
+            if (PlayerBrain.SINGLEPLAYER_MODE)
+            {
+                sp_actionHandlers = _actionHandlers;
+            }
 
             OnSchemeChangedHandler(PlayerInput.currentControlScheme);
 
@@ -243,6 +255,8 @@ namespace Topacai.Inputs
             {
                 handler.Disable();
             }
+
+            PlayerInput.actions.Disable();
         }
 
         protected virtual void OnEnable()
@@ -253,6 +267,8 @@ namespace Topacai.Inputs
                 {
                     handler.Enable();
                 }
+
+                PlayerInput.actions.Enable();
             }
         }
 
@@ -275,11 +291,6 @@ namespace Topacai.Inputs
 
             if (PlayerBrain.SINGLEPLAYER_MODE)
             {
-                foreach (var actionHandler in sp_actionHandlers)
-                {
-                    actionHandler.Update(Time.deltaTime);
-                }
-
                 SP_MoveDir = MoveDir;
                 SP_CameraDir = CameraDir;
             }
