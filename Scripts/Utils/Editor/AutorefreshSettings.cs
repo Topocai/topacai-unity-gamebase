@@ -13,25 +13,53 @@ namespace Topacai.Utils.Editor
     /// </summary>
     public static class AutorefreshSettings
     {
-        [MenuItem("TopacaiTools/Editor/Auto Refresh")]
-        private static void AutoRefreshToggle()
+
+        private const string KEY_NAME = "T-AutoRefresh";
+
+        private static bool _isAutoRefreshEnabled
         {
-            var status = EditorPrefs.GetInt("kAutoRefresh");
+            get
+            {
+                if (!EditorPrefs.HasKey(KEY_NAME))
+                {
+                    EditorPrefs.SetInt(KEY_NAME, 1);
+                }
 
-            bool enabled = status == 1;
+                return EditorPrefs.GetInt(KEY_NAME) == 1;
+            }
+            set
+            {
+                EditorPrefs.SetInt(KEY_NAME, value ? 1 : 0);
+            }
+        }
 
-            EditorPrefs.SetInt("kAutoRefresh", enabled ? 0 : 1);
+        private static void SetAutoRefresh(bool val)
+        {
+            _isAutoRefreshEnabled = val;
+            EditorPrefs.SetInt("kAutoRefresh", _isAutoRefreshEnabled ? 1 : 0);
 
-            if (enabled)
+            if (!_isAutoRefreshEnabled)
                 EditorApplication.LockReloadAssemblies();
             else
                 EditorApplication.UnlockReloadAssemblies();
         }
 
+        [InitializeOnLoadMethod]
+        private static void InitAutoRefresh()
+        {
+            SetAutoRefresh(_isAutoRefreshEnabled);
+        }
+
+        [MenuItem("TopacaiTools/Editor/Auto Refresh")]
+        private static void AutoRefreshToggle()
+        {
+            SetAutoRefresh(!_isAutoRefreshEnabled);
+        }
+
         [MenuItem("TopacaiTools/Editor/Auto Refresh", true)]
         private static bool AutoRefreshToggleValidation()
         {
-            var status = EditorPrefs.GetInt("kAutoRefresh");
+            var status = EditorPrefs.GetInt(KEY_NAME);
 
             Menu.SetChecked("TopacaiTools/Editor/Auto Refresh", status == 1);
 
