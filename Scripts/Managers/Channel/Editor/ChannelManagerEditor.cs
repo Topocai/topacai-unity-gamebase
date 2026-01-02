@@ -1,8 +1,13 @@
 #if UNITY_EDITOR
-
-using System.Collections.Generic;
 using UnityEngine;
+
 using UnityEditor;
+
+using System.IO;
+using System.Linq;
+using System.Collections.Generic;
+
+using UnityEditorInternal;
 
 namespace Topacai.Channels.Editor
 {
@@ -11,6 +16,13 @@ namespace Topacai.Channels.Editor
         string channelName = "DontUseSpaces";
 
         List<ArgumentData> arguments = new();
+        List<string> requiredNamespaces = new();
+
+        List<AssemblyDefinitionAsset> requiredAssemblyReferences = new();
+
+        int channelGroup = 0;
+
+        bool useExistingGroup = false;
 
         [MenuItem("TopacaiTools/Channel Manager")]
         public static void ShowWindow()
@@ -25,6 +37,8 @@ namespace Topacai.Channels.Editor
             channelName = EditorGUILayout.TextField("Channel Name: ", channelName);
 
             GUILayout.Space(10);
+
+            // ========================== /* ARGUMENTS */ ========================== //
 
             GUILayout.Label("Channel arguments", EditorStyles.boldLabel);
             for (int i = 0; i < arguments.Count; i++)
@@ -47,12 +61,99 @@ namespace Topacai.Channels.Editor
                 arguments.Add(new ArgumentData());
             }
 
+            GUILayout.Space(10);
+
+            // ========================== /* REQUIRED NAMESPACES */ ========================== //
+
+            GUILayout.Label("Required namespaces", EditorStyles.boldLabel);
+            for (int i = 0; i < requiredNamespaces.Count; i++)
+            {
+                EditorGUILayout.BeginVertical("box");
+
+                requiredNamespaces[i] = EditorGUILayout.TextField("Namespace: ", requiredNamespaces[i]);
+
+                if (GUILayout.Button("Remove"))
+                {
+                    requiredNamespaces.RemoveAt(i);
+                    break;
+                }
+
+                EditorGUILayout.EndVertical();
+            }
+
+            if (GUILayout.Button("Add required namespace"))
+            {
+                requiredNamespaces.Add("");
+            }
+
             GUILayout.Space(20);
+
+            // custom namespace
+
+            string customNamespace = EditorGUILayout.TextField("Custom Namespace", "");
+            string assemblyGroup = "";
+
+            // ========================== /* CHANNEL GROUP/ASSEMBLY */ ========================== //
+
+            useExistingGroup = EditorGUILayout.Toggle("Use existing group", useExistingGroup);
+
+            if (useExistingGroup)
+            {
+                var channelsGroups = Directory.EnumerateDirectories(ChannelManager.CHANNEL_BROADCASTER_PATH);
+
+                if (channelsGroups.Count() == 0)
+                {
+                    EditorGUILayout.HelpBox("No channel groups found", MessageType.Error);
+                }
+                else
+                {
+                    var options = channelsGroups.Select(x => Path.GetFileName(x)).ToArray();
+
+                    channelGroup = EditorGUILayout.Popup(channelGroup, options);
+
+                    assemblyGroup = options[channelGroup];
+                }
+            }
+            else
+            {
+                GUILayout.Label("Required assemblies", EditorStyles.boldLabel);
+                EditorGUILayout.HelpBox("If one assembly is required, a new group with a new assembly definition would be created for this channel.", MessageType.Info);
+                for (int i = 0; i < requiredAssemblyReferences.Count; i++)
+                {
+                    EditorGUILayout.BeginVertical("box");
+
+                    requiredAssemblyReferences[i] = DrawAssemblyReference(requiredAssemblyReferences[i]);
+
+                    if (GUILayout.Button("Remove"))
+                    {
+                        requiredAssemblyReferences.RemoveAt(i);
+                        break;
+                    }
+
+                    EditorGUILayout.EndVertical();
+                }
+
+                if (GUILayout.Button("Add required assembly"))
+                {
+                    requiredAssemblyReferences.Add(null);
+                }
+            }
+
+            GUILayout.Space(5);
 
             if (GUILayout.Button("Create Channel"))
             {
-                ChannelManager.CreateChannel(channelName, arguments);
+                string[] requiredAssemblyes = requiredAssemblyReferences.Count() > 0 ?
+                requiredAssemblyReferences.Select(x => x.name).ToArray()
+                : null;
+
+                ChannelManager.CreateChannel(channelName, arguments, customNamespace, requiredNamespaces.ToArray(), requiredAssemblyes, assemblyGroup);
             }
+        }
+
+        private AssemblyDefinitionAsset DrawAssemblyReference(AssemblyDefinitionAsset assemblyReference)
+        {
+            return (AssemblyDefinitionAsset)EditorGUILayout.ObjectField("Assembly Reference: ", assemblyReference, typeof(AssemblyDefinitionAsset), false);
         }
 
         private ArgumentData DrawArgument(ArgumentData argument)
