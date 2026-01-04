@@ -9,6 +9,8 @@ using System.Collections.Generic;
 
 using UnityEditorInternal;
 
+using Topacai.ChannelSystem;
+
 namespace Topacai.Channels.Editor
 {
     public class ChannelManagerWindow : EditorWindow
