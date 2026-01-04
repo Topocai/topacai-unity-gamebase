@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,13 +8,8 @@ using Topacai.Utils.Files;
 using UnityEditor;
 using UnityEngine;
 
-namespace Topacai.Channels
+namespace Topacai.ChannelSystem
 {
-
-    public static partial class ChannelBroadcaster
-    {
-
-    }
     public enum TypeData
     {
         Float,
@@ -35,7 +30,7 @@ namespace Topacai.Channels
     {
 #if UNITY_EDITOR
         public const string CHANNEL_BROADCASTER_PATH = "Assets/TopacaiCore/GeneratedScripts/ChannelBroadcaster/";
-        public const string CHANNEL_SYSTEM_VERSION = "1.0.0-alpha";
+        public const string CHANNEL_SYSTEM_VERSION = "1.0.1-alpha";
         public const string MAIN_ASSEMBLYDEF_NAME = "TopacaiChannels";
 
         private static bool _ReloadAssets = false;
@@ -114,6 +109,8 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+
+using Topacai.ChannelSystem;
 
 {(references != null ? $"using {references};" : "")}
 
