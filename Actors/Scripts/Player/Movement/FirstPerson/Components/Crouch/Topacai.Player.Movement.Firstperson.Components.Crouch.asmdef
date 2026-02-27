@@ -1,0 +1,20 @@
+{
+  "name": "Topacai.Player.Movement.Firstperson.Components.Crouch",
+  "rootNamespace": "Topacai.Player.Movement.Firstperson.Components.Crouch",
+  "references": [
+    "Topacai.Player.Movement.Components",
+    "Topacai.Player.Movement",
+    "EditorAttributes",
+    "Unity.InputSystem",
+    "Topacai"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

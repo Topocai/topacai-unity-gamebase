@@ -71,7 +71,6 @@ namespace Topacai.Player.Movement
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool IsJumping { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool IsJumpApex { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool IsFalling { get; protected set; }
-        [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool IsCrouched { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool JumpCutting { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool IsTryingToJump { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool WasJumpPressed { get; protected set; }
@@ -94,7 +93,7 @@ namespace Topacai.Player.Movement
             {
                 return _currentMaxSpeed;
             }
-            protected set
+            set
             {
                 if (value != _currentMaxSpeed)
                     OnTargetSpeedChanged?.Invoke(this, value);
@@ -117,7 +116,6 @@ namespace Topacai.Player.Movement
         private float _currentMaxSpeed;
 
         protected Vector3 _targetSpeed;
-        protected Vector3 _crouchPivotPos;
         protected Collider _lastGroundHit
         {
             get
@@ -144,7 +142,6 @@ namespace Topacai.Player.Movement
         protected float _jumpForce;
 
         protected SimpleActionHandler _jumpInput;
-        protected SimpleActionHandler _crouchInput;
         protected SimpleActionHandler _sprintInput;
 
         protected float _GroundSize => _groundSize * transform.localScale.magnitude;
@@ -193,7 +190,6 @@ namespace Topacai.Player.Movement
             var inputHandler = _playerBrain.InputHandler;
 
             _jumpInput = inputHandler.GetActionHandler(ActionName.Jump);
-            _crouchInput = inputHandler.GetActionHandler(ActionName.Crouch);
             _sprintInput = inputHandler.GetActionHandler(ActionName.Run);
         }
 
@@ -226,7 +222,6 @@ namespace Topacai.Player.Movement
             DragControl();
             if (!Data.FreezeMove)
                 Movement();
-            CrouchInputs();
             ControlGravityScale();
         }
         protected virtual void Update()
@@ -234,7 +229,7 @@ namespace Topacai.Player.Movement
             _rb.mass = Data.RBMass;
             AirCheckers();
             InputHandlers();
-            
+
             MoveDir = GetMoveDirByCameraAndInput();
         }
 
@@ -279,7 +274,8 @@ namespace Topacai.Player.Movement
                 IsJumping = false;
                 LastJumpApex = Data.JumpApexBuffer;
                 IsJumpApex = true;
-            } else if (_InGround && !IsTryingToJump)
+            }
+            else if (_InGround && !IsTryingToJump)
             {
                 IsJumping = false;
                 _forcedJump = false;
@@ -310,7 +306,7 @@ namespace Topacai.Player.Movement
             if (Physics.SphereCast(_groundT.position, _GroundSize, Vector3.down, out _groundHit, _GroundSize, Data.GroundLayer))
             {
                 LastGroundTime = IsJumping ? 0.01f : Data.CoyoteTime;
-                
+
                 // Checks if the ground is the same that the last one
                 if (_lastGroundHit != _groundHit.collider)
                 {
@@ -322,7 +318,7 @@ namespace Topacai.Player.Movement
                     var terrain = _groundHit.collider.GetComponent<TerrainCollider>();
                     GroundIsTerrain = terrain != null;
                 }
-            } 
+            }
             else
             {
                 _lastGroundHit = null;
@@ -401,18 +397,6 @@ namespace Topacai.Player.Movement
                 SwitchRun(_sprintInput.IsPressing);
         }
 
-        protected virtual void CrouchInputs()
-        {
-            if (_crouchInput.IsPressing && !IsCrouched)
-            {
-                Crouch();
-            }
-            else if (!_crouchInput.IsPressing && IsCrouched)
-            {
-                Crouch();
-            }
-        }
-
         protected virtual void InputHandlers()
         {
             JumpInput();
@@ -438,7 +422,7 @@ namespace Topacai.Player.Movement
         }
 
         protected void ResetExitingSlope() => IsTryingToJump = false;
-#endregion
+        #endregion
 
         #region Actions
         public virtual void Jump(bool forceJump, float height = -999f, float timeToApex = -999f)
@@ -466,7 +450,7 @@ namespace Topacai.Player.Movement
                 height = Data.JumpHeight;
                 timeToApex = Data.JumpTimeToApex;
             }
-            
+
             float[] jumpData = Data.CalculateJumpForce(height, timeToApex, _inUseGravity.y);
 
             _jumpForce = jumpData[0];
@@ -487,32 +471,6 @@ namespace Topacai.Player.Movement
             }
         }
 
-        protected virtual void Crouch()
-        {
-            RigidbodyInterpolation originalInter = _rb.interpolation;
-            CollisionDetectionMode originalDetection = _rb.collisionDetectionMode;
-            _rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
-            _rb.interpolation = RigidbodyInterpolation.None;
-
-            Bounds bounds = GetComponent<Renderer>().bounds;
-            _crouchPivotPos = new Vector3(bounds.center.x, bounds.min.y, bounds.center.z);
-            Vector3 scaleFactor = Vector3.one;
-
-            if (!IsCrouched)
-            {
-                IsCrouched = true;
-                scaleFactor = new Vector3(1f, 0.5f, 1f);
-            }
-            else
-            {
-                IsCrouched = false;
-                scaleFactor = new Vector3(1f, 2f, 1f);
-            }
-
-            Transforms.ScaleRelativeToPivot(transform, scaleFactor, _crouchPivotPos);
-            _rb.interpolation = originalInter;
-            _rb.collisionDetectionMode = originalDetection;
-        }
         #endregion
 
         #region Movement
@@ -727,12 +685,12 @@ namespace Topacai.Player.Movement
             float accelRate;
             bool desaccel = Vector3.Dot(flatVel.normalized, _moveDir) < -0.75f || TargetSpeed.magnitude == 0f;
 
-            accelRate = desaccel ? 
+            accelRate = desaccel ?
                 (
-                    Data.StopAndDesaccel ? 
-                    _decelerationAmount : TargetSpeed.magnitude == 0f ? 
+                    Data.StopAndDesaccel ?
+                    _decelerationAmount : TargetSpeed.magnitude == 0f ?
                     _stopDesaccelAmount : _decelerationAmount
-                ) : 
+                ) :
                 _accelerationAmount;
 
             if (!_InGround && Data.AirMovement)
@@ -862,7 +820,6 @@ namespace Topacai.Player.Movement
         protected virtual void OnDrawGizmos()
         {
             Gizmos.color = Color.blue;
-            Gizmos.DrawCube(_crouchPivotPos, Vector3.one * 0.1f);
             if (!GIZMOS) return;
             if (_groundT != null)
             {
