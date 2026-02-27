@@ -7,6 +7,7 @@ using Topacai.Player.Movement.Components;
 
 using Topacai.Inputs;
 using Topacai.Utils;
+using Topacai.TDebug;
 
 namespace Topacai.Player.Movement.Firstperson.Components.Crouch
 {
@@ -29,10 +30,21 @@ namespace Topacai.Player.Movement.Firstperson.Components.Crouch
 
         private bool _suscribed = false;
 
+        private Vector3 _initialPlayerScale;
+        private Vector3[] _initialChildrenScales;
+
         private void Start()
         {
             if (_useOwnInput)
                 _switchKeyHolder = new(_ownInputAction, !_holdInput);
+
+            _initialPlayerScale = _movement.transform.localScale;
+
+            _initialChildrenScales = new Vector3[_preserveScale.Length];
+            for (int i = 0; i < _preserveScale.Length; i++)
+            {
+                _initialChildrenScales[i] = _preserveScale[i].localScale;
+            }
         }
 
         protected override void OnDisable()
@@ -115,10 +127,10 @@ namespace Topacai.Player.Movement.Firstperson.Components.Crouch
 
         #endregion
 
-        public virtual void Crouch()
+
+
+        public virtual void SetHeightScale(float ratio)
         {
-            /// detection and interpolation mode are handled because sometimes crouch is
-            /// perform on air or not able to scale due to rigidbody physics
             RigidbodyInterpolation originalInter = _movement.Rigidbody.interpolation;
             CollisionDetectionMode originalDetection = _movement.Rigidbody.collisionDetectionMode;
             _movement.Rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
@@ -127,24 +139,41 @@ namespace Topacai.Player.Movement.Firstperson.Components.Crouch
             Bounds bounds = _movement.PlayerBrain.GetComponent<Renderer>().bounds;
             Vector3 _crouchPivotPos = new Vector3(bounds.center.x, bounds.min.y, bounds.center.z);
 
-            float multiplier = _isCrouching ? (1f / crouchHeightRatio) : crouchHeightRatio;
-            Vector3 scaleFactor = new Vector3(1f, multiplier, 1f);
-            _isCrouching = !_isCrouching;
+            float targetY = _initialPlayerScale.y * ratio;
+            Vector3 targetScale = new Vector3(_initialPlayerScale.x, targetY, _initialPlayerScale.z);
+
+            Vector3 currentScale = _movement.transform.localScale;
+            Vector3 scaleFactor = new Vector3(
+                targetScale.x / currentScale.x,
+                targetScale.y / currentScale.y,
+                targetScale.z / currentScale.z
+            );
+
             Transforms.ScaleRelativeToPivot(_movement.transform, scaleFactor, _crouchPivotPos);
 
             _movement.Rigidbody.interpolation = originalInter;
             _movement.Rigidbody.collisionDetectionMode = originalDetection;
 
             /// calculate new scale for any child that are marked to preserve their original size
-            foreach (Transform child in _preserveScale)
+            for (int i = 0; i < _preserveScale.Length; i++)
             {
-                Vector3 currentScale = child.localScale;
-                child.localScale = new Vector3(
-                    currentScale.x / scaleFactor.x,
-                    currentScale.y / scaleFactor.y,
-                    currentScale.z / scaleFactor.z
-                );
+                if (_preserveScale[i] != null)
+                {
+                    Vector3 newScale = _initialChildrenScales[i];
+                    newScale.y = _initialChildrenScales[i].y / ratio;
+                    _preserveScale[i].localScale = newScale;
+                }
             }
+        }
+
+        public virtual void Crouch()
+        {
+            SetHeightScale(_isCrouching ? 1 : crouchHeightRatio);
+            _isCrouching = !_isCrouching;
+
+            Debugcanvas.Instance.AddTextToDebugLog("crouch", $"{_isCrouching}");
+
+
         }
 
         public virtual void Crouch(bool state)
@@ -152,18 +181,6 @@ namespace Topacai.Player.Movement.Firstperson.Components.Crouch
             if (_isCrouching == state) return;
 
             Crouch();
-        }
-
-        private void Update()
-        {
-
-        }
-
-
-
-        protected virtual void CrouchInputs()
-        {
-
         }
 
     }
