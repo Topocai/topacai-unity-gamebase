@@ -19,6 +19,9 @@ namespace Topacai.Player.Movement.Firstperson.Components.Crouch
         [SerializeField] private bool _holdInput;
         [SerializeField] private InputAction _ownInputAction;
 
+        [Tooltip("Put here any child on player that has to conserve their scale when crouching, like visuals")]
+        [SerializeField] private Transform[] _preserveScale;
+
         private SwitchKey _switchKeyHolder;
 
         private bool _isCrouching = false;
@@ -113,7 +116,8 @@ namespace Topacai.Player.Movement.Firstperson.Components.Crouch
 
         public virtual void Crouch()
         {
-            Debug.Log("crouch log");
+            /// detection and interpolation mode are handled because sometimes crouch is
+            /// perform on air or not able to scale due to rigidbody physics
             RigidbodyInterpolation originalInter = _movement.Rigidbody.interpolation;
             CollisionDetectionMode originalDetection = _movement.Rigidbody.collisionDetectionMode;
             _movement.Rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
@@ -128,11 +132,21 @@ namespace Topacai.Player.Movement.Firstperson.Components.Crouch
 
             _movement.Rigidbody.interpolation = originalInter;
             _movement.Rigidbody.collisionDetectionMode = originalDetection;
+
+            /// calculate new scale for any child that are marked to preserve their original size
+            foreach (Transform child in _preserveScale)
+            {
+                Vector3 currentScale = child.localScale;
+                child.localScale = new Vector3(
+                    currentScale.x / scaleFactor.x,
+                    currentScale.y / scaleFactor.y,
+                    currentScale.z / scaleFactor.z
+                );
+            }
         }
 
         public virtual void Crouch(bool state)
         {
-            Debug.Log($"crouch {state}");
             if (_isCrouching == state) return;
 
             Crouch();
