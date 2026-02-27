@@ -21,6 +21,7 @@ namespace Topacai.Player.Movement.Firstperson.Components.Crouch
 
         [Tooltip("Put here any child on player that has to conserve their scale when crouching, like visuals")]
         [SerializeField] private Transform[] _preserveScale;
+        [SerializeField] private float crouchHeightRatio = 0.5f;
 
         private SwitchKey _switchKeyHolder;
 
@@ -126,7 +127,8 @@ namespace Topacai.Player.Movement.Firstperson.Components.Crouch
             Bounds bounds = _movement.PlayerBrain.GetComponent<Renderer>().bounds;
             Vector3 _crouchPivotPos = new Vector3(bounds.center.x, bounds.min.y, bounds.center.z);
 
-            Vector3 scaleFactor = _isCrouching ? new Vector3(1f, 2f, 1f) : new Vector3(1f, 0.5f, 1f);
+            float multiplier = _isCrouching ? (1f / crouchHeightRatio) : crouchHeightRatio;
+            Vector3 scaleFactor = new Vector3(1f, multiplier, 1f);
             _isCrouching = !_isCrouching;
             Transforms.ScaleRelativeToPivot(_movement.transform, scaleFactor, _crouchPivotPos);
 
