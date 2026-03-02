@@ -239,13 +239,14 @@ namespace Topacai.Static.Colliders
             }
             else if (col is CapsuleCollider capsule)
             {
-                Vector3 pointsCapsule = capsule.transform.up.normalized * (capsule.height - 1f) * 0.5f;
-                GizmosUtils.DrawCapsule(transform.position + pointsCapsule, transform.position - pointsCapsule, capsule.radius, _groupColor);
+                Vector3 centerCapsule = capsule.transform.position + capsule.transform.localRotation * capsule.center;
+                Vector3 pointsCapsule = capsule.transform.up.normalized * (capsule.height - capsule.radius * 2) * 0.5f;
 
+                GizmosUtils.DrawCapsule(centerCapsule + pointsCapsule, centerCapsule - pointsCapsule, capsule.radius, _groupColor);
                 if (_fill)
                 {
-                    Gizmos.DrawSphere(transform.position + pointsCapsule, capsule.radius);
-                    Gizmos.DrawSphere(transform.position - pointsCapsule, capsule.radius);
+                    Gizmos.DrawSphere(centerCapsule + pointsCapsule, capsule.radius);
+                    Gizmos.DrawSphere(centerCapsule - pointsCapsule, capsule.radius);
                 }
             }
             else if (col is MeshCollider meshCol && meshCol.sharedMesh != null)
