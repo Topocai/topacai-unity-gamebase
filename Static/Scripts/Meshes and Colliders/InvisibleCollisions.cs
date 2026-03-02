@@ -51,7 +51,7 @@ namespace Topacai.Static.Colliders
 
                         if (inEditCollisionsMode)
                             SceneVisibilityManager.instance.DisablePicking(go, false);
-                        else 
+                        else
                             SceneVisibilityManager.instance.EnablePicking(go, false);
 
                         EditorUtility.SetDirty(go);
@@ -90,7 +90,7 @@ namespace Topacai.Static.Colliders
                     {
                         EditorUtility.SetDirty(col.gameObject);
                         col.RegisterGroup(true);
-                        
+
                     }
                 }
             }
@@ -239,15 +239,21 @@ namespace Topacai.Static.Colliders
             }
             else if (col is CapsuleCollider capsule)
             {
-                Vector3 pointsCapsule = capsule.transform.up * capsule.height * 0.5f;
-                GizmosUtils.DrawCapsule(capsule.center + pointsCapsule, capsule.center - pointsCapsule, capsule.radius, _groupColor);
+                Vector3 pointsCapsule = capsule.transform.up.normalized * (capsule.height - 1f) * 0.5f;
+                GizmosUtils.DrawCapsule(transform.position + pointsCapsule, transform.position - pointsCapsule, capsule.radius, _groupColor);
+
+                if (_fill)
+                {
+                    Gizmos.DrawSphere(transform.position + pointsCapsule, capsule.radius);
+                    Gizmos.DrawSphere(transform.position - pointsCapsule, capsule.radius);
+                }
             }
             else if (col is MeshCollider meshCol && meshCol.sharedMesh != null)
             {
                 Gizmos.matrix = meshCol.transform.localToWorldMatrix;
                 if (!_fill)
                     Gizmos.DrawWireMesh(meshCol.sharedMesh);
-                else 
+                else
                     Gizmos.DrawMesh(meshCol.sharedMesh);
             }
         }
