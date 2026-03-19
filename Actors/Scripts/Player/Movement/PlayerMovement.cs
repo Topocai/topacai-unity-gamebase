@@ -585,7 +585,7 @@ namespace Topacai.Player.Movement
                 Debug.DrawRay(stepDownStart, Vector3.down * Data.StepDownMinDistance, Color.chocolate, 10f);
 #endif
 
-            if (isStepDownHit)
+            if (isStepDownHit && (LastStepTime - Data.StepBufferTime) < -Data.StepDownWaitForStep)
             {
                 RaycastHit stepDownHit = stepDownHits[0];
 #if UNITY_EDITOR

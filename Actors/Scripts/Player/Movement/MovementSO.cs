@@ -83,9 +83,13 @@ namespace Topacai.Player.Movement
         [EnableField(nameof(StepClimb))] public float StepDepth = 0.5f;
         [Tooltip("Add a higher distance to step up when the player is on a slope")]
         [EnableField(nameof(StepClimb))] public float OnSlopeStepDistanceMultiplier = 1.2f;
+        [Tooltip("EXPERIMENTAL - adds a buffer time between steps")]
+        [EnableField(nameof(StepClimb))] public float StepBufferTime;
         [Space(5)]
         [EnableField(nameof(StepClimb))] public float StepDownDistance = 0.1f;
         [EnableField(nameof(StepClimb)), Range(0.01f, 0.5f)] public float StepDownGroundBuffer = 0.1f;
+        [Tooltip("If a step up was perform inside this time range, an step down would be ignored. Util to avoid upstairs struggling due to step down")]
+        [EnableField(nameof(StepClimb)), Range(0.01f, 1f)] public float StepDownWaitForStep = 0.175f;
         [EnableField(nameof(StepClimb))] public float StepDownForce = 32;
         [EnableField(nameof(StepClimb))] public float StepDownMinDistance = 0.1f;
         [EnableField(nameof(StepClimb))] public float StepDownOffset = 0.05f;
@@ -94,8 +98,6 @@ namespace Topacai.Player.Movement
         [EnableField(nameof(StepClimb))] public float StepMinAngle = 80; //80, greater then slopeAngle
         [Tooltip("Threshold to consider a normal face a step surface. Recommended: >= 0.4")]
         [EnableField(nameof(StepClimb))] public float StepDotThreshold = 0.65f;
-        [Tooltip("EXPERIMENTAL - adds a buffer time between steps")]
-        [EnableField(nameof(StepClimb))] public float StepBufferTime;
 
         [Header("Util")]
         [Range(0.01f, 0.5f)] public float CoyoteTime = .15f;
@@ -126,8 +128,8 @@ namespace Topacai.Player.Movement
 
         public float[] CalculateDynamicValues(float maxSpeed)
         {
-            return new float[] 
-            { 
+            return new float[]
+            {
                 Mathf.Clamp((50 * Acceleration) / maxSpeed, 0.01f, Acceleration),
                 Mathf.Clamp((50 * Deceleration) / maxSpeed, 0.01f, Deceleration),
                 Mathf.Clamp((50 * StopDesaccel) / maxSpeed, 0.01f, StopDesaccel)
@@ -139,7 +141,7 @@ namespace Topacai.Player.Movement
             //Calculate gravity strength using the formula (gravity = 2 * jumpHeight / timeToJumpApex^2) 
             //Calculate jumpForce using the formula (initialJumpVelocity = gravity * timeToJumpApex)
             float GravityStrength = -(2 * height) / (timeToApex * timeToApex);
-            
+
             // JumpForce and GravityScale
             return new float[] { Mathf.Abs(GravityStrength) * timeToApex, GravityStrength / gravityY };
         }
