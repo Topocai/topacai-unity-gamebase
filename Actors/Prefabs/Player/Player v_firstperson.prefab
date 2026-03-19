@@ -516,12 +516,14 @@ MonoBehaviour:
   _stepHeight: {fileID: 6990196419943841137}
   _stepBoxSize: 0.2
   GIZMOS: 1
+  _showStepDownFHit: 0
+  _showStepDownTriggerHit: 0
+  _showStepDownMinDistance: 0
   SHOW_SCREEN_LOGS: 0
   ShowDebug: 0
   <IsJumping>k__BackingField: 0
   <IsJumpApex>k__BackingField: 0
   <IsFalling>k__BackingField: 0
-  <IsCrouched>k__BackingField: 0
   <JumpCutting>k__BackingField: 0
   <IsTryingToJump>k__BackingField: 0
   <WasJumpPressed>k__BackingField: 0

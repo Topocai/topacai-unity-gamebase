@@ -64,9 +64,18 @@ namespace Topacai.Player.Movement
         [Tooltip("The check for step is used as a rectangle-form, this is the size of the rectangle")]
         [Range(0.1f, 0.5f), SerializeField] private float _stepBoxSize = 0.2f;
 
+#if UNITY_EDITOR
         [Header("Debug")]
         [SerializeField] protected bool GIZMOS = false;
+        [SerializeField, ShowField(nameof(GIZMOS))] protected bool _showStepDownFHit = false;
+        [SerializeField, ShowField(nameof(GIZMOS))] protected bool _showStepDownTriggerHit = false;
+        [SerializeField, ShowField(nameof(GIZMOS))] protected bool _showStepDownMinDistance = false;
+        [SerializeField, ShowField(nameof(GIZMOS))] protected bool _showStepDownAllHits = false;
+#endif
+        [Space(10)]
         [SerializeField] protected bool SHOW_SCREEN_LOGS = false;
+        [SerializeField, ShowField(nameof(SHOW_SCREEN_LOGS))] protected bool _logStepDown = false;
+        [Space(10)]
         [SerializeField] protected bool ShowDebug = false;
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool IsJumping { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool IsJumpApex { get; protected set; }
@@ -475,6 +484,13 @@ namespace Topacai.Player.Movement
 
         #region Movement
 
+#if UNITY_EDITOR
+        // Due debug reasons, we store some data about steps on class in order to draw debug
+        Vector3 _stepDownFHitPos;
+        Vector3 _stepDownTriggerPos;
+        RaycastHit[] stepDownHits = new RaycastHit[1];
+#endif
+
         protected void StepClimbHandler()
         {
             LastStepTime -= Time.deltaTime;
@@ -554,24 +570,45 @@ namespace Topacai.Player.Movement
 
             // This works a little weird, maybe better to implement it in a different way.
 
+#if !UNITY_EDITOR
             RaycastHit[] stepDownHits = new RaycastHit[1];
+#endif
             Vector3 downHalfExtents = new Vector3(_stepBoxSize * 0.2f, 0.1f, _stepBoxSize * 0.2f);
             Vector3 stepDownStart = _stepStart.position - Vector3.up * Data.StepDownOffset;
 
             stepDownHits = Physics.BoxCastAll(stepDownStart, downHalfExtents, Vector3.down, Quaternion.LookRotation(Vector3.down), (_stepHeight.position.y - _stepStart.position.y) + Data.StepDownDistance, Data.GroundLayer);
 
             bool isStepDownHit = stepDownHits.Length > 0;
+
+#if UNITY_EDITOR
+            if (_showStepDownMinDistance)
+                Debug.DrawRay(stepDownStart, Vector3.down * Data.StepDownMinDistance, Color.chocolate, 10f);
+#endif
+
             if (isStepDownHit)
             {
-                //Check if the normal of ground is aproximate pointing to and upwards.
-
-                // If the detected step is not the same as the ground player is standing on, return because the collider detected is above the ground.
                 RaycastHit stepDownHit = stepDownHits[0];
-                if (_InGround && stepDownHit.collider != _groundHit.collider) return;
+#if UNITY_EDITOR
+                _stepDownFHitPos = stepDownHit.point;
+#endif
+                bool _sameGround = stepDownHit.collider == _groundHit.collider;
+                bool _sameNormal = Vector3.Distance(stepDownHit.normal, _groundHit.normal) <= 0.1f;
 
+#if UNITY_EDITOR
+                if (SHOW_SCREEN_LOGS && _logStepDown)
+                {
+                    Debugcanvas.Instance.AddTextToDebugLog("step down same collider", (_sameGround).ToString());
+                    Debugcanvas.Instance.AddTextToDebugLog("step down same normal", (_sameNormal).ToString());
+                    Debugcanvas.Instance.AddTextToDebugLog("step down on ground", (_InGround).ToString());
+                    Debugcanvas.Instance.AddTextToDebugLog("step down all three", (_InGround && _sameGround && _sameNormal).ToString());
+                }
+#endif
+                if (_InGround && _sameGround && _sameNormal) return;
                 float distanceFromOrigin = Vector3.Distance(stepDownStart, stepDownHit.point);
+
                 if (distanceFromOrigin < Data.StepDownMinDistance) return;
 
+                //Check if the normal of ground is aproximate pointing to and upwards.
                 Vector3 toPlayer = (transform.position - stepDownHit.point).normalized;
                 float dot = Vector3.Dot(toPlayer, stepDownHit.normal);
 
@@ -585,6 +622,9 @@ namespace Topacai.Player.Movement
 
                 if (Mathf.Abs(angle - 90f) <= 35f) // is looking upwards
                 {
+#if UNITY_EDITOR
+                    _stepDownTriggerPos = _stepDownFHitPos;
+#endif
                     _rb.AddForce(Vector3.up * -Data.StepDownForce, ForceMode.Force);
                 }
             }
@@ -821,6 +861,30 @@ namespace Topacai.Player.Movement
         {
             Gizmos.color = Color.blue;
             if (!GIZMOS) return;
+
+            if (_showStepDownFHit)
+            {
+                Gizmos.color = Color.chocolate;
+                Gizmos.DrawCube(_stepDownFHitPos, Vector3.one * 0.2f);
+            }
+
+            if (_showStepDownTriggerHit)
+            {
+                Gizmos.color = Color.black;
+                Gizmos.DrawCube(_stepDownTriggerPos, Vector3.one * 0.1f);
+            }
+
+            if (_showStepDownAllHits && stepDownHits.Length > 0)
+            {
+                foreach (RaycastHit dhit in stepDownHits)
+                {
+                    Gizmos.color = Color.aliceBlue;
+                    Gizmos.DrawCube(dhit.point, Vector3.one * 0.08f);
+                }
+            }
+
+            Gizmos.color = Color.blue;
+
             if (_groundT != null)
             {
                 if (_InGround)
