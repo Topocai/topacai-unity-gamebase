@@ -163,13 +163,6 @@ namespace Topacai.Player.Movement
         protected virtual void Awake()
         {
             Data = Instantiate(_defaultData);
-        }
-
-        public void SetPlayerBrain(PlayerBrain playerBrain) => _playerBrain = playerBrain;
-
-        protected override void Start()
-        {
-            base.Start();
 
             _playerBrain = _playerBrain ?? GetComponent<PlayerBrain>();
 
@@ -187,6 +180,13 @@ namespace Topacai.Player.Movement
 
             _playerConfig.MovementController = this;
             _playerBrain.PlayerReferences.RegisterModule(_playerConfig);
+        }
+
+        public void SetPlayerBrain(PlayerBrain playerBrain) => _playerBrain = playerBrain;
+
+        protected override void Start()
+        {
+            base.Start();
 
             MaxSpeed = Data.WalkSpeed;
 

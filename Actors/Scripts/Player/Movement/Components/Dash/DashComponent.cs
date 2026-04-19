@@ -42,8 +42,9 @@ namespace Topacai.Player.Movement.Components
         }
 
         #region Callbacks
-        private void Start()
+        protected override void Start()
         {
+            base.Start();
             LastDashUsage = 0f;
             CooldownTimer = cooldown;
         }

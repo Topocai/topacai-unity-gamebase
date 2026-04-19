@@ -55,7 +55,7 @@ namespace Topacai.Player.Movement.Components
             {
                 data.Components.Add(component);
                 data.StateManager.RegisterState(component.name, component);
-            } 
+            }
             else if (component.Movement != null)
             {
                 RegisterPlayerMovement(component.Movement);
@@ -99,8 +99,8 @@ namespace Topacai.Player.Movement.Components
                     StateManager = new MovementStateManager(),
                     Components = new HashSet<MovementComponent>()
                 });
-            } 
-            else 
+            }
+            else
             {
                 Debug.LogWarning("Movement instance already registered");
             }
@@ -178,11 +178,11 @@ namespace Topacai.Player.Movement.Components
 
         #region Unity Callbacks
 
-        protected virtual void Awake()
+        protected virtual void Start()
         {
             if (_movement == null) return;
 
-            if(!_movements.ContainsKey(_movement))
+            if (!_movements.ContainsKey(_movement))
                 RegisterPlayerMovement(_movement);
 
             RegisterComponent(this);
@@ -190,6 +190,8 @@ namespace Topacai.Player.Movement.Components
 
         protected virtual void OnEnable()
         {
+            if (!Application.isPlaying) return;
+
             if (_movement == null)
             {
                 Debug.LogError($"Component: {gameObject.name} not enabled");
@@ -242,7 +244,7 @@ namespace Topacai.Player.Movement.Components
         }
         #endregion
 
-        
+
     }
 }
 
