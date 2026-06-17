@@ -12,14 +12,16 @@ namespace Topacai.Player.Movement
 {
     public class PlayerMovement : CustomRigidbody
     {
-        public delegate void BeforeWallDetect(ref Vector3 moveDir, ref Vector3 flatVel, ref RaycastHit wallHitInfo);
-        public delegate void AfterDefineAccel(ref Vector3 targetSpeed, ref float accelRate);
-        public delegate void BeforeMove(ref Vector3 finalForce, ref Vector3 moveDir);
+        public delegate void MoveCallback_WallDetected(ref Vector3 moveDir, ref Vector3 flatVel, ref RaycastHit wallHitInfo);
+        public delegate void MoveCallback_AccelerationDef(ref Vector3 targetSpeed, ref float accelRate);
+        public delegate void MoveCallback_FinalCallback(ref Vector3 finalForce, ref Vector3 moveDir);
+
         public delegate void OnGroundChanged(RaycastHit groundData);
 
-        public event BeforeWallDetect OnMoveBeforeWall;
-        public event AfterDefineAccel OnMoveAfterAccel;
-        public event BeforeMove OnBeforeMove;
+        public event MoveCallback_WallDetected WallDetectedCallback;
+        public event MoveCallback_AccelerationDef AccelerationCallback;
+        public event MoveCallback_FinalCallback FinalCallback;
+
         public event OnGroundChanged OnGroundNewData;
 
         public event EventHandler<bool> OnGroundNewState;
@@ -713,7 +715,7 @@ namespace Topacai.Player.Movement
             }
             #endregion
 
-            OnMoveBeforeWall?.Invoke(ref _moveDir, ref flatVel, ref wallHitInfo);
+            WallDetectedCallback?.Invoke(ref _moveDir, ref flatVel, ref wallHitInfo);
 
             #region Acceleration And Speed
 
@@ -756,7 +758,7 @@ namespace Topacai.Player.Movement
             }
 
             // Event for movement components
-            OnMoveAfterAccel?.Invoke(ref _targetSpeed, ref accelRate);
+            AccelerationCallback?.Invoke(ref _targetSpeed, ref accelRate);
 
             // The speed difference between the desired speed and the current speed is calculated without the Y component to avoid affect the vertical/fall speed
             Vector3 speedDif = TargetSpeed - (onSlope ? _rb.linearVelocity : flatVel);
@@ -791,7 +793,7 @@ namespace Topacai.Player.Movement
 
             base.UseGravity(!onSlope);
 
-            OnBeforeMove?.Invoke(ref appliedForce, ref _moveDir);
+            FinalCallback?.Invoke(ref appliedForce, ref _moveDir);
 
             if (_InGround)
             {

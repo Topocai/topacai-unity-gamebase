@@ -198,9 +198,9 @@ namespace Topacai.Player.Movement.Components
                 return;
             }
 
-            _movement.OnBeforeMove += OnBeforeMoveHandler;
-            _movement.OnMoveBeforeWall += OnMoveBeforeWallHandler;
-            _movement.OnMoveAfterAccel += OnMoveAfterAccelHandler;
+            _movement.FinalCallback += OnBeforeMoveHandler;
+            _movement.WallDetectedCallback += OnMoveBeforeWallHandler;
+            _movement.AccelerationCallback += OnMoveAfterAccelHandler;
             _movement.OnGroundNewData += OnGroundChangedHandler;
 
             if (string.IsNullOrEmpty(_componentStateName))
@@ -211,9 +211,9 @@ namespace Topacai.Player.Movement.Components
 
         protected virtual void OnDisable()
         {
-            _movement.OnBeforeMove -= OnBeforeMoveHandler;
-            _movement.OnMoveBeforeWall -= OnMoveBeforeWallHandler;
-            _movement.OnMoveAfterAccel -= OnMoveAfterAccelHandler;
+            _movement.FinalCallback -= OnBeforeMoveHandler;
+            _movement.WallDetectedCallback -= OnMoveBeforeWallHandler;
+            _movement.AccelerationCallback -= OnMoveAfterAccelHandler;
             _movement.OnGroundNewData -= OnGroundChangedHandler;
         }
 
