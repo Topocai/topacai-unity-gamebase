@@ -5,43 +5,6 @@ using UnityEngine.Events;
 
 namespace Topacai.Player.Movement.Components
 {
-    /// <summary>
-    /// Manages state of movement components
-    /// in order to check if a component is being used or not
-    /// without having to know the class of the component just by name state
-    /// </summary>
-    public class MovementStateManager
-    {
-        private Dictionary<string, MovementComponent> _registeredStates = new Dictionary<string, MovementComponent>();
-
-        /// <summary>
-        /// Checks for the state of a component only when it is called.
-        /// If the component is not registered, it will return false
-        /// </summary>
-        /// <param name="stateName">The registered name of the component</param>
-        /// <returns></returns>
-        public bool GetState(string stateName)
-        {
-            if (_registeredStates.TryGetValue(stateName.ToLower(), out MovementComponent state))
-                /// To check if a component is being used correctly it has to
-                /// override the IsUsing method from the base class
-                return state.IsUsing();
-            else
-                return false;
-        }
-
-        public void RegisterState(string stateName, MovementComponent state)
-        {
-            _registeredStates.TryAdd(stateName.ToLower(), state);
-        }
-    }
-
-    public struct MovementData
-    {
-        public MovementStateManager StateManager;
-        public HashSet<MovementComponent> Components;
-    }
-
     public class MovementComponent : MonoBehaviour
     {
         private static Dictionary<PlayerMovement, MovementData> _Movements = new();
@@ -61,7 +24,7 @@ namespace Topacai.Player.Movement.Components
                 RegisterPlayerMovement(component.Movement);
 
                 _Movements[component.Movement].Components.Add(component);
-                _Movements[component.Movement].StateManager.RegisterState(component.name, component);
+                _Movements[component.Movement].StateManager.RegisterState(component._componentStateName, component);
             }
             else
             {
@@ -124,7 +87,7 @@ namespace Topacai.Player.Movement.Components
         protected bool CheckState(string stateName) => _currentManager.GetState(stateName);
         protected bool InConflict(string[] states)
         {
-            if (_incompatibleStates.Length == 0) return false;
+            if (states.Length == 0) return false;
 
             foreach (string state in states)
             {
