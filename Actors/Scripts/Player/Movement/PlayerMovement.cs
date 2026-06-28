@@ -1,20 +1,29 @@
+using System;
+using System.Reflection;
 
 using UnityEngine;
+
 using EditorAttributes;
-using System.Reflection;
-using Topacai.Utils;
+
+#if UNITY_EDITOR
+using Topacai.TDebug;
+#endif
+
 using Topacai.CustomPhysics;
 using Topacai.Inputs;
-using Topacai.TDebug;
-using System;
-
 using Topacai.Player.Movement.Components;
 
 namespace Topacai.Player.Movement
 {
     public class PlayerMovement : CustomRigidbody
     {
+        /// <summary>
+        /// Small event called when groundHitData is changed through it property
+        /// </summary>
         public event EventHandler<bool> OnGroundNewState;
+        /// <summary>
+        /// Small event called when TargetSpeed is changed through it property
+        /// </summary>
         public event EventHandler<float> OnTargetSpeedChanged;
 
         [Header("References")]
@@ -77,14 +86,12 @@ namespace Topacai.Player.Movement
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool WasJumpPressed { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool IsJumpPressed { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool GroundIsTerrain { get; protected set; }
-        /*[field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))]*/
+
         public float LastGroundTime { get; protected set; }
-        /*[field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))]*/
         public float LastPressedJump { get; protected set; }
-        /*[field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))]*/
         public float LastStepTime { get; protected set; }
-        /*[field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))]*/
         public float LastJumpApex { get; protected set; }
+
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public float InitialPlayerHeight { get; protected set; }
         [field: SerializeField, ReadOnly, ShowField(nameof(ShowDebug))] public bool ClimbingStair { get; protected set; }
 
