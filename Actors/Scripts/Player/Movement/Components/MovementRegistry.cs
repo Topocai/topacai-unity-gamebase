@@ -20,6 +20,20 @@ namespace Topacai.Player.Movement.Components
 
         #region Invoke Handler
 
+        public static void InvokeFirstCallback(PlayerMovement movement, ref Vector3 moveDir, ref Vector3 flatVel, ref Vector3 targetSpeed)
+        {
+            if (!_Movements.TryGetValue(movement, out var data))
+                return;
+
+            foreach (var component in data.FirstCall)
+            {
+                if (!component.IsEnabled)
+                    continue;
+
+                component.OnFirstCallInternal(ref moveDir, ref flatVel, ref targetSpeed);
+            }
+        }
+
         public static void InvokeFinallCalback(PlayerMovement movement, ref Vector3 finalForce, ref Vector3 moveDir)
         {
             if (!_Movements.TryGetValue(movement, out var data))
@@ -39,7 +53,7 @@ namespace Topacai.Player.Movement.Components
             if (!_Movements.TryGetValue(movement, out var data))
                 return;
 
-            foreach (var component in data.BeforeMove)
+            foreach (var component in data.AfterAcceleration)
             {
                 if (!component.IsEnabled)
                     continue;
@@ -53,7 +67,7 @@ namespace Topacai.Player.Movement.Components
             if (!_Movements.TryGetValue(movement, out var data))
                 return;
 
-            foreach (var component in data.BeforeMove)
+            foreach (var component in data.BeforeAcceleration)
             {
                 if (!component.IsEnabled)
                     continue;
@@ -67,7 +81,7 @@ namespace Topacai.Player.Movement.Components
             if (!_Movements.TryGetValue(movement, out var data))
                 return;
 
-            foreach (var component in data.BeforeMove)
+            foreach (var component in data.GroundChanged)
             {
                 if (!component.IsEnabled)
                     continue;

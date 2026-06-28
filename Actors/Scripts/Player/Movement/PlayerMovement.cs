@@ -650,6 +650,9 @@ namespace Topacai.Player.Movement
                 _moveDir = GetSlopeMoveDirection();
 
             TargetSpeed = _moveDir * MaxSpeed;
+
+            MovementRegistry.InvokeFirstCallback(this, ref _moveDir, ref flatVel, ref _targetSpeed);
+
             TargetSpeed = Vector3.Lerp(flatVel, TargetSpeed, 1);
 
             #endregion

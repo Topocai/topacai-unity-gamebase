@@ -47,6 +47,17 @@ namespace Topacai.Player.Movement.Components
         #region Movement Events
 
         /// <summary>
+        /// Called before calculated dynamic values, calcualted target speed with moveDir and receibed inputs but before any other change
+        /// any change to move direction or desired speed should be here
+        /// </summary>
+        /// <param name="finalForce">Final calculated force</param>
+        /// <param name="moveDir">Final calculated direction</param> <summary>
+        internal void OnFirstCallInternal(ref Vector3 moveDir, ref Vector3 flatVel, ref Vector3 targetSpeed)
+        {
+            OnFirstCall(ref moveDir, ref flatVel, ref targetSpeed);
+        }
+
+        /// <summary>
         /// Called just before the final calculated force will be applied by PlayerMovement
         /// </summary>
         /// <param name="finalForce">Final calculated force</param>
@@ -88,6 +99,7 @@ namespace Topacai.Player.Movement.Components
             OnGroundChanged(groundData);
         }
 
+        protected virtual void OnFirstCall(ref Vector3 moveDir, ref Vector3 flatVel, ref Vector3 targetSpeed) { }
         protected virtual void OnBeforeMove(ref Vector3 finalForce, ref Vector3 moveDir) { }
         protected virtual void OnBeforeAcceleration(ref Vector3 targetSpeed, ref Vector3 flatVel, ref Vector3 moveDir) { }
         protected virtual void OnMoveAfterAccel(ref Vector3 targetSpeed, ref float accelRate) { }
