@@ -7,68 +7,6 @@ namespace Topacai.Player.Movement.Components
 {
     public class MovementComponent : MonoBehaviour
     {
-        private static Dictionary<PlayerMovement, MovementData> _Movements = new();
-
-        protected static Dictionary<PlayerMovement, MovementData> _movements => _Movements;
-
-        #region Register Components
-        protected static void RegisterComponent(MovementComponent component)
-        {
-            if (_Movements.TryGetValue(component.Movement, out MovementData data))
-            {
-                data.Components.Add(component);
-                data.StateManager.RegisterState(component.name, component);
-            }
-            else if (component.Movement != null)
-            {
-                RegisterPlayerMovement(component.Movement);
-
-                _Movements[component.Movement].Components.Add(component);
-                _Movements[component.Movement].StateManager.RegisterState(component._componentStateName, component);
-            }
-            else
-            {
-                Debug.LogWarning("Movement instance in component is null");
-            }
-        }
-
-        protected static object GetRegisteredComponentOfType(PlayerMovement movement, System.Type typeObject)
-        {
-            if (_Movements.TryGetValue(movement, out MovementData data))
-            {
-                foreach (MovementComponent component in data.Components)
-                {
-                    if (component.GetType() == typeObject)
-                    {
-                        return component;
-                    }
-                }
-                Debug.LogWarning("Movement Component not found");
-            }
-            else
-            {
-                Debug.LogWarning("Movement instance not found");
-            }
-
-            return null;
-        }
-
-        protected static void RegisterPlayerMovement(PlayerMovement movement)
-        {
-            if (!_Movements.ContainsKey(movement))
-            {
-                _Movements.Add(movement, new MovementData()
-                {
-                    StateManager = new MovementStateManager(),
-                    Components = new HashSet<MovementComponent>()
-                });
-            }
-            else
-            {
-                Debug.LogWarning("Movement instance already registered");
-            }
-        }
-        #endregion
 
         #region Instance Data
 
@@ -76,6 +14,7 @@ namespace Topacai.Player.Movement.Components
         [Header("Component Setup")]
         [SerializeField] protected PlayerMovement _movement;
         [SerializeField] protected string _componentStateName;
+        [SerializeField] protected int _priority = 0;
 
         [HideInInspector, SerializeField] protected string[] _incompatibleStates = new string[0];
 
@@ -83,9 +22,9 @@ namespace Topacai.Player.Movement.Components
         public string[] GetIncompatibleStates() => _incompatibleStates;
 
         /// PROPERTIES
-        protected MovementStateManager _currentManager => _Movements[_movement].StateManager;
-        protected bool CheckState(string stateName) => _currentManager.GetState(stateName);
-        protected bool InConflict(string[] states)
+        protected virtual MovementStateManager _currentManager => MovementRegistry.GetStateManager(_movement);
+        protected virtual bool CheckState(string stateName) => _currentManager.GetState(stateName);
+        protected virtual bool InConflict(string[] states)
         {
             if (states.Length == 0) return false;
 
@@ -99,6 +38,9 @@ namespace Topacai.Player.Movement.Components
 
         public PlayerMovement Movement => _movement;
         public virtual bool IsEnabled => this.enabled;
+        public int Priority => _priority;
+
+        public string ComponentStateName => _componentStateName;
 
         #endregion
 
@@ -145,10 +87,7 @@ namespace Topacai.Player.Movement.Components
         {
             if (_movement == null) return;
 
-            if (!_movements.ContainsKey(_movement))
-                RegisterPlayerMovement(_movement);
-
-            RegisterComponent(this);
+            MovementRegistry.RegisterComponent(this);
         }
 
         protected virtual void OnEnable()
