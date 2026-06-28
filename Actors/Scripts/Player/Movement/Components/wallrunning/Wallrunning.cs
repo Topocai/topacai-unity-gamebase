@@ -154,7 +154,7 @@ namespace Topacai.Player.Movement.Components.Wallrunning
             /// also avoid detecting the previous wall if the player didn't touch the ground before
             /// so the player doesn't get stuck on the wall
             /// Checks first for the left side and then for the right side if on left side there is no wall
-        
+
             if (_wallDelayTimer > 0f && !_isWallRunning)
             {
                 return;
@@ -235,7 +235,7 @@ namespace Topacai.Player.Movement.Components.Wallrunning
                 if (SHOW_GIZMOS)
                     Debug.DrawRay(_wallHit.transform.position, playerWallRunDir.normalized, Color.blue, 1f);
 #endif
-                
+
                 StartWallRunning(playerWallRunDir, _duration, rightSide);
             }
             else if (!isHittingWall && _isWallRunning)
@@ -293,7 +293,7 @@ namespace Topacai.Player.Movement.Components.Wallrunning
 
         protected override void OnMoveAfterAccel(ref Vector3 targetSpeed, ref float accelRate)
         {
-            if(!_isWallRunning) return;
+            if (!_isWallRunning) return;
 
             targetSpeed = runDirection.normalized * targetSpeed.magnitude;
 
@@ -326,7 +326,7 @@ namespace Topacai.Player.Movement.Components.Wallrunning
                 Vector3 toWallDir = !IsRightSide ? Vector3.Cross(runDirection, Vector3.up) : Vector3.Cross(Vector3.up, runDirection);
                 Movement.Rigidbody.position = Vector3.Lerp(Movement.Rigidbody.position, Movement.Rigidbody.position + toWallDir.normalized * _stickDistance, 0.01f);
 #if UNITY_EDITOR
-                if(SHOW_LOGS)
+                if (SHOW_LOGS)
                     Debugcanvas.Instance.AddTextToDebugLog("wall closing", "", 0.1f);
 #endif
             }
@@ -355,9 +355,8 @@ namespace Topacai.Player.Movement.Components.Wallrunning
             }
         }
 
-        public override void Disable()
+        public virtual void Disable()
         {
-            base.Disable();
             StopWallRunning();
         }
 

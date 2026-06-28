@@ -1,21 +1,20 @@
 {
-    "name": "Topacai.Player.Movement.Components.Grip",
-    "rootNamespace": "Topacai.Player.Movement.Components.Grip",
-    "references": [
-        "Topacai",
-        "EditorAttributes",
-        "Topacai.Player.Movement",
-        "Topacai.Player.Movement.Components",
-        "Topacai.TDebug",
-        "Unity.InputSystem"
-    ],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+  "name": "Topacai.Player.Movement.Components.Grip",
+  "rootNamespace": "Topacai.Player.Movement.Components.Grip",
+  "references": [
+    "Topacai",
+    "EditorAttributes",
+    "Topacai.Player.Movement",
+    "Topacai.TDebug",
+    "Unity.InputSystem"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
 }

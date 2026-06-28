@@ -34,8 +34,10 @@ namespace Topacai.Player.Movement.Firstperson.Components.Crouch
         private Vector3 _initialPlayerScale;
         private Vector3[] _initialChildrenScales;
 
-        private void Start()
+        protected override void Start()
         {
+            base.Start();
+
             if (_useOwnInput)
                 _switchKeyHolder = new(_ownInputAction, !_holdInput);
 
@@ -48,20 +50,16 @@ namespace Topacai.Player.Movement.Firstperson.Components.Crouch
             }
         }
 
-        protected override void OnDisable()
+        protected virtual void OnDisable()
         {
-            base.OnDisable();
-
             if (!Application.isPlaying) return;
 
             _switchKeyHolder?.Disable();
             DesuscribeToSwitcheable();
         }
 
-        protected override void OnEnable()
+        protected virtual void OnEnable()
         {
-            base.OnEnable();
-
             if (!Application.isPlaying) return;
 
             _switchKeyHolder?.Enable();

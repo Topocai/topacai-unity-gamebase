@@ -1,20 +1,19 @@
 {
-    "name": "Topacai.Player.Movement.Components.Plan",
-    "rootNamespace": "Topacai.Player.Movement.Components.Plan",
-    "references": [
-        "Topacai",
-        "Topacai.Player.Movement",
-        "Topacai.Player.Movement.Components",
-        "Unity.InputSystem",
-        "EditorAttributes"
-    ],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+  "name": "Topacai.Player.Movement.Components.Plan",
+  "rootNamespace": "Topacai.Player.Movement.Components.Plan",
+  "references": [
+    "Topacai",
+    "Topacai.Player.Movement",
+    "Unity.InputSystem",
+    "EditorAttributes"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
 }

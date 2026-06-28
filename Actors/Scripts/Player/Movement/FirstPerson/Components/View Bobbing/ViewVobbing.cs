@@ -19,8 +19,10 @@ namespace Topacai.Player.Movement.Firstperson.Components.CameraEffects
         private Vector3 initialPos;
         private float time;
 
-        private void Start()
+        protected override void Start()
         {
+            base.Start();
+
             if (cameraHolder == null || cameraTransform == null || Data == null || _movement == null)
             {
                 Debug.LogError("CameraStepShake: Missing references");
@@ -51,9 +53,8 @@ namespace Topacai.Player.Movement.Firstperson.Components.CameraEffects
                 cameraTransform.LookAt(FocusTarget());
         }
 
-        protected override void OnDisable()
+        protected virtual void OnDisable()
         {
-            base.OnDisable();
             cameraHolder.localPosition = initialPos;
         }
 

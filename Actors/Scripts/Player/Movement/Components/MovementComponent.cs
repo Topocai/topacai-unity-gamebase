@@ -14,7 +14,7 @@ namespace Topacai.Player.Movement.Components
         [Header("Component Setup")]
         [SerializeField] protected PlayerMovement _movement;
         [SerializeField] protected string _componentStateName;
-        [SerializeField] protected int _priority = 0;
+        [SerializeField] protected MovementPriority _prorityTable;
 
         [HideInInspector, SerializeField] protected string[] _incompatibleStates = new string[0];
 
@@ -38,7 +38,7 @@ namespace Topacai.Player.Movement.Components
 
         public PlayerMovement Movement => _movement;
         public virtual bool IsEnabled => this.enabled;
-        public int Priority => _priority;
+        public MovementPriority Priority => _prorityTable;
 
         public string ComponentStateName => _componentStateName;
 
@@ -46,37 +46,53 @@ namespace Topacai.Player.Movement.Components
 
         #region Movement Events
 
-        private void OnMoveBeforeWallHandler(ref Vector3 moveDir, ref Vector3 flatVel, ref RaycastHit wallHitInfo)
+        /// <summary>
+        /// Called just before the final calculated force will be applied by PlayerMovement
+        /// </summary>
+        /// <param name="finalForce">Final calculated force</param>
+        /// <param name="moveDir">Final calculated direction</param> <summary>
+        internal void OnBeforeMoveInternal(ref Vector3 finalForce, ref Vector3 moveDir)
         {
-            if (!enabled) return;
-            OnMoveBeforeWall(ref moveDir, ref flatVel, ref wallHitInfo);
-        }
-
-        protected virtual void OnMoveBeforeWall(ref Vector3 moveDir, ref Vector3 flatVel, ref RaycastHit wallHitInfo) { }
-
-        private void OnMoveAfterAccelHandler(ref Vector3 targetSpeed, ref float accelRate)
-        {
-            if (!enabled) return;
-            OnMoveAfterAccel(ref targetSpeed, ref accelRate);
-        }
-
-        protected virtual void OnMoveAfterAccel(ref Vector3 targetSpeed, ref float accelRate) { }
-
-        private void OnBeforeMoveHandler(ref Vector3 finalForce, ref Vector3 moveDir)
-        {
-            if (!enabled) return;
             OnBeforeMove(ref finalForce, ref moveDir);
         }
 
-        protected virtual void OnBeforeMove(ref Vector3 finalForce, ref Vector3 moveDir) { }
-
-        private void OnGroundChangedHandler(RaycastHit groundData)
+        /// <summary>
+        /// Called before calculated acceleration and desaceleration rate
+        /// </summary>
+        /// <param name="targetSpeed">Current target speed</param>
+        /// <param name="flatVel">Current velocity on movement rigidbody</param>
+        /// <param name="moveDir">Calculated movement direction</param>
+        internal void OnBeforeAccelerationInternal(ref Vector3 targetSpeed, ref Vector3 flatVel, ref Vector3 moveDir)
         {
-            if (!enabled) return;
+            OnBeforeAcceleration(ref targetSpeed, ref flatVel, ref moveDir);
+        }
+
+
+        /// <summary>
+        /// Called after acceleration/desaceleration were calculated
+        /// </summary>
+        /// <param name="targetSpeed">actual target speed</param>
+        /// <param name="accelRate">accel rate calculated to be used on this frame</param>
+        internal void OnMoveAfterAccelInternal(ref Vector3 targetSpeed, ref float accelRate)
+        {
+            OnMoveAfterAccel(ref targetSpeed, ref accelRate);
+        }
+
+
+        /// <summary>
+        /// when any change on ground data, such as player is not anymore on ground or ground has changed this would be called
+        /// </summary>
+        /// <param name="groundData"></param>
+        internal void OnGroundChangedInternal(RaycastHit groundData)
+        {
             OnGroundChanged(groundData);
         }
 
+        protected virtual void OnBeforeMove(ref Vector3 finalForce, ref Vector3 moveDir) { }
+        protected virtual void OnBeforeAcceleration(ref Vector3 targetSpeed, ref Vector3 flatVel, ref Vector3 moveDir) { }
+        protected virtual void OnMoveAfterAccel(ref Vector3 targetSpeed, ref float accelRate) { }
         protected virtual void OnGroundChanged(RaycastHit groundData) { }
+
         #endregion
 
         #region Instance Methods
@@ -90,46 +106,7 @@ namespace Topacai.Player.Movement.Components
             MovementRegistry.RegisterComponent(this);
         }
 
-        protected virtual void OnEnable()
-        {
-            if (!Application.isPlaying) return;
-
-            if (_movement == null)
-            {
-                Debug.LogError($"Component: {gameObject.name} not enabled");
-                return;
-            }
-
-            _movement.FinalCallback += OnBeforeMoveHandler;
-            _movement.WallDetectedCallback += OnMoveBeforeWallHandler;
-            _movement.AccelerationCallback += OnMoveAfterAccelHandler;
-            _movement.OnGroundNewData += OnGroundChangedHandler;
-
-            if (string.IsNullOrEmpty(_componentStateName))
-                _componentStateName = this.ToString();
-
-            Debug.Log($"Component: {gameObject.name} enabled");
-        }
-
-        protected virtual void OnDisable()
-        {
-            _movement.FinalCallback -= OnBeforeMoveHandler;
-            _movement.WallDetectedCallback -= OnMoveBeforeWallHandler;
-            _movement.AccelerationCallback -= OnMoveAfterAccelHandler;
-            _movement.OnGroundNewData -= OnGroundChangedHandler;
-        }
-
         #endregion
-
-        public virtual void Enable()
-        {
-            enabled = true;
-        }
-
-        public virtual void Disable()
-        {
-            enabled = false;
-        }
 
         /// <summary>
         /// Override to share the component status in the state manager

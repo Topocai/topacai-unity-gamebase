@@ -1,20 +1,19 @@
 {
-    "name": "Topacai.Player.Movement.Components.Dash",
-    "rootNamespace": "Topacai.Player.Movement.Components.Dash",
-    "references": [
-        "Topacai",
-        "EditorAttributes",
-        "Topacai.Player.Movement",
-        "Topacai.Player.Movement.Components",
-        "Unity.InputSystem"
-    ],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+  "name": "Topacai.Player.Movement.Components.Dash",
+  "rootNamespace": "Topacai.Player.Movement.Components.Dash",
+  "references": [
+    "Topacai",
+    "EditorAttributes",
+    "Topacai.Player.Movement",
+    "Unity.InputSystem"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
 }
