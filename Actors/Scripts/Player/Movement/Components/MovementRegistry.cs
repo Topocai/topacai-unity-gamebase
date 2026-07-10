@@ -111,6 +111,10 @@ namespace Topacai.Player.Movement.Components
             data.GroundChanged.Sort(
                 (a, b) => a.Priority.GroundChanged.CompareTo(b.Priority.GroundChanged)
             );
+
+            data.FirstCall.Sort(
+                 (a, b) => a.Priority.FirstCall.CompareTo(b.Priority.FirstCall)
+            );
         }
 
         /// <summary>
@@ -143,6 +147,7 @@ namespace Topacai.Player.Movement.Components
             data.BeforeAcceleration.Add(component);
             data.GroundChanged.Add(component);
             data.Components.Add(component);
+            data.FirstCall.Add(component);
 
             SortComponents(data);
         }
