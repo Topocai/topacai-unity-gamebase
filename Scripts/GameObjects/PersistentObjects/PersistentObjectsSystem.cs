@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Topacai.Managers.GM;
+using Topacai.Managers.GM.Scenes;
 using Topacai.Utils.SaveSystem;
 
 using UnityEditor;

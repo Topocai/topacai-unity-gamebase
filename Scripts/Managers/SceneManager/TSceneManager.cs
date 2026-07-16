@@ -7,8 +7,11 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
-namespace Topacai.Managers.GM
+namespace Topacai.Managers.GM.Scenes
 {
+    /// <summary>
+    /// EXPERIMENTAL - working but is not efficient yet, is not-structured and has issues
+    /// </summary>
     public class TSceneManager : Singleton<TSceneManager>
     {
         public partial class OnSceneArgs : System.EventArgs
