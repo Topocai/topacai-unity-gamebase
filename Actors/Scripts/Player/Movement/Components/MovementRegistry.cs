@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.Reflection;
-using Unity.Plastic.Antlr3.Runtime;
+
 using UnityEngine;
 
 namespace Topacai.Player.Movement.Components
@@ -146,7 +144,6 @@ namespace Topacai.Player.Movement.Components
             data.BeforeMove.Add(component);
             data.BeforeAcceleration.Add(component);
             data.GroundChanged.Add(component);
-            data.Components.Add(component);
             data.FirstCall.Add(component);
 
             SortComponents(data);
