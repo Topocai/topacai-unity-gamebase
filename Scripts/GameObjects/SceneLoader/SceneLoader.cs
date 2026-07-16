@@ -57,13 +57,13 @@ namespace Topacai.Static.GameObjects.Scenes
 
         [Header("Range config")]
         [SerializeField, EnableField(nameof(activationType), ActivationType.Range)] private float activationRange = 10f;
-        
+
         private PlayerBrain _Player => PlayerBrain.SINGLEPLAYER_MODE ? PlayerBrain.SP_Player : _player;
         public void SetPlayerBrain(PlayerBrain player) => _player = player;
 
         private bool _inRange = false;
 
-        private System.Action CurrentAction => _selectType == SelectType.SwitchGroups ? 
+        private System.Action CurrentAction => _selectType == SelectType.SwitchGroups ?
             SwitchingAction : _selectType == SelectType.GoToScene ?
             GoToSceneAction : UseGroupAAction;
 
@@ -112,21 +112,21 @@ namespace Topacai.Static.GameObjects.Scenes
 
         private void GoToSceneAction()
         {
-            GameManager.Instance.LoadScene(this, _goToScene, LoadSceneMode.Single);
+            TSceneManager.Instance.LoadScene(this, _goToScene, LoadSceneMode.Single);
         }
 
         private void EnableGroup(string[] scenes)
         {
             if (scenes.Length == 0) return;
 
-            GameManager.Instance.LoadSetOfScenes(this, scenes);
+            TSceneManager.Instance.LoadSetOfScenes(this, scenes);
         }
 
         private void DisableGroup(string[] scenes)
         {
             if (scenes.Length == 0) return;
 
-            GameManager.Instance.UnloadSetOfScenes(this, scenes);
+            TSceneManager.Instance.UnloadSetOfScenes(this, scenes);
         }
 
         private void SwitchGroups(bool groupA)

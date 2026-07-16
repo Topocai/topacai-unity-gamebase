@@ -48,14 +48,14 @@ namespace Topacai.Utils.GameObjects.Persistent
 #else
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 #endif
-        private static void SuscribeToSceneLoaded() => GameManager.OnSceneLoaded.AddListener(OnNewSceneLoaded);
+        private static void SuscribeToSceneLoaded() => TSceneManager.OnSceneLoaded.AddListener(OnNewSceneLoaded);
 
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]
 #else
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 #endif
-        private static void SuscribeToSceneUnload() => GameManager.OnUnloadingScene.AddListener(OnSceneUnloading);
+        private static void SuscribeToSceneUnload() => TSceneManager.OnUnloadingScene.AddListener(OnSceneUnloading);
 
         // SCENE SWITCHING
 
@@ -64,14 +64,14 @@ namespace Topacai.Utils.GameObjects.Persistent
 #else
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 #endif
-        private static void SuscribeToSceneSwitched() => GameManager.OnSceneSwitched.AddListener((_) => { PersistentDataByCategory.Clear(); RecoverAllObjects();  });
+        private static void SuscribeToSceneSwitched() => TSceneManager.OnSceneSwitched.AddListener((_) => { PersistentDataByCategory.Clear(); RecoverAllObjects(); });
 
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]
 #else
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 #endif
-        private static void SuscribeToSceneSwitching() => GameManager.OnSwitchingScene.AddListener((_, _) => SaveAllObjects());
+        private static void SuscribeToSceneSwitching() => TSceneManager.OnSwitchingScene.AddListener((_, _) => SaveAllObjects());
 
         #endregion
 
@@ -87,7 +87,7 @@ namespace Topacai.Utils.GameObjects.Persistent
         /// Same as RecoverAllObjects but filter the objects checked by the new scene loaded
         /// </summary>
         /// <param name="args"></param>
-        private static void OnNewSceneLoaded(GameManager.OnSceneArgs args)
+        private static void OnNewSceneLoaded(TSceneManager.OnSceneArgs args)
         {
             PersistentObjectMonobehaviour[] objects = GameObject.FindObjectsByType<PersistentObjectMonobehaviour>(FindObjectsSortMode.None);
 
@@ -109,7 +109,7 @@ namespace Topacai.Utils.GameObjects.Persistent
             }
         }
 
-        private static void OnSceneUnloading(object sender, GameManager.OnSceneArgs args)
+        private static void OnSceneUnloading(object sender, TSceneManager.OnSceneArgs args)
         {
             PersistentObjectMonobehaviour[] objects = GameObject.FindObjectsByType<PersistentObjectMonobehaviour>(FindObjectsSortMode.None);
 
