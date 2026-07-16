@@ -1,17 +1,11 @@
-using EditorAttributes;
-
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Topacai.Inputs;
+using Topacai.Utils;
 using Topacai.Utils.GameObjects;
-using Topacai.Utils.SaveSystem;
+
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 
 namespace Topacai.Managers.GM
 {
+    public struct ExitingGameBus { }
     public partial class GameManager : Singleton<GameManager>
     {
 #if UNITY_EDITOR
@@ -46,9 +40,16 @@ namespace Topacai.Managers.GM
                 DisableCursor();
         }
 
-        public void ExitGame()
+        public async void ExitGame()
         {
-            SaveSystemClass.CallSaveGameEvent();
+#if UNITY_EDITOR
+            Debug.Log("[GameManager] Exiting game, waiting for listeners to do their job");
+#endif
+            await EventBus.Publish<ExitingGameBus>(default);
+#if UNITY_EDITOR
+            Debug.Log("[GameManager] Exiting complete");
+#endif
+
             Application.Quit();
         }
 
