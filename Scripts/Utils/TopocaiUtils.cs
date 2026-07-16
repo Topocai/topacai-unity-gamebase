@@ -1,7 +1,53 @@
 using UnityEngine;
 
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Linq;
+
 namespace Topacai.Utils
 {
+    /// <summary>
+    /// Event where the broadcaster expects to receibe a fallback from all listeners in an async way
+    /// in order to receive data from them or just wait for all listeners to finish their tasks after emit the event
+    /// </summary>
+    public static class EventBus
+    {
+        private static readonly Dictionary<Type, List<Func<object, Task>>> _handlers = new();
+
+        /// <summary>
+        /// Suscribers must provide a type used to identify the arguments and the event itself, such a class like PlayerDamaged
+        /// if there is no existent event using that type, it will be created on suscribe, but not on publish.
+        /// </summary>
+        /// <param name="handler">Handlers must be asyncronous Task</param>
+        /// <typeparam name="T"></typeparam>
+        public static void Subscribe<T>(Func<T, Task> handler)
+        {
+            var type = typeof(T);
+            if (!_handlers.ContainsKey(type))
+                _handlers[type] = new List<Func<object, Task>>();
+
+            _handlers[type].Add(async (obj) => await handler((T)obj));
+        }
+
+        /// <summary>
+        /// Invokes an event using an "instance" of the desired type
+        /// </summary>
+        /// <param name="message"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static async Task Publish<T>(T message)
+        {
+            var type = typeof(T);
+            if (!_handlers.ContainsKey(type))
+                return;
+
+            IEnumerable<Task> tasks = _handlers[type].Select(h => h(message));
+            await Task.WhenAll(tasks);
+        }
+    }
+
+
     public static class Miscelanius
     {
         // Gets a random Color from an int
