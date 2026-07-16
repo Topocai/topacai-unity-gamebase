@@ -1,9 +1,8 @@
 {
-  "name": "Topacai.Utils.GameObjects.Persistent",
-  "rootNamespace": "Topacai.Utils.GameObjects.Persistent",
+  "name": "Topacai_SceneManager",
+  "rootNamespace": "Topacai.Managers.GM.Scenes",
   "references": [
-    "Topacai",
-    "Topacai_SceneManager"
+    "Topacai"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],
