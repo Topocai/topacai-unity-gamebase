@@ -6,7 +6,8 @@ using UnityEngine;
 namespace Topacai.Managers.GM
 {
     public struct ExitingGameBus { }
-    public partial class GameManager : Singleton<GameManager>
+
+    public class GameManager : Singleton<GameManager>
     {
 #if UNITY_EDITOR
         public void DebugLog(string message) => Debug.Log(message);
