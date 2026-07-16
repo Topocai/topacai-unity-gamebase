@@ -5,6 +5,7 @@ using Topacai.Inputs;
 using Topacai.Utils.GameObjects;
 
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 namespace Topacai.Player
@@ -38,7 +39,30 @@ namespace Topacai.Player
 
     public class PlayerBrain : MonoBehaviour
     {
-        public const bool SINGLEPLAYER_MODE = true;
+        public static UnityEvent<bool> PlayerModeHasChanged = new();
+
+        private static bool SinglePlayerMode = true;
+
+        /// <summary>
+        /// Indicates to PlayerBrain and other system that this game is going to work using only one instance of a player
+        /// </summary>
+        /// <value></value>
+        public static bool SINGLEPLAYER_MODE
+        {
+            get
+            {
+                return SinglePlayerMode;
+            }
+            set
+            {
+                SinglePlayerMode = value;
+#if UNITY_EDITOR
+                string new_mode = value ? "to singleplayer" : "to multiplayer";
+                Debug.Log($"[PlayerSystem] PlayerBrainMode has changed {new_mode}");
+#endif
+                PlayerModeHasChanged?.Invoke(value);
+            }
+        }
 
         protected static PlayerBrain sp_Player;
 
