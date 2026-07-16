@@ -171,6 +171,13 @@ namespace Topacai.Player.Movement
                 this.enabled = false;
                 return;
             }
+        }
+
+        public void SetPlayerBrain(PlayerBrain playerBrain) => _playerBrain = playerBrain;
+
+        protected override void Start()
+        {
+            base.Start();
 
             if (_rb != null)
             {
@@ -179,13 +186,6 @@ namespace Topacai.Player.Movement
 
             _playerConfig.MovementController = this;
             _playerBrain.PlayerReferences.RegisterModule(_playerConfig);
-        }
-
-        public void SetPlayerBrain(PlayerBrain playerBrain) => _playerBrain = playerBrain;
-
-        protected override void Start()
-        {
-            base.Start();
 
             MaxSpeed = Data.WalkSpeed;
 
