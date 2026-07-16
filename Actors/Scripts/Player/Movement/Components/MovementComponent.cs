@@ -13,7 +13,7 @@ namespace Topacai.Player.Movement.Components
         /// FIELDS 
         [Header("Component Setup")]
         [SerializeField] protected PlayerMovement _movement;
-        [SerializeField] protected string _componentStateName;
+        [SerializeField, HideInInspector] protected string _componentStateName;
         [SerializeField] protected MovementPriority _prorityTable;
 
         [HideInInspector, SerializeField] protected string[] _incompatibleStates = new string[0];

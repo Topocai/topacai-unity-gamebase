@@ -26,6 +26,8 @@ namespace Topacai.Player.Movement.Components.Editor
         private const string REGISTRY_RESOURCE_PATH = "MovementComponents";
         private const string REGISTRY_RESOURCE_FILE_NAME = "StatesRegistry";
 
+        private const string COMPONENT_STATE_NAME_PROPERTY = "_componentStateName";
+
         private static MovementStateRegistry _statesRegistry;
 
         /// <summary>
@@ -72,6 +74,29 @@ namespace Topacai.Player.Movement.Components.Editor
         private string _newState = string.Empty;
         private readonly Dictionary<string, bool> _currentStateFlags = new();
 
+        /// <summary>
+        /// adds a custom editor field for _componentStateName field on MovementComponent
+        /// allowing user to only use registered state names on that field
+        /// </summary>
+        protected void CustomStateEntry()
+        {
+            SerializedProperty prop = serializedObject.FindProperty(COMPONENT_STATE_NAME_PROPERTY);
+            List<string> states = _RegisteredStates.ToList();
+
+            if (states.Count == 0)
+            {
+                EditorGUILayout.HelpBox("There is not any registered state.", MessageType.Warning);
+            }
+            else
+            {
+                int currentIndex = Mathf.Max(0, states.IndexOf(prop.stringValue));
+                int newIndex = EditorGUILayout.Popup("Component State Name", currentIndex, states.ToArray());
+                prop.stringValue = states[newIndex];
+
+                serializedObject.ApplyModifiedProperties();
+            }
+        }
+
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
@@ -88,6 +113,10 @@ namespace Topacai.Player.Movement.Components.Editor
             EditorGUILayout.LabelField("Component Settings", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox("Below are the default fields from the MovementComponent.", MessageType.None);
             GUILayout.Space(5);
+
+            CustomStateEntry();
+
+            GUILayout.Space(20);
 
             base.OnInspectorGUI();
         }
