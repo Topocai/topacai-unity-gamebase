@@ -14,20 +14,16 @@ namespace Topacai.Managers.GM
 {
     public partial class GameManager : Singleton<GameManager>
     {
-        
 #if UNITY_EDITOR
         public void DebugLog(string message) => Debug.Log(message);
-        public void ShowLogOnScreen(object sender, string msg, float duration= 0.1f) => Topacai.TDebug.Debugcanvas.Instance.AddTextToDebugLog(sender!=null ? $"{sender.ToString()}" : "GM Log", msg, duration);
+        public void ShowLogOnScreen(object sender, string msg, float duration = 0.1f) => Topacai.TDebug.Debugcanvas.Instance.AddTextToDebugLog(sender != null ? $"{sender.ToString()}" : "GM Log", msg, duration);
 #endif
 
         public static bool IsCursorLocked => Cursor.lockState == CursorLockMode.Locked;
 
-        private void Start()
+        protected void Start()
         {
             DisableCursor();
-            InputHandler._Pause.started += (_) => PauseGame(null, !IsPaused);
-
-            InitializePauseManager();
         }
 
         public static void EnableCursor()
