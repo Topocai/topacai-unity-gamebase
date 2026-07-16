@@ -18,7 +18,7 @@ namespace Topacai.CustomPhysics
         [SerializeField] protected bool _useCustomGravity = false;
         [SerializeField, ShowField(nameof(_useCustomGravity))] protected Vector3 _customGravity = new Vector3(0, -9.81f, 0);
 
-        public static Vector3 Gravity = new Vector3(0, -9.81f, 0);
+        protected static Vector3 Gravity = new Vector3(0, -9.81f, 0);
 
         public Vector3 CustomGravity => _customGravity;
         public bool GravityOn => _gravityOn;
@@ -27,6 +27,20 @@ namespace Topacai.CustomPhysics
         protected event OnApplyGravity _OnBeforeApplyGravity;
 
         protected Rigidbody _rb;
+
+        /// <summary>
+        /// sender will be used on incoming updates
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="gravity"></param>
+        public static void SetGlobalGravity(object sender, Vector3 gravity)
+        {
+#if UNITY_EDITOR
+            Debug.Log("[CustomRigidbody] Global gravity has changed");
+#endif
+            Gravity = gravity;
+        }
+
         protected virtual void Start()
         {
             _rb = GetComponent<Rigidbody>();
@@ -49,7 +63,7 @@ namespace Topacai.CustomPhysics
             if (_rb == null)
             {
                 _rb = GetComponent<Rigidbody>();
-            } 
+            }
             _inUseGravity = _useCustomGravity ? _customGravity : Gravity;
 
             Vector3 finalGravity = _inUseGravity * _gravityScale;
