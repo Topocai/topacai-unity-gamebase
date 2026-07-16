@@ -1,17 +1,18 @@
 {
-  "name": "Topacai.Utils.GameObjects.Persistent",
-  "rootNamespace": "Topacai.Utils.GameObjects.Persistent",
-  "references": [
-    "Topacai",
-    "Topacai_SceneManager"
-  ],
-  "includePlatforms": [],
-  "excludePlatforms": [],
-  "allowUnsafeCode": false,
-  "overrideReferences": false,
-  "precompiledReferences": [],
-  "autoReferenced": true,
-  "defineConstraints": [],
-  "versionDefines": [],
-  "noEngineReferences": false
+    "name": "Topacai.Utils.GameObjects.Persistent",
+    "rootNamespace": "Topacai.Utils.GameObjects.Persistent",
+    "references": [
+        "Topacai",
+        "Topacai_SceneManager",
+        "Topacai_SaveSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

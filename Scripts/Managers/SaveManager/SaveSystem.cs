@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Topacai.Utils.PersistentData;
 using Topacai.Utils.Files;
 
 using UnityEngine;
@@ -22,8 +21,8 @@ namespace Topacai.Utils.SaveSystem
     {
         public static event EventHandler OnSaveGameEvent;
 
-        public static UnityEvent<UserProfile> OnProfileChanged = new ();
-        public static UnityEvent<List<UserProfile>> OnProfilesFetched = new ();
+        public static UnityEvent<UserProfile> OnProfileChanged = new();
+        public static UnityEvent<List<UserProfile>> OnProfilesFetched = new();
 
         public static string SavePath { get; private set; } = "/SaveData";
         public static string ProfilesFileName { get; private set; } = "profiles.json";
@@ -33,7 +32,7 @@ namespace Topacai.Utils.SaveSystem
         public static string SaveFullPath => $"{Application.dataPath}/{SavePath}";
 
         private static List<UserProfile> _profiles => SaveDataManager.GetProfiles();
-        
+
         private static UserProfile _currentProfile;
         public static UserProfile GetCurrentProfile() => _currentProfile;
         public static ref UserProfile GetCurrentProfileRef() => ref _currentProfile;
@@ -47,9 +46,6 @@ namespace Topacai.Utils.SaveSystem
         public static void CallProfileChanged(UserProfile profile)
         {
             OnProfileChanged?.Invoke(profile);
-
-            foreach (var data in Resources.FindObjectsOfTypeAll<PersistentProfileDataSO>())
-                data.OnProfileLoaded();
         }
 
         #region Profile management
@@ -107,7 +103,7 @@ namespace Topacai.Utils.SaveSystem
 
         private static void OnStateModeChanged(PlayModeStateChange playModeState)
         {
-            switch(playModeState)
+            switch (playModeState)
             {
                 case PlayModeStateChange.EnteredEditMode:
                 case PlayModeStateChange.EnteredPlayMode:
@@ -145,7 +141,7 @@ namespace Topacai.Utils.SaveSystem
             }
         }
 
-#endregion
+        #endregion
 
         #region Save and Recovery Data methods
 
@@ -157,9 +153,6 @@ namespace Topacai.Utils.SaveSystem
             ProfileExists();
 
             SaveDataManager.SaveProfile(_currentProfile);
-
-            foreach (var data in Resources.FindObjectsOfTypeAll<PersistentProfileDataSO>())
-                data.OnProfileSaved();
         }
 
         /// <summary>
@@ -184,7 +177,7 @@ namespace Topacai.Utils.SaveSystem
         /// <param name="data"></param>
         /// <param name="fileName"></param>
         /// <param name="subFolder"></param>
-        public static void SaveLevelDataToProfile<T>(T data, string fileName, string subFolder = "") 
+        public static void SaveLevelDataToProfile<T>(T data, string fileName, string subFolder = "")
         {
             ProfileExists();
             string levelName = SceneManager.GetActiveScene().name;
@@ -220,6 +213,6 @@ namespace Topacai.Utils.SaveSystem
             return SaveDataManager.GetProfileData<T>(_currentProfile, fileName, out data, subFolder);
         }
 
-#endregion
+        #endregion
     }
 }

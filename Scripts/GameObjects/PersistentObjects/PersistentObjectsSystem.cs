@@ -81,6 +81,10 @@ namespace Topacai.Utils.GameObjects.Persistent
 
             PersistentDataByCategory.Clear();
             RecoverAllObjects();
+
+            Debug.Log("[PersistentObjectSystem] Reloading all PersistentDataSO at profile changed");
+            foreach (var data in Resources.FindObjectsOfTypeAll<PersistentProfileDataSO>())
+                data.OnProfileLoaded();
         }
 
         /// <summary>
@@ -136,6 +140,10 @@ namespace Topacai.Utils.GameObjects.Persistent
         {
             Debug.Log("[PersistentObjects] Saving all objects");
             SaveAllObjects();
+
+            Debug.Log("[PersistentObjectSystem] Saving all PersistentDataSO");
+            foreach (var data in Resources.FindObjectsOfTypeAll<PersistentProfileDataSO>())
+                data.OnProfileSaved();
         }
 
         public static void SaveAllObjects()

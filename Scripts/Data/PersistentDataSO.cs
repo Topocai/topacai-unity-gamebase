@@ -1,9 +1,10 @@
 using System;
 using System.IO;
 using UnityEngine;
+
 using Topacai.Utils.SaveSystem;
 
-namespace Topacai.Utils.PersistentData
+namespace Topacai.Utils.GameObjects.Persistent
 {
     /// <summary>
     /// Base scriptableObject class that saves all the posible serializable fields
