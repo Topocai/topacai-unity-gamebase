@@ -1,8 +1,9 @@
 using System;
+
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Topacai.Utils.MenuSystem
+namespace Topacai.Managers.MenuSystem
 {
     public class SimplePage : MonoBehaviour, IPage
     {
@@ -63,10 +64,10 @@ namespace Topacai.Utils.MenuSystem
 
         public virtual void Back(PageCallbackArgs callback, IPage page)
         {
-            if (_isBackeable) 
+            if (_isBackeable)
             {
                 CallbackArgs(callback);
-            } 
+            }
         }
 
         public virtual void OnEnterCall(PageCallbackArgs callback)

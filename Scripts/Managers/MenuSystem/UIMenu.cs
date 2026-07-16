@@ -1,17 +1,15 @@
-using EditorAttributes;
-
-using NUnit.Framework;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Topacai.Utils.Editor;
+
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.InputSystem;
+
 using UnityEngine.UIElements;
 
-namespace Topacai.Utils.MenuSystem
+namespace Topacai.Managers.MenuSystem
 {
     [System.Serializable]
     public class UIMenu
@@ -155,7 +153,7 @@ namespace Topacai.Utils.MenuSystem
 
             return n;
         }
-             
+
         public virtual void BackExitAction()
         {
             // BackExitAction listen to back petition, checks if the current view 
@@ -218,7 +216,7 @@ namespace Topacai.Utils.MenuSystem
                 if (_noAvaiblePage != null)
                     MenuDocument.visualTreeAsset = _noAvaiblePage;
             }
-            else if(p.IsLoading)
+            else if (p.IsLoading)
             {
                 p.OnPageUpdated += WaitForPageLoad;
             }

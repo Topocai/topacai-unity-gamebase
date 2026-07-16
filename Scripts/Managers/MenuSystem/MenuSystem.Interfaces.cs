@@ -1,8 +1,8 @@
 using System;
-using UnityEngine;
+
 using UnityEngine.UIElements;
 
-namespace Topacai.Utils.MenuSystem
+namespace Topacai.Managers.MenuSystem
 {
     public partial interface IPage
     {
@@ -15,7 +15,7 @@ namespace Topacai.Utils.MenuSystem
         public void OnEnterCall(PageCallbackArgs args);
     }
 
-    public class PageCallbackArgs 
+    public class PageCallbackArgs
     {
         public object Sender { get; set; }
 

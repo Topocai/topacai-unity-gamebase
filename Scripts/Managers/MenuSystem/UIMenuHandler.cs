@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Topacai.Utils.MenuSystem
+namespace Topacai.Managers.MenuSystem
 {
     public class UIMenuHandler : MonoBehaviour
     {
@@ -9,7 +9,7 @@ namespace Topacai.Utils.MenuSystem
         {
             get
             {
-                if ( _menu == null )
+                if (_menu == null)
                 {
                     _menu = new();
                 }

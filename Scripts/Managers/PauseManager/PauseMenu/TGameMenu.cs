@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-using Topacai.Utils.MenuSystem;
+using Topacai.Managers.MenuSystem;
 
 using UnityEngine;
 using UnityEngine.Events;
@@ -9,6 +9,9 @@ using UnityEngine.UIElements;
 
 namespace Topacai.Managers.GM.PauseSystem.Menu
 {
+    /// <summary>
+    /// EXPERIMENTAL - NOT FINISHED. Implementation of menu system for a pause menu
+    /// </summary>
     public class TGameMenu : UIMenuHandler
     {
         [Header("T Game Menu")]
