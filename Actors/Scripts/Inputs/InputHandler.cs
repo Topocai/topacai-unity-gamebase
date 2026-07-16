@@ -1,6 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+
 using Topacai.Player;
 
 using UnityEngine;
@@ -157,22 +157,6 @@ namespace Topacai.Inputs
         protected static HashSet<SimpleActionHandler> sp_actionHandlers = new();
 
         #endregion
-
-        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool IsRunning;
-        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool RunPressed;
-        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool InstantRun;
-
-        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool IsInteracting;
-        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool InteractPressed;
-        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool InstantInteract;
-
-        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool IsJumping;
-        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool JumpPressed;
-        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool InstantJump;
-
-        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool IsCrouching;
-        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool CrouchPressed;
-        [Obsolete("This property is obsolote, call GetActionHandler with name and check for its values")] public static bool InstantCrouch;
 
         #region Instance - Multiplayer fields 
 
